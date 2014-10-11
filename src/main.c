@@ -72,10 +72,10 @@ int main(int argc, char **argv[]){
 	 /* Configura a escala das coordenadas e tamanho da imagem no display */
 	setDisplayScale(&gameScreenWidth, &gameScreenHeight, &displayWidth, &displayHeight, &displayScale, &scaleW, &scaleH, &scaleX, &scaleY);
 	
-	currentImage = al_load_bitmap("../img/fallout.jpg");
+	currentImage = al_load_bitmap("img/fallout.jpg");
 	pi_drawScaledBitmap(currentImage, 10, 10, 1); // Desenha o bitmap na escala correta
 
-	currentImage = al_load_bitmap("../img/guile.png");
+	currentImage = al_load_bitmap("img/guile.png");
 	pi_drawScaledBitmap(currentImage, 1918, 1078, 0); // Desenha o bitmap na escala correta
 	// Inicio do looping principal
 	
