@@ -10,18 +10,18 @@
 #endif
 
 //----------------------------------------------------------------------
-void setDisplayScale(int *startW, int *startH, int *targetW, int *targetH, float *displayScale){
+void setDisplayScale(int *startW, int *startH, int *targetW, int *targetH, float *displayScale, float *scaleW, float *scaleH){
 	/* Calcula o valor da escala do monitor de acordo
-	   com a resolução inicial e a final e salva na variável displayScale */
+	   com a resolução inicial e a final e salva nas variáveis displayScale, scaleW e scaleH */
 	
 	DEBUG_ON("\ndebug:setDisplayScale\n");
 	// Calcula a proporção da escala
-	float sx = (*targetW / *startW) * 1.0;
-	float sy = (*targetH / *startH) * 1.0;
+	float sx = (float)(*targetW / *startW);
+	float sy = (float)(*targetH / *startH);
 	
 	/* Acha qual é o menor entre sx e sy e calcula a escala.
 	   O cálculo é feito pelo menor valor para evitar que a imagem não ultrapasse os limites do monitor.*/
-	if (sx > sy){
+	if (sx < sy){
 		*displayScale = sx;
 	}
 	else{
@@ -29,12 +29,12 @@ void setDisplayScale(int *startW, int *startH, int *targetW, int *targetH, float
 	}
 	
 	/* Calcula as escalas a serem utilizadas */
-	float scaleW	= *startW * *displayScale;
-	float scaleH	= *startH * *displayScale;
+	*scaleW = *startW * *displayScale;
+	*scaleH = *startH * *displayScale;
 	
 	DEBUG_ON("\ndebug:scale:%f", *displayScale);
-	DEBUG_ON("\ndebug:ScaleW:%f", scaleW);
-	DEBUG_ON("\ndebug:ScaleH:%f", scaleH);
+	DEBUG_ON("\ndebug:ScaleW:%f", *scaleW);
+	DEBUG_ON("\ndebug:ScaleH:%f", *scaleH);
 	DEBUG_ON("\ndebug:displayWidth:%d", *targetW);
 	DEBUG_ON("\ndebug:displayHeight:%d", *targetH);
 	DEBUG_ON("\ndebug:gameScreenWidth:%d", *startW);

@@ -57,6 +57,8 @@ int main(int argc, char **argv[]){
 	al_flip_display();
 	al_rest(3.0);
 	
+	DEBUG_ON("\ndebug:displayScale:%f\n", displayScale);
+	
 	// Termino do programa. Destrói os componentes criados para evitar vazamento de memória.
 	al_destroy_display(display);
 	al_destroy_bitmap(image);
@@ -115,7 +117,7 @@ int pi_setFullScreen(void){
 		return -1;
 	}
 	
-	setDisplayScale(&gameScreenWidth, &gameScreenWidth, &displayWidth, &displayHeight, &displayScale);
+	setDisplayScale(&gameScreenWidth, &gameScreenHeight, &displayWidth, &displayHeight, &displayScale, &scaleW, &scaleH);
 	
 	/* Calcula a proporção da escala 
 	float sx 	= (float)displayWidth / gameScreenWidth;
