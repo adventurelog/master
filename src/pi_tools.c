@@ -8,6 +8,8 @@
 #include "allegro5/allegro_primitives.h"
 #include <stdio.h>
 
+#include "pi_data.h"
+
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
 #define _SET_DEBUG_ON
 #ifdef 	_SET_DEBUG_ON
@@ -22,10 +24,27 @@ ALLEGRO_BITMAP	*displayBuffer;
 ALLEGRO_BITMAP	*telaAventura;
 ALLEGRO_BITMAP	*telaPoderes;
 //======================================================================
-int pi_initAllegroAddons(void){
+int pi_iniScreens(GameScreen *nativeScreen, GameScreen *telaPoderes, GameScreen *telaAventura){
+	/* Inicializa todas as telas principais de desenho do jogo */
 	
-	/* ATENÇÃO! Todos os addons devem ser incializados dentro desta função */
+	(*nativeScreen).canvas	= displayBuffer;
+	(*nativeScreen).x1		= 0;
+	(*nativeScreen).x2		= 1920;
+	(*nativeScreen).y1		= 0;
+	(*nativeScreen).y2		= 1080;
+	(*nativeScreen).width	= 1920;
+	(*nativeScreen).height	= 1080;
+	(*nativeScreen).scaledX	= 1.0;
+	(*nativeScreen).scaledY	= 1.0;
+	(*nativeScreen).scaledW	= 1920.0;
+	(*nativeScreen).scaledH	= 1080.0;
+	(*nativeScreen).DisplayScale = 1.0;
+}
+//----------------------------------------------------------------------
+int pi_iniAllegroAddons(void){
 	
+	/* ATENÇÃO! Todos os addons e estrutura de dados devem ser incializados dentro desta função */
+			
 	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
 	
 	if (!al_init()){
@@ -151,7 +170,7 @@ void setDisplayScale(int *startW, int *startH, int *targetW, int *targetH,
 	return;	
 }
 //----------------------------------------------------------------------
-int pi_setFullScreen(int *displayMode, int *displayWidth, int *displayHeight, int *gameScreenWidth,
+int pi_setFullScreen(GameScreen *nativeScreen, int *displayMode, int *displayWidth, int *displayHeight, int *gameScreenWidth,
 						int *gameScreenHeight){
 	
 	DEBUG_ON("\n----------------------");
@@ -171,7 +190,7 @@ int pi_setFullScreen(int *displayMode, int *displayWidth, int *displayHeight, in
 	display = al_create_display(*displayWidth, *displayHeight); // Cria o display em tela cheia.
 	// Cria o buffer de desenho da tela. Todas as outras imagens são criadas dentro dele, assim basta mudar a escala dele.
 	// e todo o resto é ajustado automaticamente.
-	displayBuffer = al_create_bitmap(*gameScreenWidth, *gameScreenHeight);
+	displayBuffer = al_create_bitmap((*nativeScreen).width, (*nativeScreen).height);
 	
 	if (!display){
 		al_show_native_message_box(display, "Erro", "Erro", "Falha ao inicializar o display!", NULL, ALLEGRO_MESSAGEBOX_ERROR);

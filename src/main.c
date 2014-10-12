@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 #include "pi_tools.h"
+#include "pi_data.h"
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
 #define _SET_DEBUG_ON
@@ -34,6 +35,8 @@ ALLEGRO_BITMAP		*currentImage	= NULL;
 ALLEGRO_BITMAP		*telaAventura	= NULL;
 ALLEGRO_BITMAP		*telaPoderes	= NULL;
 
+GameScreen nativeScreen;
+
 float scaleW, scaleH, displayScale, scaleX, scaleY = 1.0;
 int displayWidth; /* Tela cheia: largura. */
 int displayHeight; /* Tela cheia: altura. */
@@ -53,7 +56,7 @@ int main(int argc, char **argv[]){
 	/* Resolução original do jogo. */
 	int gameScreenWidth = 1920;
 	int gameScreenHeight = 1080;
-
+	
 	/* Modo da resolução da tela
 	* 0: resolução máxima comportada
 	* 1: metade
@@ -62,11 +65,14 @@ int main(int argc, char **argv[]){
 	int displayMode = 0;
 	
 	/* Inicia todos os addons utilizados no jogo. */
-	if (pi_initAllegroAddons() < 0)
+	if (pi_iniAllegroAddons() < 0)
 		return -1;
+
+	pi_iniScreens(&nativeScreen, NULL, NULL);
+	DEBUG_ON("\ndebug:nativeScreen:x2=%d", nativeScreen.x2);
 		
 	/* Inicializa o jogo em tela cheia */
- 	if (pi_setFullScreen(&displayMode, &displayWidth, &displayHeight, &gameScreenWidth, &gameScreenHeight) < 0)
+ 	if (pi_setFullScreen(&nativeScreen, &displayMode, &displayWidth, &displayHeight, &gameScreenWidth, &gameScreenHeight) < 0)
 		return -1;
 		
 	 /* Configura a escala das coordenadas e tamanho da imagem no display */
@@ -76,17 +82,20 @@ int main(int argc, char **argv[]){
 	pi_setTelaAventura(&gameScreenWidth, &gameScreenHeight, &telaA_x1, &telaA_x2, &telaA_y1, &telaA_y2);
 	pi_setTelaPoderes(&gameScreenWidth, &gameScreenHeight, &telaP_x1, &telaP_x2, &telaP_y1, &telaP_y2);
 	
+	//***** Inicio do looping principal
+
 	pi_drawGraphics(NULL, 10, 10, 1, 0); // Limpa o backbuffer
 	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, TELA_AVENTURA); // Desenha o bitmap na escala correta
 	pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, TELA_PODERES); // Desenha o bitmap na escala correta
-	// Inicio do looping principal
+	
 	
 	al_flip_display();
 	al_rest(3.0);
 	
 	DEBUG_ON("\ndebug:displayScale:%f", displayScale);
 	
-	// Termino do programa. Destrói os componentes criados para evitar vazamento de memória.
+	
+	//**** Fim do programa. Destrói os componentes criados para evitar vazamento de memória.
 	al_destroy_display(display);
 	al_destroy_bitmap(displayBuffer);
 	al_destroy_bitmap(currentImage);
