@@ -12,8 +12,7 @@
 #include "allegro5/allegro_primitives.h"
 #include <stdio.h>
 
-#include "pi_display_tools.h"
-#include "pi_transform_tools.h"
+#include "pi_tools.h"
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
 #define _SET_DEBUG_ON
@@ -72,11 +71,8 @@ int main(int argc, char **argv[]){
 	 /* Configura a escala das coordenadas e tamanho da imagem no display */
 	setDisplayScale(&gameScreenWidth, &gameScreenHeight, &displayWidth, &displayHeight, &displayScale, &scaleW, &scaleH, &scaleX, &scaleY);
 	
-	currentImage = al_load_bitmap("img/fallout.jpg");
-	pi_drawScaledBitmap(currentImage, 10, 10, 1); // Desenha o bitmap na escala correta
-
-	currentImage = al_load_bitmap("img/guile.png");
-	pi_drawScaledBitmap(currentImage, 1918, 1078, 0); // Desenha o bitmap na escala correta
+	pi_drawScaledBitmap(al_load_bitmap("img/fallout.jpg"), 10, 10, 1); // Desenha o bitmap na escala correta
+	pi_drawScaledBitmap(al_load_bitmap("img/guile.png"), 1918, 1078, 0); // Desenha o bitmap na escala correta
 	// Inicio do looping principal
 	
 	al_flip_display();
@@ -86,6 +82,7 @@ int main(int argc, char **argv[]){
 	
 	// Termino do programa. Destrói os componentes criados para evitar vazamento de memória.
 	al_destroy_display(display);
+	al_destroy_bitmap(displayBuffer);
 	al_destroy_bitmap(currentImage);
 }
 //======================================================================
@@ -108,7 +105,6 @@ int pi_drawScaledBitmap(ALLEGRO_BITMAP *image, int x, int y, int refresh){
 	al_set_target_backbuffer(display);
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	
-	//al_draw_scaled_bitmap(displayBuffer, 0, 0, al_get_bitmap_width(displayBuffer), al_get_bitmap_height(displayBuffer), 0, 0, scaleW, scaleH, 0);
 	al_draw_bitmap(displayBuffer, 0, 0, 0);
 	return 0;
 }

@@ -6,7 +6,7 @@ CFLAGS=
 
 PKG_CONFIG=`pkg-config --libs allegro-5.0 allegro_image-5.0 allegro_dialog-5.0 allegro_primitives-5.0`
 
-_SRC=main.c pi_display_tools.c pi_transform_tools.c
+_SRC=main.c pi_tools.c
 
 SRC=$(patsubst %,$(SDIR)/%,$(_SRC))
 
