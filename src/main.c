@@ -16,25 +16,40 @@
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
 #define _SET_DEBUG_ON
-#ifdef _SET_DEBUG_ON
+#ifdef 	_SET_DEBUG_ON
 	#define DEBUG_ON printf
 #endif
 #ifndef _SET_DEBUG_ON
 	#define DEBUG_ON //
 #endif
 
-/* display do jogo */
-ALLEGRO_DISPLAY *display = NULL;
+/* flags */
+#define TELA_AVENTURA 1
+#define TELA_PODERES  2
+
+ALLEGRO_DISPLAY 	*display		= NULL; /* display do jogo */
 ALLEGRO_DISPLAY_MODE disp_mode;
-/* buffer de desenho do jogo que possibilita mudar a escala para outra resolução de tela */
-ALLEGRO_BITMAP 	*displayBuffer = NULL;
-ALLEGRO_BITMAP	*currentImage = NULL;
+ALLEGRO_BITMAP 		*displayBuffer	= NULL; /* buffer de desenho do jogo que possibilita mudar a escala para outra resolução de tela */
+ALLEGRO_BITMAP		*currentImage	= NULL;
+ALLEGRO_BITMAP		*telaAventura	= NULL;
+ALLEGRO_BITMAP		*telaPoderes	= NULL;
+
+float scaleW, scaleH, displayScale, scaleX, scaleY = 1.0;
+int displayWidth; /* Tela cheia: largura. */
+int displayHeight; /* Tela cheia: altura. */
+int telaA_x1, telaA_x2, telaA_y1, telaA_y2; /* Dimensões da Tela de Aventura */
+int telaP_x1, telaP_x2, telaP_y1, telaP_y2; /* Dimensões da Tela de Poderes */
 
 //----------------------------------------------------------------------
-int pi_drawScaledBitmap(ALLEGRO_BITMAP *image, int x, int y, int refresh);
+int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, int tela);
+
 //======================================================================
 int main(int argc, char **argv[]){
-
+	
+	DEBUG_ON("\n================================");
+	DEBUG_ON("\ndebug:main():start");
+	DEBUG_ON("\n================================");
+	
 	/* Resolução original do jogo. */
 	int gameScreenWidth = 1920;
 	int gameScreenHeight = 1080;
@@ -45,25 +60,11 @@ int main(int argc, char **argv[]){
 	* al_get_num_display_modes()-1: mínima
 	*/
 	int displayMode = 0;
-
-	float scaleW, scaleH, displayScale, scaleX, scaleY = 1.0;
-	int displayWidth; /* Tela cheia: largura. */
-	int displayHeight; /* Tela cheia: altura. */
 	
-	if (!al_init()){
-		al_show_native_message_box(display, "Erro", "Erro", "Falha ao inicializar o Allegro 5!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+	/* Inicia todos os addons utilizados no jogo. */
+	if (pi_initAllegroAddons() < 0)
 		return -1;
-	}
-	
-	if (!al_init_image_addon()){
-		al_show_native_message_box(display, "Erro", "Erro", "Falha ao inicializar al_init_image_addon!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		return -1;
-	}
-	if (!al_init_primitives_addon()){
-		al_show_native_message_box(display, "Erro", "Erro", "Falha ao inicializar allegro_primitives!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		return -1;
-	}
-	
+		
 	/* Inicializa o jogo em tela cheia */
  	if (pi_setFullScreen(&displayMode, &displayWidth, &displayHeight, &gameScreenWidth, &gameScreenHeight) < 0)
 		return -1;
@@ -71,41 +72,82 @@ int main(int argc, char **argv[]){
 	 /* Configura a escala das coordenadas e tamanho da imagem no display */
 	setDisplayScale(&gameScreenWidth, &gameScreenHeight, &displayWidth, &displayHeight, &displayScale, &scaleW, &scaleH, &scaleX, &scaleY);
 	
-	pi_drawScaledBitmap(al_load_bitmap("img/fallout.jpg"), 10, 10, 1); // Desenha o bitmap na escala correta
-	pi_drawScaledBitmap(al_load_bitmap("img/guile.png"), 1918, 1078, 0); // Desenha o bitmap na escala correta
+	/* Configura a Tela de Aventura de acordo com a resolução do monitor */
+	pi_setTelaAventura(&gameScreenWidth, &gameScreenHeight, &telaA_x1, &telaA_x2, &telaA_y1, &telaA_y2);
+	pi_setTelaPoderes(&gameScreenWidth, &gameScreenHeight, &telaP_x1, &telaP_x2, &telaP_y1, &telaP_y2);
+	
+	pi_drawGraphics(NULL, 10, 10, 1, 0); // Limpa o backbuffer
+	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 100, 10, 1, TELA_AVENTURA); // Desenha o bitmap na escala correta
+	pi_drawGraphics(al_load_bitmap("img/guile.png"), 1000, 500, 1, TELA_PODERES); // Desenha o bitmap na escala correta
 	// Inicio do looping principal
 	
 	al_flip_display();
 	al_rest(3.0);
 	
-	DEBUG_ON("\ndebug:displayScale:%f\n", displayScale);
+	DEBUG_ON("\ndebug:displayScale:%f", displayScale);
 	
 	// Termino do programa. Destrói os componentes criados para evitar vazamento de memória.
 	al_destroy_display(display);
 	al_destroy_bitmap(displayBuffer);
 	al_destroy_bitmap(currentImage);
+
+	DEBUG_ON("\n================================");
+	DEBUG_ON("\ndebug:main():end");
+	DEBUG_ON("\n================================\n");
+
 }
 //======================================================================
-int pi_drawScaledBitmap(ALLEGRO_BITMAP *image, int x, int y, int refresh){
+int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, int tela){
 	
-	DEBUG_ON("\ndebug:drawScaledBitmap\n");	
-	if (!image){
+	DEBUG_ON("\n----------------------");
+	DEBUG_ON("\ndebug:drawGraphics():start");	
+	DEBUG_ON("\n----------------------");
+	DEBUG_ON("\ndebug:tela:%d", tela);	
+
+
+	if (!image && tela != 0){
 		al_show_native_message_box(display, "Erro", "Erro", "Falha ao carregar a imagem!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		//al_destroy_display(display);
 		return -1;
 	}
 	
-	al_set_target_bitmap(displayBuffer);
+	ALLEGRO_BITMAP *target = NULL;
 	
-	if (refresh)
+	/* flags */
+	switch(tela){
+		case TELA_AVENTURA:
+			target = telaAventura;
+			break;
+		case TELA_PODERES:
+			target = telaPoderes;
+			break;
+		default:
+			target = displayBuffer;
+	}
+	
+	al_set_target_bitmap(target);
+	
+	if (refresh){
 		al_clear_to_color(al_map_rgb(0, 0, 0));
+	}
+	if (tela == 0) /* Caso image=null e tela==0, sai da função após ter limpado o buffer */
+			return 0;
 	
 	al_draw_bitmap(image, x, y, 0);
-	
+
+	al_set_target_bitmap(displayBuffer);
+	if (tela == TELA_PODERES) /* Cria uma mascara para a tela de poderes */
+			al_draw_bitmap_region(target, telaP_x1, telaP_y1, telaP_x2, telaP_y2, telaP_x1, telaP_y1, 0);
+	else
+		al_draw_bitmap(target, 0, 0, 0);
+
 	al_set_target_backbuffer(display);
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	
 	al_draw_bitmap(displayBuffer, 0, 0, 0);
+
+	DEBUG_ON("\ndebug:drawGraphics():end");	
+
 	return 0;
 }
 //----------------------------------------------------------------------

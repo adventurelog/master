@@ -12,6 +12,8 @@
 	
 	extern ALLEGRO_DISPLAY *display;
 	extern ALLEGRO_BITMAP *displayBuffer;
+	extern ALLEGRO_BITMAP *telaAventura;
+	extern ALLEGRO_BITMAP *telaPoderes;
 #endif
 
 int pi_setFullScreen(int *displayMode, int *displayWidth, int *displayHeight, int *gameScreenWidth,
@@ -19,3 +21,9 @@ int pi_setFullScreen(int *displayMode, int *displayWidth, int *displayHeight, in
 
 void setDisplayScale(int *startW, int *startH, int *targetW, int *targetH,
 					float *displayScale, float *scaleW, float *scaleH, float *scaleX, float *scaleY);
+
+int pi_setTelaAventura(int *gameScreenWidth, int *gameScreenHeight, int *telaA_x1, int *telaA_x2, int *telaA_y1, int *telaA_y2);
+int pi_setTelaPoderes(int *gameScreenWidth, int *gameScreenHeight, int *telaP_x1, int *telaP_x2, int *telaP_y1, int *telaP_y2);
+
+int pi_initAllegroAddons(void);
+
