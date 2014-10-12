@@ -77,8 +77,8 @@ int main(int argc, char **argv[]){
 	pi_setTelaPoderes(&gameScreenWidth, &gameScreenHeight, &telaP_x1, &telaP_x2, &telaP_y1, &telaP_y2);
 	
 	pi_drawGraphics(NULL, 10, 10, 1, 0); // Limpa o backbuffer
-	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 100, 10, 1, TELA_AVENTURA); // Desenha o bitmap na escala correta
-	pi_drawGraphics(al_load_bitmap("img/guile.png"), 1000, 500, 1, TELA_PODERES); // Desenha o bitmap na escala correta
+	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, TELA_AVENTURA); // Desenha o bitmap na escala correta
+	pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, TELA_PODERES); // Desenha o bitmap na escala correta
 	// Inicio do looping principal
 	
 	al_flip_display();

@@ -67,7 +67,7 @@ int pi_setTelaAventura(int *gameScreenWidth, int *gameScreenHeight, int *telaA_x
 	}
 	
 	al_set_target_bitmap(telaAventura);
-	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_clear_to_color(al_map_rgb(100, 50, 200));
 	
 	DEBUG_ON("\ndebug:telaA_x2:%d", *telaA_x2);
 	DEBUG_ON("\ndebug:telaA_y2:%d", *telaA_y2);
@@ -98,7 +98,7 @@ int pi_setTelaPoderes(int *gameScreenWidth, int *gameScreenHeight, int *telaP_x1
 	}
 	
 	al_set_target_bitmap(telaPoderes);
-	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_clear_to_color(al_map_rgb(200, 50, 100));
 	
 	DEBUG_ON("\ndebug:telaP_x2:%d", *telaP_x1);
 	DEBUG_ON("\ndebug:telaP_y2:%d", *telaP_y2);
