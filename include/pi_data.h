@@ -1,12 +1,13 @@
 #ifndef PI_DATA
 	#define PI_DATA
 	#include <allegro5/allegro.h>
-	
+
+/*	
 	extern ALLEGRO_DISPLAY *display;
 	extern ALLEGRO_BITMAP *displayBuffer;
 	extern ALLEGRO_BITMAP *telaAventura;
 	extern ALLEGRO_BITMAP *telaPoderes;
-
+*/
 	#define TELA_AVENTURA 1
 	#define TELA_PODERES  2
 	#define NATIVE_SCREEN 3

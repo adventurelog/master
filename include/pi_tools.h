@@ -10,12 +10,13 @@
 	#define PI_TOOLS
 	#include <allegro5/allegro.h>
 	#include "pi_data.h"
-	
+/*	
 	extern ALLEGRO_DISPLAY *display;
 	extern ALLEGRO_BITMAP *displayBuffer;
 	extern ALLEGRO_BITMAP *telaAventura;
 	extern ALLEGRO_BITMAP *telaPoderes;
 	extern GameScreen gameScreen;
+*/
 #endif
 
 int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *gameDisplay);

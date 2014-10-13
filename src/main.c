@@ -24,8 +24,6 @@
 	#define DEBUG_ON //
 #endif
 
-ALLEGRO_BITMAP		*currentImage	= NULL;
-
 //----------------------------------------------------------------------
 int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, GameScreen *tela, GameScreen *nativeScreen, GameDisplay *display);
 
@@ -73,7 +71,7 @@ int main(int argc, char **argv[]){
 	//**** Fim do programa. Destrói os componentes criados para evitar vazamento de memória.
 	al_destroy_display(gameDisplay.display);
 	al_destroy_bitmap(nativeScreen.canvas);
-	al_destroy_bitmap(currentImage);
+	//al_destroy_bitmap(currentImage);
 
 	DEBUG_ON("\n================================");
 	DEBUG_ON("\ndebug:main():end");
