@@ -18,15 +18,13 @@
 	extern GameScreen gameScreen;
 #endif
 
-int pi_setFullScreen(GameScreen *nativeScreen, int *displayMode, int *displayWidth, int *displayHeight, int *gameScreenWidth,
-						int *gameScreenHeight);
+int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *gameDisplay);
 
-void setDisplayScale(int *startW, int *startH, int *targetW, int *targetH,
-					float *displayScale, float *scaleW, float *scaleH, float *scaleX, float *scaleY);
+void pi_setDisplayScale(GameScreen *nativeScreen, GameDisplay *display);
 
-int pi_setTelaAventura(int *gameScreenWidth, int *gameScreenHeight, int *telaA_x1, int *telaA_x2, int *telaA_y1, int *telaA_y2);
-int pi_setTelaPoderes(int *gameScreenWidth, int *gameScreenHeight, int *telaP_x1, int *telaP_x2, int *telaP_y1, int *telaP_y2);
+int pi_setTelaAventura(GameScreen *nativeScreen, GameScreen *telaAventura, GameDisplay *display);
+int pi_setTelaPoderes(GameScreen *nativeScreen, GameScreen *telaPoderes, GameDisplay *display);
 
-int pi_iniAllegroAddons(void);
+int pi_iniAllegroAddons(GameDisplay *display);
 
 int pi_iniScreens(GameScreen *nativeScreen, GameScreen *telaPoderes, GameScreen *telaAventura);
