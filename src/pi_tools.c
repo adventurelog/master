@@ -8,6 +8,7 @@
 #include "allegro5/allegro_primitives.h"
 #include <stdio.h>
 
+
 #include "pi_data.h"
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
@@ -18,32 +19,49 @@
 #ifndef _SET_DEBUG_ON
 	#define DEBUG_ON //
 #endif
-/*
-ALLEGRO_DISPLAY	*display;
-ALLEGRO_BITMAP	*displayBuffer;
-ALLEGRO_BITMAP	*telaAventura;
-ALLEGRO_BITMAP	*telaPoderes;
-*/
+
+//======================================================================
+int pi_iniBackground(BGImageStream *bg, int layer){
+	
+	if (layer == LAYER_BG_FULL){
+		bg->tileCount = 21;
+		bg->id = 1;
+	}
+}
+//======================================================================
+int pi_loadBackground(BGImageStream *bg, int layer){
+	int count = bg->tileCount - 1;
+	//char fileNamePrefix[], dirPath[];
+	
+	if layer == LAYER_BG_FULL{
+		bg->fileNamePrefix[8] = 'bg_full_';
+	}
+	
+	for (i = 0; i <= count; i++){
+		//bg->tileSequence[i]->
+	}
+	
+}
 //======================================================================
 int pi_iniScreens(GameScreen *nativeScreen, GameScreen *telaPoderes, GameScreen *telaAventura){
 	/* Inicializa todas as telas principais de desenho do jogo */
 	
-	(*nativeScreen).canvas	= al_create_bitmap(1920, 1080);
-	(*nativeScreen).x1		= 0;
-	(*nativeScreen).x2		= 1920;
-	(*nativeScreen).y1		= 0;
-	(*nativeScreen).y2		= 1080;
-	(*nativeScreen).width	= 1920;
-	(*nativeScreen).height	= 1080;
-	(*nativeScreen).scaledX	= 1.0;
-	(*nativeScreen).scaledY	= 1.0;
-	(*nativeScreen).scaledW	= 1920.0;
-	(*nativeScreen).scaledH	= 1080.0;
-	(*nativeScreen).id		= NATIVE_SCREEN;
+	nativeScreen->canvas	= al_create_bitmap(1920, 1080);
+	nativeScreen->x1		= 0;
+	nativeScreen->x2		= 1920;
+	nativeScreen->y1		= 0;
+	nativeScreen->y2		= 1080;
+	nativeScreen->width		= 1920;
+	nativeScreen->height	= 1080;
+	nativeScreen->scaledX	= 1.0;
+	nativeScreen->scaledY	= 1.0;
+	nativeScreen->scaledW	= 1920.0;
+	nativeScreen->scaledH	= 1080.0;
+	nativeScreen->id		= NATIVE_SCREEN;
 	
-	(*telaAventura).id = TELA_AVENTURA;
+	telaAventura->id = TELA_AVENTURA;
 
-	(*telaPoderes).id = TELA_PODERES;	
+	telaPoderes->id	 = TELA_PODERES;
 }
 //----------------------------------------------------------------------
 int pi_iniAllegroAddons(GameDisplay *display){
@@ -75,22 +93,22 @@ int pi_setTelaAventura(GameScreen *nativeScreen, GameScreen *telaAventura, GameD
 
 	DEBUG_ON("\n----debug:setTelaAventura():start");
 	
-	(*telaAventura).x1 = 0;
-	(*telaAventura).x2 = ((*nativeScreen).width / 3) * 2;
-	(*telaAventura).y1 = 0;
-	(*telaAventura).y2 = (*nativeScreen).height;
+	telaAventura->x1 = 0;
+	telaAventura->x2 = (nativeScreen->width / 3) * 2;
+	telaAventura->y1 = 0;
+	telaAventura->y2 = nativeScreen->height;
 	
-	(*telaAventura).canvas = al_create_bitmap((*telaAventura).x2, (*telaAventura).y2);
-	if (!(*telaAventura).canvas){
+	telaAventura->canvas = al_create_bitmap(telaAventura->x2, telaAventura->y2);
+	if (!telaAventura->canvas){
 		al_show_native_message_box((*display).display, "Erro", "Erro", "Falha ao inicializar a Tela de Aventura!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 	
-	al_set_target_bitmap((*telaAventura).canvas);
+	al_set_target_bitmap(telaAventura->canvas);
 	al_clear_to_color(al_map_rgb(100, 50, 200));
 	
-	DEBUG_ON("\ndebug:telaAventura:x2:%d", (*telaAventura).x2);
-	DEBUG_ON("\ndebug:telaAventura:y2:%d", (*telaAventura).y2);
+	DEBUG_ON("\ndebug:telaAventura:x2:%d", telaAventura->x2);
+	DEBUG_ON("\ndebug:telaAventura:y2:%d", telaAventura->y2);
 	DEBUG_ON("\n----debug:setTelaAventura():end\n");
 	
 	return 0;
@@ -102,29 +120,29 @@ int pi_setTelaPoderes(GameScreen *nativeScreen, GameScreen *telaPoderes, GameDis
 
 	DEBUG_ON("\n----debug:setTelaPoderes():start");
 	
-	(*telaPoderes).x1 = (((*nativeScreen).width / 3) * 2);
-	(*telaPoderes).x2 = (*nativeScreen).width;
-	(*telaPoderes).width = (*nativeScreen).width - (((*nativeScreen).width / 3) * 2);
-	(*telaPoderes).y1 = (*nativeScreen).y1;
-	(*telaPoderes).y2 = (*nativeScreen).y2;
-	(*telaPoderes).height = (*nativeScreen).height;
+	telaPoderes->x1 	= ((nativeScreen->width / 3) * 2);
+	telaPoderes->x2 	= nativeScreen->width;
+	telaPoderes->width 	= nativeScreen->width - ((nativeScreen->width / 3) * 2);
+	telaPoderes->y1 	= nativeScreen->y1;
+	telaPoderes->y2 	= nativeScreen->y2;
+	telaPoderes->height = nativeScreen->height;
 	
-	(*telaPoderes).canvas = al_create_bitmap((*nativeScreen).width, (*nativeScreen).height);
-	if (!(*telaPoderes).canvas){
-		al_show_native_message_box((*display).display, "Erro", "Erro", "Falha ao inicializar a Tela de Poderes!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+	telaPoderes->canvas = al_create_bitmap(nativeScreen->width, nativeScreen->height);
+	if (!telaPoderes->canvas){
+		al_show_native_message_box(display->display, "Erro", "Erro", "Falha ao inicializar a Tela de Poderes!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 	
-	al_set_target_bitmap((*telaPoderes).canvas);
+	al_set_target_bitmap(telaPoderes->canvas);
 	al_clear_to_color(al_map_rgb(0, 0, 0)); // limpa a tela
 
-	al_set_clipping_rectangle((*telaPoderes).x1, (*telaPoderes).y1, (*telaPoderes).width, (*telaPoderes).height);
+	al_set_clipping_rectangle(telaPoderes->x1, telaPoderes->y1, telaPoderes->width, telaPoderes->height);
 	al_clear_to_color(al_map_rgb(200, 50, 100));
 	
 	
 	
-	DEBUG_ON("\ndebug:telaPoderes:x1:%d", (*telaPoderes).x1);
-	DEBUG_ON("\ndebug:telaPoderes:y1:%d", (*telaPoderes).y1);
+	DEBUG_ON("\ndebug:telaPoderes:x1:%d", telaPoderes->x1);
+	DEBUG_ON("\ndebug:telaPoderes:y1:%d", telaPoderes->y1);
 	DEBUG_ON("\n----debug:setTelaPoderes():end\n");
 	
 	return 0;
@@ -138,21 +156,21 @@ void pi_setDisplayScale(GameScreen *nativeScreen, GameDisplay *gameDisplay){
 	// Calcula a proporção da escala
 	float scaledX, scaledY;
 	
-	scaledX = (float)((*gameDisplay).width)  / (*nativeScreen).width;
-	scaledY = (float)((*gameDisplay).height) / (*nativeScreen).height;
+	scaledX = (float)(gameDisplay->width)  / nativeScreen->width;
+	scaledY = (float)(gameDisplay->height) / nativeScreen->height;
 	
 	/* Acha qual é o menor entre sx e sy e calcula a escala.
 	   O cálculo é feito pelo menor valor para evitar que a imagem não ultrapasse os limites do monitor.*/
 	if (scaledX < scaledY){
-		(*gameDisplay).scale = scaledX;
+		gameDisplay->scale = scaledX;
 	}
 	else{
-		(*gameDisplay).scale = scaledX;
+		gameDisplay->scale = scaledX;
 	}
 	
 	/* Calcula as escalas a serem utilizadas */
-	(*nativeScreen).scaledW = (*nativeScreen).width  * (*gameDisplay).scale;
-	(*nativeScreen).scaledH = (*nativeScreen).height * (*gameDisplay).scale;
+	nativeScreen->scaledW = nativeScreen->width  * gameDisplay->scale;
+	nativeScreen->scaledH = nativeScreen->height * gameDisplay->scale;
 	
 	/* Configura as novas escalas para X e Y */
 	
@@ -161,13 +179,13 @@ void pi_setDisplayScale(GameScreen *nativeScreen, GameDisplay *gameDisplay){
 	al_scale_transform(&trans, scaledX, scaledY);
 	al_use_transform(&trans);
 	
-	DEBUG_ON("\ndebug:gameDisplay:scale:%f", 	 (*gameDisplay).scale);
-	DEBUG_ON("\ndebug:nativeScreen:scaledW:%f",  (*nativeScreen).scaledW);
-	DEBUG_ON("\ndebug:nativeScreen:scaledH:%f",  (*nativeScreen).scaledH);
-	DEBUG_ON("\ndebug:gameDisplay:width:%d", 	 (*gameDisplay).width);
-	DEBUG_ON("\ndebug:gameDisplay:height:%d", 	 (*gameDisplay).height);
-	DEBUG_ON("\ndebug:nativeScreen:width:%d", 	 (*nativeScreen).width);
-	DEBUG_ON("\ndebug:nativeScreen:height:%d\n", (*nativeScreen).height);
+	DEBUG_ON("\ndebug:gameDisplay:scale:%f", 	 gameDisplay->scale);
+	DEBUG_ON("\ndebug:nativeScreen:scaledW:%f",  nativeScreen->scaledW);
+	DEBUG_ON("\ndebug:nativeScreen:scaledH:%f",  nativeScreen->scaledH);
+	DEBUG_ON("\ndebug:gameDisplay:width:%d", 	 gameDisplay->width);
+	DEBUG_ON("\ndebug:gameDisplay:height:%d", 	 gameDisplay->height);
+	DEBUG_ON("\ndebug:nativeScreen:width:%d", 	 nativeScreen->width);
+	DEBUG_ON("\ndebug:nativeScreen:height:%d\n", nativeScreen->height);
 	
 	DEBUG_ON("\n----debug:setDisplayScale():end\n");
 	return;	
@@ -184,21 +202,21 @@ int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
 
 	al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 	
-	(*display).width = disp_data.width;
-	(*display).height = disp_data.height;
+	display->width 	= disp_data.width;
+	display->height = disp_data.height;
 
-	(*display).display = al_create_display((*display).width, (*display).height); // Cria o display em tela cheia.
+	display->display = al_create_display(display->width, display->height); // Cria o display em tela cheia.
 	// Cria o buffer de desenho da tela. Todas as outras imagens são criadas dentro dele, assim basta mudar a escala dele.
 	// e todo o resto é ajustado automaticamente.
-	(*nativeScreen).canvas = al_create_bitmap((*nativeScreen).width, (*nativeScreen).height);
+	nativeScreen->canvas = al_create_bitmap(nativeScreen->width, nativeScreen->height);
 	
-	if (!(*display).display){
-		al_show_native_message_box((*display).display, "Erro", "Erro", "Falha ao inicializar o display!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+	if (!display->display){
+		al_show_native_message_box(display->display, "Erro", "Erro", "Falha ao inicializar o display!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 
-	if (!(*nativeScreen).canvas){
-		al_show_native_message_box((*display).display, "Erro", "Erro", "Falha ao inicializar o displayBuffer!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+	if (!nativeScreen->canvas){
+		al_show_native_message_box(display->display, "Erro", "Erro", "Falha ao inicializar o displayBuffer!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 	

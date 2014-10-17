@@ -85,33 +85,33 @@ int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, GameScreen
 	DEBUG_ON("\ndebug:tela:%d", (*tela).id);	
 
 
-	if (!image && (*tela).id != NATIVE_SCREEN){
-		al_show_native_message_box((*display).display, "Erro", "Erro", "Falha ao carregar a imagem!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+	if (!image && tela->id != NATIVE_SCREEN){
+		al_show_native_message_box(display->display, "Erro", "Erro", "Falha ao carregar a imagem!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 	
-	al_set_target_bitmap((*tela).canvas);
+	al_set_target_bitmap(tela->canvas);
 	
 	if (refresh){
 		al_clear_to_color(al_map_rgb(0, 0, 0));
 	}
-	if ((*tela).id == NATIVE_SCREEN) // Caso image=null e tela==0, sai da função após ter limpado o buffer
+	if (tela->id == NATIVE_SCREEN) // Caso image=null e tela==0, sai da função após ter limpado o buffer
 			return 0;
 	
 	al_draw_bitmap(image, x, y, 0);
 	
-	float x1 = (*tela).x1 * 1.0;
-	float x2 = (*tela).x2 * 1.0;
-	float y1 = (*tela).y1 * 1.0;
-	float y2 = (*tela).y2 * 1.0;
+	float x1 = tela->x1 * 1.0;
+	float x2 = tela->x2 * 1.0;
+	float y1 = tela->y1 * 1.0;
+	float y2 = tela->y2 * 1.0;
 	
-	al_set_target_bitmap((*nativeScreen).canvas);
-	al_draw_bitmap((*tela).canvas, 0, 0, 0);
+	al_set_target_bitmap(nativeScreen->canvas);
+	al_draw_bitmap(tela->canvas, 0, 0, 0);
 
-	al_set_target_backbuffer((*display).display);
+	al_set_target_backbuffer(display->display);
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	
-	al_draw_bitmap((*nativeScreen).canvas, 0, 0, 0);
+	al_draw_bitmap(nativeScreen->canvas, 0, 0, 0);
 
 	DEBUG_ON("\n----debug:drawGraphics():end");	
 
