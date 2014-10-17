@@ -39,6 +39,8 @@ int main(int argc, char **argv[]){
 	GameScreen telaPoderes;
 	GameDisplay gameDisplay = {.mode = 0}; // display onde aparecem as telas de Aventura e Poderes
 			
+	BGImageStream bgFull;
+	
 	/* Inicia todos os addons utilizados no jogo. */
 	if (pi_iniAllegroAddons(&gameDisplay) < 0)
 		return -1;
@@ -46,6 +48,9 @@ int main(int argc, char **argv[]){
 	pi_iniScreens(&nativeScreen, &telaAventura, &telaPoderes); // Inicializa as telas do jogo.
 	DEBUG_ON("\ndebug:nativeScreen:x2=%d", nativeScreen.x2);
 		
+	pi_iniBackground(&bgFull, LAYER_BG_FULL);
+	pi_loadBackground(&bgFull);
+	
 	/* Inicializa o jogo em tela cheia */
  	if (pi_setFullScreen(&nativeScreen, &gameDisplay) < 0)
 		return -1;
@@ -64,6 +69,14 @@ int main(int argc, char **argv[]){
 	pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, &telaPoderes, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 	
+	al_flip_display();
+	al_rest(1.0);
+	pi_animateBackground(&bgFull);
+	pi_drawGraphics(bgFull.tileSequence[0].canvas, 0, 0, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
+	al_flip_display();
+	al_rest(1.0);
+	pi_animateBackground(&bgFull);
+	pi_drawGraphics(bgFull.tileSequence[0].canvas, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
 	
 	al_flip_display();
 	al_rest(3.0);
@@ -71,6 +84,8 @@ int main(int argc, char **argv[]){
 	//**** Fim do programa. Destrói os componentes criados para evitar vazamento de memória.
 	al_destroy_display(gameDisplay.display);
 	al_destroy_bitmap(nativeScreen.canvas);
+	al_destroy_bitmap(telaPoderes.canvas);
+	al_destroy_bitmap(telaAventura.canvas);
 	//al_destroy_bitmap(currentImage);
 
 	DEBUG_ON("\n================================");
@@ -82,7 +97,7 @@ int main(int argc, char **argv[]){
 int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, GameScreen *tela, GameScreen *nativeScreen, GameDisplay *display){
 	
 	DEBUG_ON("\n----debug:drawGraphics():start");	
-	DEBUG_ON("\ndebug:tela:%d", (*tela).id);	
+	DEBUG_ON("\ndebug:tela:%d", tela->id);	
 
 
 	if (!image && tela->id != NATIVE_SCREEN){

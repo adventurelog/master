@@ -24,23 +24,67 @@
 int pi_iniBackground(BGImageStream *bg, int layer){
 	
 	if (layer == LAYER_BG_FULL){
-		bg->tileCount = 21;
-		bg->id = 1;
+		bg->tileCount 	= 21;
+		bg->id 			= 1;
+		bg->width 		= 100;
+		bg->height 		= 1022;
+		bg->currentIndex = 0;
+		bg->totalNumImgs = 58;
 	}
+	
+	bg->layer = layer;
+	
+	return 0;
 }
 //======================================================================
-int pi_loadBackground(BGImageStream *bg, int layer){
+int pi_loadBackground(BGImageStream *bg){
+	DEBUG_ON("\n----debug:loadBackground():start");
+
 	int count = bg->tileCount - 1;
-	//char fileNamePrefix[], dirPath[];
+	int i;
+	char fullPath[MAX_FILE_PATH_SIZE];
 	
-	if layer == LAYER_BG_FULL{
-		bg->fileNamePrefix[8] = 'bg_full_';
+	if (bg->layer == LAYER_BG_FULL){
+		bg->fileNamePrefix	= "bg_full_";
+		bg->dirPath			= "img/bg/png/full/";
 	}
 	
 	for (i = 0; i <= count; i++){
-		//bg->tileSequence[i]->
+		sprintf(fullPath, "%s%s%d.png", bg->dirPath, bg->fileNamePrefix, i);
+		DEBUG_ON("\ndebug:loadBackGround:fullFilePath:%s", fullPath);
+		const char *file = fullPath;
+		bg->tileSequence[i].canvas = al_create_bitmap(bg->width, bg->height);
+		//bg->tileSequence[i].canvas = al_load_bitmap(file);
 	}
 	
+	DEBUG_ON("\n----debug:loadBackground():end");
+	return 0;
+}
+//======================================================================
+int pi_animateBackground(BGImageStream *bg){
+	DEBUG_ON("\n----debug:animateBackground():start");
+	int count = bg->tileCount - 1;
+	int index = bg->currentIndex;
+	int i;
+	char fullPath[MAX_FILE_PATH_SIZE];
+	
+	for (i = 0; i <= count; i++){
+		if (index > bg->totalNumImgs - 1)
+			index = 0;	
+			
+		sprintf(fullPath, "%s%s%d.png", bg->dirPath, bg->fileNamePrefix, index);
+		const char *file = fullPath;
+
+		DEBUG_ON("\ndebug:animateBackground():file:%s", fullPath);		
+		bg->tileSequence[i].canvas = al_load_bitmap(file);
+
+		index++;
+	}
+	
+	bg->currentIndex = index;
+	
+	DEBUG_ON("\n----debug:animateBackground():end");
+	return 0;
 }
 //======================================================================
 int pi_iniScreens(GameScreen *nativeScreen, GameScreen *telaPoderes, GameScreen *telaAventura){

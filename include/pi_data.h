@@ -2,6 +2,8 @@
 	#define H_PI_DATA
 	#include <allegro5/allegro.h>
 	
+	#define MAX_FILE_PATH_SIZE 30
+	
 	#define TELA_AVENTURA 1
 	#define TELA_PODERES  2
 	#define NATIVE_SCREEN 3
@@ -47,15 +49,19 @@ typedef struct {
 		int depth;
 		int width;
 		int height;
-		int layer;
 } ImageTile;
 
 typedef struct {
 	int tileCount;
 	int id;
-	char fileNamePrefix[];
-	char dirPath[];
-	ImageTile tileSequence[];
+	int layer;
+	int width;
+	int height;
+	int currentIndex;
+	int totalNumImgs;
+	char *fileNamePrefix;
+	char *dirPath;
+	ImageTile tileSequence[21];
 } BGImageStream;
 
 #endif

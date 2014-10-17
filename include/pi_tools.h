@@ -11,16 +11,15 @@
 	#include <allegro5/allegro.h>
 	#include "pi_data.h"
 
-	int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *gameDisplay);
-
-	void pi_setDisplayScale(GameScreen *nativeScreen, GameDisplay *display);
-
-	int pi_setTelaAventura(GameScreen *nativeScreen, GameScreen *telaAventura, GameDisplay *display);
-	int pi_setTelaPoderes(GameScreen *nativeScreen, GameScreen *telaPoderes, GameDisplay *display);
-
 	int pi_iniAllegroAddons(GameDisplay *display);
 
-	int pi_iniScreens(GameScreen *nativeScreen, GameScreen *telaPoderes, GameScreen *telaAventura);
+	int pi_setFullScreen	(GameScreen *nativeScreen, GameDisplay *gameDisplay);
+	void pi_setDisplayScale	(GameScreen *nativeScreen, GameDisplay *display);
+	int pi_setTelaAventura	(GameScreen *nativeScreen, GameScreen *telaAventura, GameDisplay *display);
+	int pi_setTelaPoderes	(GameScreen *nativeScreen, GameScreen *telaPoderes, GameDisplay *display);
+	int pi_iniScreens		(GameScreen *nativeScreen, GameScreen *telaPoderes, GameScreen *telaAventura);
 
-	int pi_iniBackground(BGImageStream *bg, int layer);
+	int pi_iniBackground	(BGImageStream *bg, int layer);
+	int pi_loadBackground	(BGImageStream *bg);
+	int pi_animateBackground(BGImageStream *bg);
 #endif
