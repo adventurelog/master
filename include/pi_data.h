@@ -19,6 +19,12 @@
 	#define BG_TILE_WIDTH 100 // largura de cada pedaço do fundo a ser carregado
 	#define BG_TILE_HEIGHT 1022 // largura de cada pedaço do fundo a ser carregado
 	
+/*
+  	enum KEYS {
+		KEY_DOWN
+	};
+*/
+	
 typedef struct{
 		ALLEGRO_BITMAP *canvas;
 		int id;

@@ -3,6 +3,7 @@
  * 		https://wiki.allegro.cc/index.php?title=Achieving_Resolution_Independence
  * 		https://wiki.allegro.cc/index.php?title=Allegro_5_Tutorial/Displays
  * 		https://wiki.allegro.cc/index.php?title=Creating_a_fullscreen_display_with_maximum/minimum_resolution
+ * 		https://wiki.allegro.cc/index.php?title=Basic_Keyboard_Example
  * 		
  */
  
@@ -16,7 +17,7 @@
 #include "pi_data.h"
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
-//#define _SET_DEBUG_ON
+#define _SET_DEBUG_ON
 #ifdef 	_SET_DEBUG_ON
 	#define DEBUG_ON printf
 #endif
@@ -37,15 +38,18 @@ int main(int argc, char **argv[]){
 	GameScreen nativeScreen; // tela original do jogo.
 	GameScreen telaAventura;
 	GameScreen telaPoderes;
-	GameDisplay gameDisplay = {.mode = 0}; // display onde aparecem as telas de Aventura e Poderes
-			
+	GameDisplay gameDisplay = {.mode = 0}; // display onde aparecem as telas de Aventura e Poderes		
 	BGImageStream bgFull;
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
+	ALLEGRO_TIMER *gameTimer = NULL;
+	int exitGame = 0, redraw = false;
 	
 	/* Inicia todos os addons utilizados no jogo. */
 	if (pi_iniAllegroAddons(&gameDisplay) < 0)
 		return -1;
-
+	
+	gameTimer = al_create_timer(1.0 / FPS);
+	
 	pi_iniScreens(&nativeScreen, &telaAventura, &telaPoderes); // Inicializa as telas do jogo.
 	DEBUG_ON("\ndebug:nativeScreen:x2=%d", nativeScreen.x2);
 		
@@ -64,21 +68,42 @@ int main(int argc, char **argv[]){
 	pi_setTelaAventura(&nativeScreen, &telaAventura, &gameDisplay);
 	pi_setTelaPoderes(&nativeScreen, &telaPoderes, &gameDisplay);
 	
-	//***** Inicio do looping principal
+	event_queue = al_create_event_queue();
+	al_register_event_source(event_queue, al_get_timer_event_source(gameTimer));
+	al_register_event_source(event_queue, al_get_keyboard_event_source());
 
-	pi_drawGraphics(NULL, 10, 10, REFRESH, &nativeScreen, &nativeScreen, &gameDisplay); // Limpa o backbuffer
-	pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, &telaPoderes, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
-//	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
+	//***** Inicio do looping principal
+	al_start_timer(gameTimer);
 	
-	pi_animateBackground(&bgFull);
-	pi_drawGraphics(bgFull.buffer, 0, 0, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
+	while(!exitGame){
+		
+		ALLEGRO_EVENT event;
+		al_wait_for_event(event_queue, &event);
+		
+		if (event.type == ALLEGRO_EVENT_KEY_DOWN)
+				break;
+		
+		else if (event.type == ALLEGRO_EVENT_TIMER){
+			DEBUG_ON("\ndebug:main():event.type:timer ");
+			pi_drawGraphics(NULL, 10, 10, REFRESH, &nativeScreen, &nativeScreen, &gameDisplay); // Limpa o backbuffer
+			pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, &telaPoderes, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
+		//	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 	
-	al_flip_display();
-//	al_rest(1.0 / FPS);
-	al_rest(3.0);
+			pi_animateBackground(&bgFull);
+			pi_drawGraphics(bgFull.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
+
+			redraw = true;
+		}
+	
+		if (redraw){
+			redraw = false;
+			
+			al_flip_display();
+		}
+	}
 	
 	//**** Fim do programa. Destrói os componentes criados para evitar vazamento de memória.
-	al_destroy_timer(gameDisplay.timer);
+	al_destroy_timer(gameTimer);
 	al_destroy_display(gameDisplay.backbuffer);
 	al_destroy_bitmap(nativeScreen.canvas);
 	al_destroy_bitmap(telaPoderes.canvas);

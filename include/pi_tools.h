@@ -21,8 +21,5 @@
 
 	int pi_iniBackground	(BGImageStream *, int);
 	int pi_loadBackground	(BGImageStream *);
-	int pi_animateBackground(BGImageStream *);
-	
-	int pi_iniEvents(ALLEGRO_EVENT_QUEUE *);
-	
+	int pi_animateBackground(BGImageStream *);	
 #endif

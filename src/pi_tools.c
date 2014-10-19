@@ -12,7 +12,7 @@
 #include "pi_data.h"
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
-//#define _SET_DEBUG_ON
+#define _SET_DEBUG_ON
 #ifdef 	_SET_DEBUG_ON
 	#define DEBUG_ON printf
 #endif
@@ -21,18 +21,9 @@
 #endif
 
 //======================================================================
-int pi_iniEvents(ALLEGRO_EVENT_QUEUE *evQueue){
-	evQueue = al_create_event_queue();
-	if (!evQueue){
-		al_show_native_message_box(display->backbuffer, "Erro!", "EVents:", "Falha ao criar os eventos do jogo", NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		return -1;
-	}
-	
-}
-//----------------------------------------------------------------------
 int pi_iniBackground(BGImageStream *bg, int layer){
 	DEBUG_ON("\n----debug:iniBackground():start");
-	int i, dirX, dirY, spdY, spdX;
+	int i, dirX, dirY, spdY, spdX, offsetX, offsetY;
 	//char fullPath[MAX_FILE_PATH_SIZE];
 
 	bg->layer = layer;
@@ -54,6 +45,8 @@ int pi_iniBackground(BGImageStream *bg, int layer){
 		dirY = 1;
 		spdX = 1;
 		spdY = 0;
+		offsetX = bg->width;
+		offsetY = 0;
 	}
 	
 	int count = bg->tileCount - 1;
@@ -65,8 +58,8 @@ int pi_iniBackground(BGImageStream *bg, int layer){
 		bg->tileSequence[i].canvas 	= al_create_bitmap(bg->width, bg->height);
 		bg->tileSequence[i].width 	= bg->width;
 		bg->tileSequence[i].height 	= bg->height;
-		bg->tileSequence[i].x1		= i * (bg->width);
-		bg->tileSequence[i].y1		= 0;
+		bg->tileSequence[i].x1		= i * offsetX;
+		bg->tileSequence[i].y1		= i * offsetY;
 		bg->tileSequence[i].speedX 	= spdX;
 		bg->tileSequence[i].speedY 	= spdY;
 		bg->tileSequence[i].reload	= 1; 
@@ -118,10 +111,11 @@ int pi_animateBackground(BGImageStream *bg){
 	al_set_target_bitmap(bg->buffer);
 	
 	for (i = 0; i <= count; i++){
-		bg->tileSequence[i].x1 += bg->tileSequence[i].speedX * bg->tileSequence[i].directionX;
-		bg->tileSequence[i].y1 += bg->tileSequence[i].speedY * bg->tileSequence[i].directionY;
+		bg->tileSequence[i].x1 += (bg->tileSequence[i].speedX * bg->tileSequence[i].directionX);
+		bg->tileSequence[i].y1 += (bg->tileSequence[i].speedY * bg->tileSequence[i].directionY);
 		
 		al_draw_bitmap(bg->tileSequence[i].canvas, bg->tileSequence[i].x1, bg->tileSequence[i].y1, 0);
+		DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].x1 = %d", i, bg->tileSequence[i].x1);
 	}
 	
 	// caso o primeiro pedaço do background esteja completamente fora da tela,
@@ -162,11 +156,11 @@ int pi_iniScreens(GameScreen *nativeScreen, GameScreen *telaPoderes, GameScreen 
 }
 //----------------------------------------------------------------------
 int pi_iniAllegroAddons(GameDisplay *display){
+	DEBUG_ON("\n----debug:iniAllegroAddons():start");
 	
 	/* ATENÇÃO! Todos os addons e estrutura de dados devem ser incializados dentro desta função */
 			
 	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-	display->timer = al_create_timer(1.0 / FPS);
 	
 	if (!al_init()){
 		al_show_native_message_box(display->backbuffer, "Erro!", "Allegro 5.x", "Falha ao inicializar o Allegro 5!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
@@ -184,11 +178,8 @@ int pi_iniAllegroAddons(GameDisplay *display){
 		al_show_native_message_box(display->backbuffer, "Erro!", "Keyboard:", "Falha ao inicializar o teclado!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
-	if (!display->timer){
-		al_show_native_message_box(display->backbuffer, "Erro!", "Timer:", "Falha ao criar o timer do jogo", NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		return -1;
-	}
 	
+	DEBUG_ON("\n----debug:iniAllegroAddons():end");
 	return 0;
 }
 //----------------------------------------------------------------------
@@ -317,6 +308,7 @@ int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
 	
 	if (!display->backbuffer){
 		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao inicializar o display!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_destroy_display(display->backbuffer);
 		return -1;
 	}
 
