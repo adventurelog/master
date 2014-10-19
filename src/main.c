@@ -16,7 +16,7 @@
 #include "pi_data.h"
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
-#define _SET_DEBUG_ON
+//#define _SET_DEBUG_ON
 #ifdef 	_SET_DEBUG_ON
 	#define DEBUG_ON printf
 #endif
@@ -40,6 +40,7 @@ int main(int argc, char **argv[]){
 	GameDisplay gameDisplay = {.mode = 0}; // display onde aparecem as telas de Aventura e Poderes
 			
 	BGImageStream bgFull;
+	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 	
 	/* Inicia todos os addons utilizados no jogo. */
 	if (pi_iniAllegroAddons(&gameDisplay) < 0)
@@ -67,22 +68,18 @@ int main(int argc, char **argv[]){
 
 	pi_drawGraphics(NULL, 10, 10, REFRESH, &nativeScreen, &nativeScreen, &gameDisplay); // Limpa o backbuffer
 	pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, &telaPoderes, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
-	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
+//	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
+	
+	pi_animateBackground(&bgFull);
+	pi_drawGraphics(bgFull.buffer, 0, 0, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
 	
 	al_flip_display();
-	al_rest(1.0);
-	pi_animateBackground(&bgFull);
-	pi_drawGraphics(bgFull.tileSequence[0].canvas, 0, 0, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
-	al_flip_display();
-	al_rest(1.0);
-	pi_animateBackground(&bgFull);
-	pi_drawGraphics(bgFull.tileSequence[0].canvas, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
-	
-	al_flip_display();
+//	al_rest(1.0 / FPS);
 	al_rest(3.0);
 	
 	//**** Fim do programa. Destrói os componentes criados para evitar vazamento de memória.
-	al_destroy_display(gameDisplay.display);
+	al_destroy_timer(gameDisplay.timer);
+	al_destroy_display(gameDisplay.backbuffer);
 	al_destroy_bitmap(nativeScreen.canvas);
 	al_destroy_bitmap(telaPoderes.canvas);
 	al_destroy_bitmap(telaAventura.canvas);
@@ -101,7 +98,7 @@ int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, GameScreen
 
 
 	if (!image && tela->id != NATIVE_SCREEN){
-		al_show_native_message_box(display->display, "Erro", "Erro", "Falha ao carregar a imagem!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao carregar a imagem!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 	
@@ -123,7 +120,7 @@ int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, GameScreen
 	al_set_target_bitmap(nativeScreen->canvas);
 	al_draw_bitmap(tela->canvas, 0, 0, 0);
 
-	al_set_target_backbuffer(display->display);
+	al_set_target_backbuffer(display->backbuffer);
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	
 	al_draw_bitmap(nativeScreen->canvas, 0, 0, 0);

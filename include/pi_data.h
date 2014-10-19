@@ -37,7 +37,8 @@ typedef struct{
 // Display onde é armazenado todo o conteúdo atual do jogo, ou seja,
 // é criado um display para cada parte do jogo: menu principal, jogo, pontuação
 typedef struct{
-		ALLEGRO_DISPLAY *display;
+		ALLEGRO_DISPLAY *backbuffer;
+		ALLEGRO_TIMER	*timer;
 		int width;
 		int height;
 		int mode;
@@ -73,6 +74,8 @@ typedef struct {
 	int depth;
 	int currentIndex;
 	int totalNumImgs;
+	int x1;
+	int y1;
 	char *fileNamePrefix;
 	char *dirPath;
 	ImageTile tileSequence[21];

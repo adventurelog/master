@@ -12,7 +12,7 @@
 #include "pi_data.h"
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
-#define _SET_DEBUG_ON
+//#define _SET_DEBUG_ON
 #ifdef 	_SET_DEBUG_ON
 	#define DEBUG_ON printf
 #endif
@@ -21,9 +21,18 @@
 #endif
 
 //======================================================================
+int pi_iniEvents(ALLEGRO_EVENT_QUEUE *evQueue){
+	evQueue = al_create_event_queue();
+	if (!evQueue){
+		al_show_native_message_box(display->backbuffer, "Erro!", "EVents:", "Falha ao criar os eventos do jogo", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		return -1;
+	}
+	
+}
+//----------------------------------------------------------------------
 int pi_iniBackground(BGImageStream *bg, int layer){
 	DEBUG_ON("\n----debug:iniBackground():start");
-	int i;
+	int i, dirX, dirY, spdY, spdX;
 	//char fullPath[MAX_FILE_PATH_SIZE];
 
 	bg->layer = layer;
@@ -40,6 +49,11 @@ int pi_iniBackground(BGImageStream *bg, int layer){
 		bg->fileNamePrefix	= "bg_full_";
 		bg->dirPath			= "img/bg/png/full/";
 		bg->buffer			= al_create_bitmap(bg->width, bg->height);
+		
+		dirX = -1;
+		dirY = 1;
+		spdX = 1;
+		spdY = 0;
 	}
 	
 	int count = bg->tileCount - 1;
@@ -53,19 +67,19 @@ int pi_iniBackground(BGImageStream *bg, int layer){
 		bg->tileSequence[i].height 	= bg->height;
 		bg->tileSequence[i].x1		= i * (bg->width);
 		bg->tileSequence[i].y1		= 0;
-		bg->tileSequence[i].speedX 	= 1;
-		bg->tileSequence[i].speedY 	= 1;
+		bg->tileSequence[i].speedX 	= spdX;
+		bg->tileSequence[i].speedY 	= spdY;
 		bg->tileSequence[i].reload	= 1; 
 		bg->tileSequence[i].rest	= bg->depth;
-		bg->tileSequence[i].directionX 	= 1;
-		bg->tileSequence[i].directionY 	= 1;
+		bg->tileSequence[i].directionX 	= dirX;
+		bg->tileSequence[i].directionY 	= dirY;
 		bg->tileSequence[i].rest_countdown = bg->tileSequence[i].depth;
 	}
 	
 	DEBUG_ON("\n----debug:iniBackground():end");
 	return 0;
 }
-//======================================================================
+//----------------------------------------------------------------------
 int pi_loadBackground(BGImageStream *bg){
 	DEBUG_ON("\n----debug:loadBackground():start");
 
@@ -95,7 +109,7 @@ int pi_loadBackground(BGImageStream *bg){
 	DEBUG_ON("\n----debug:loadBackground():end");
 	return 0;
 }
-//======================================================================
+//----------------------------------------------------------------------
 int pi_animateBackground(BGImageStream *bg){
 	DEBUG_ON("\n----debug:animateBackground():start");
 	
@@ -104,14 +118,28 @@ int pi_animateBackground(BGImageStream *bg){
 	al_set_target_bitmap(bg->buffer);
 	
 	for (i = 0; i <= count; i++){
-		bg->tileSequence[i].x1 -= bg->tileSequence[i].speedX * bg->tileSequence[i].directionX;
-		bg->tileSequence[i].y1 -= bg->tileSequence[i].speedY * bg->tileSequence[i].directionY;
+		bg->tileSequence[i].x1 += bg->tileSequence[i].speedX * bg->tileSequence[i].directionX;
+		bg->tileSequence[i].y1 += bg->tileSequence[i].speedY * bg->tileSequence[i].directionY;
+		
+		al_draw_bitmap(bg->tileSequence[i].canvas, bg->tileSequence[i].x1, bg->tileSequence[i].y1, 0);
+	}
+	
+	// caso o primeiro pedaço do background esteja completamente fora da tela,
+	// incia o processo de deslocamento dos pedaços restantes uma posição à esquerda
+	// no vetor. Dispara também o processo de carregar a imagem no último pedaço (buffer fora da tela)
+	if (bg->tileSequence[i].x1 + bg->tileSequence[i].width <= bg->x1){
+		
+		for (i = 0; i <= count-1; i++){
+			bg->tileSequence[i] = bg->tileSequence[i+1];
+		}
+
+		bg->tileSequence[count].reload = 1;
 	}
 	
 	DEBUG_ON("\n----debug:animateBackground():end");
 	return 0;
 }
-//======================================================================
+//----------------------------------------------------------------------
 int pi_iniScreens(GameScreen *nativeScreen, GameScreen *telaPoderes, GameScreen *telaAventura){
 	/* Inicializa todas as telas principais de desenho do jogo */
 	
@@ -138,18 +166,26 @@ int pi_iniAllegroAddons(GameDisplay *display){
 	/* ATENÇÃO! Todos os addons e estrutura de dados devem ser incializados dentro desta função */
 			
 	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+	display->timer = al_create_timer(1.0 / FPS);
 	
 	if (!al_init()){
-		al_show_native_message_box((*display).display, "Erro", "Erro", "Falha ao inicializar o Allegro 5!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_show_native_message_box(display->backbuffer, "Erro!", "Allegro 5.x", "Falha ao inicializar o Allegro 5!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
-	
 	if (!al_init_image_addon()){
-		al_show_native_message_box((*display).display, "Erro", "Erro", "Falha ao inicializar al_init_image_addon!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_show_native_message_box(display->backbuffer, "Erro!", "Image:", "Falha ao inicializar al_init_image_addon!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 	if (!al_init_primitives_addon()){
-		al_show_native_message_box((*display).display, "Erro", "Erro", "Falha ao inicializar allegro_primitives!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_show_native_message_box(display->backbuffer, "Erro!", "Primitives:", "Falha ao inicializar allegro_primitives!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		return -1;
+	}
+	if (!al_install_keyboard()){
+		al_show_native_message_box(display->backbuffer, "Erro!", "Keyboard:", "Falha ao inicializar o teclado!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		return -1;
+	}
+	if (!display->timer){
+		al_show_native_message_box(display->backbuffer, "Erro!", "Timer:", "Falha ao criar o timer do jogo", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 	
@@ -169,7 +205,7 @@ int pi_setTelaAventura(GameScreen *nativeScreen, GameScreen *telaAventura, GameD
 	
 	telaAventura->canvas = al_create_bitmap(telaAventura->x2, telaAventura->y2);
 	if (!telaAventura->canvas){
-		al_show_native_message_box((*display).display, "Erro", "Erro", "Falha ao inicializar a Tela de Aventura!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao inicializar a Tela de Aventura!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 	
@@ -198,7 +234,7 @@ int pi_setTelaPoderes(GameScreen *nativeScreen, GameScreen *telaPoderes, GameDis
 	
 	telaPoderes->canvas = al_create_bitmap(nativeScreen->width, nativeScreen->height);
 	if (!telaPoderes->canvas){
-		al_show_native_message_box(display->display, "Erro", "Erro", "Falha ao inicializar a Tela de Poderes!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao inicializar a Tela de Poderes!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 	
@@ -267,25 +303,25 @@ int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
 	
 	ALLEGRO_DISPLAY_MODE disp_data;
 	
-	al_get_display_mode((*display).mode, &disp_data); // Armazena em disp_data a maior resolução suportada pelo monitor
+	al_get_display_mode(display->mode, &disp_data); // Armazena em disp_data a maior resolução suportada pelo monitor
 
 	al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 	
 	display->width 	= disp_data.width;
 	display->height = disp_data.height;
 
-	display->display = al_create_display(display->width, display->height); // Cria o display em tela cheia.
+	display->backbuffer = al_create_display(display->width, display->height); // Cria o display em tela cheia.
 	// Cria o buffer de desenho da tela. Todas as outras imagens são criadas dentro dele, assim basta mudar a escala dele.
 	// e todo o resto é ajustado automaticamente.
 	nativeScreen->canvas = al_create_bitmap(nativeScreen->width, nativeScreen->height);
 	
-	if (!display->display){
-		al_show_native_message_box(display->display, "Erro", "Erro", "Falha ao inicializar o display!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+	if (!display->backbuffer){
+		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao inicializar o display!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 
 	if (!nativeScreen->canvas){
-		al_show_native_message_box(display->display, "Erro", "Erro", "Falha ao inicializar o displayBuffer!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao inicializar o displayBuffer!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
 	
