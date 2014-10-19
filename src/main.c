@@ -17,7 +17,7 @@
 #include "pi_data.h"
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
-#define _SET_DEBUG_ON
+//#define _SET_DEBUG_ON
 #ifdef 	_SET_DEBUG_ON
 	#define DEBUG_ON printf
 #endif
@@ -30,7 +30,6 @@ int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, GameScreen
 
 //======================================================================
 int main(int argc, char **argv[]){
-	
 	DEBUG_ON("\n================================");
 	DEBUG_ON("\ndebug:main():start");
 	DEBUG_ON("\n================================");
@@ -53,7 +52,7 @@ int main(int argc, char **argv[]){
 	pi_iniScreens(&nativeScreen, &telaAventura, &telaPoderes); // Inicializa as telas do jogo.
 	DEBUG_ON("\ndebug:nativeScreen:x2=%d", nativeScreen.x2);
 		
-	pi_iniBackground(&bgFull, LAYER_BG_FULL);
+	pi_iniBackground(&bgFull, &nativeScreen, LAYER_BG_FULL);
 	pi_loadBackground(&bgFull);
 	
 	/* Inicializa o jogo em tela cheia */
@@ -78,23 +77,28 @@ int main(int argc, char **argv[]){
 	while(!exitGame){
 		
 		ALLEGRO_EVENT event;
-		al_wait_for_event(event_queue, &event);
+		ALLEGRO_TIMEOUT timeout;
+		al_init_timeout(&timeout, 0.06);
 		
-		if (event.type == ALLEGRO_EVENT_KEY_DOWN)
-				break;
-		
-		else if (event.type == ALLEGRO_EVENT_TIMER){
+		bool get_event = al_wait_for_event_until(event_queue, &event, &timeout);
+				
+		if (event.type == ALLEGRO_EVENT_TIMER && get_event){
+			
 			DEBUG_ON("\ndebug:main():event.type:timer ");
 			pi_drawGraphics(NULL, 10, 10, REFRESH, &nativeScreen, &nativeScreen, &gameDisplay); // Limpa o backbuffer
 			pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, &telaPoderes, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 		//	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 	
+			pi_loadBackground(&bgFull);
 			pi_animateBackground(&bgFull);
 			pi_drawGraphics(bgFull.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
 
 			redraw = true;
 		}
-	
+		else if (event.type == ALLEGRO_EVENT_KEY_DOWN && get_event){
+				break;
+		}
+		
 		if (redraw){
 			redraw = false;
 			
@@ -116,11 +120,9 @@ int main(int argc, char **argv[]){
 
 }
 //======================================================================
-int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, GameScreen *tela, GameScreen *nativeScreen, GameDisplay *display){
-	
+int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, GameScreen *tela, GameScreen *nativeScreen, GameDisplay *display){	
 	DEBUG_ON("\n----debug:drawGraphics():start");	
 	DEBUG_ON("\ndebug:tela:%d", tela->id);	
-
 
 	if (!image && tela->id != NATIVE_SCREEN){
 		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao carregar a imagem!", NULL, ALLEGRO_MESSAGEBOX_ERROR);

@@ -28,10 +28,10 @@
 typedef struct{
 		ALLEGRO_BITMAP *canvas;
 		int id;
-		int x1;
-		int x2;
-		int y1;
-		int y2;
+		float x1;
+		float x2;
+		float y1;
+		float y2;
 		int width;
 		int height;
 		float scaledX;
@@ -57,21 +57,23 @@ typedef struct {
 		int rest; // para usar no cálculo de velocidade do objeto
 		int rest_countdown; // quando chegar a zero, o objeto é deslocado.
 		int looping;
-		int x1;
-		int y1;
-		int speedX;	// quantidade de pixels deslocados a cada iteração na animação
-		int speedY; // quantidade de pixels deslocados a cada iteração na animação
+		float x1;
+		float y1;
+		float speedX;	// quantidade de pixels deslocados a cada iteração na animação
+		float speedY; // quantidade de pixels deslocados a cada iteração na animação
 		int directionX;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
 		int directionY;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
 		int depth; // profundidade no eixo Z.
-		int width;
-		int height;
+		float width;
+		float height;
 		int reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
 } ImageTile;
 
 // Estrutura para carregar em pedaços pequenos as imagens de background
 typedef struct {
 	ALLEGRO_BITMAP *buffer;
+	int rest; // para usar no cálculo de velocidade do objeto
+	int rest_countdown; // quando chegar a zero, o objeto é deslocado.
 	int tileCount;
 	int id;
 	int layer;
@@ -80,11 +82,11 @@ typedef struct {
 	int depth;
 	int currentIndex;
 	int totalNumImgs;
-	int x1;
-	int y1;
+	float x1;
+	float y1;
 	char *fileNamePrefix;
 	char *dirPath;
-	ImageTile tileSequence[21];
+	ImageTile tileSequence[59];
 } BGImageStream;
 
 #endif

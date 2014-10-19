@@ -12,7 +12,7 @@
 #include "pi_data.h"
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
-#define _SET_DEBUG_ON
+//#define _SET_DEBUG_ON
 #ifdef 	_SET_DEBUG_ON
 	#define DEBUG_ON printf
 #endif
@@ -21,32 +21,37 @@
 #endif
 
 //======================================================================
-int pi_iniBackground(BGImageStream *bg, int layer){
+int pi_iniBackground(BGImageStream *bg, GameScreen *display, int layer){
 	DEBUG_ON("\n----debug:iniBackground():start");
-	int i, dirX, dirY, spdY, spdX, offsetX, offsetY;
+	int i, dirX;
+	float spdY, spdX, offsetX, offsetY, dirY;
 	//char fullPath[MAX_FILE_PATH_SIZE];
 
 	bg->layer = layer;
 
 	if (layer == LAYER_BG_FULL){
-		bg->tileCount 	= 21;
+		bg->tileCount 	= 58;
 		bg->id 			= 1;
 		bg->width 		= 100;
 		bg->height 		= 1022;
-		bg->depth		= 10;
+		bg->depth		= 0;
+		bg->x1			= 0.0;
+		bg->y1			= 0.0;
 		bg->currentIndex = 0;
 		bg->totalNumImgs = 58;
-
+		bg->rest			= bg->depth;
+		bg->rest_countdown	= bg->rest;
+		
 		bg->fileNamePrefix	= "bg_full_";
 		bg->dirPath			= "img/bg/png/full/";
-		bg->buffer			= al_create_bitmap(bg->width, bg->height);
+		bg->buffer			= al_create_bitmap(display->width, display->height);
 		
 		dirX = -1;
 		dirY = 1;
-		spdX = 1;
-		spdY = 0;
+		spdX = 5.0;
+		spdY = 0.0;
 		offsetX = bg->width;
-		offsetY = 0;
+		offsetY = 0.0;
 	}
 	
 	int count = bg->tileCount - 1;
@@ -63,10 +68,10 @@ int pi_iniBackground(BGImageStream *bg, int layer){
 		bg->tileSequence[i].speedX 	= spdX;
 		bg->tileSequence[i].speedY 	= spdY;
 		bg->tileSequence[i].reload	= 1; 
-		bg->tileSequence[i].rest	= bg->depth;
+		bg->tileSequence[i].rest	= bg->tileSequence[i].depth;
 		bg->tileSequence[i].directionX 	= dirX;
 		bg->tileSequence[i].directionY 	= dirY;
-		bg->tileSequence[i].rest_countdown = bg->tileSequence[i].depth;
+		bg->tileSequence[i].rest_countdown = 0;
 	}
 	
 	DEBUG_ON("\n----debug:iniBackground():end");
@@ -83,13 +88,15 @@ int pi_loadBackground(BGImageStream *bg){
 	
 	for (i = 0; i <= count; i++){
 		if (bg->tileSequence[i].reload){
-			if (index > bg->totalNumImgs - 1)
+			if (index > bg->totalNumImgs)
 				index = 0;	
-
-			sprintf(fullPath, "%s%s%d.png", bg->dirPath, bg->fileNamePrefix, i);
+		
+			
+			sprintf(fullPath, "%s%s%d.png", bg->dirPath, bg->fileNamePrefix, index);
+			//al_rest(0.1);
 			DEBUG_ON("\ndebug:loadBackGround:fullFilePath:%s", fullPath);
 			const char *file = fullPath;
-		
+			
 			bg->tileSequence[i].canvas = al_load_bitmap(file);
 			bg->tileSequence[i].reload = 0;
 			
@@ -109,26 +116,29 @@ int pi_animateBackground(BGImageStream *bg){
 	int i;
 	int count = bg->tileCount - 1;
 	al_set_target_bitmap(bg->buffer);
+	al_clear_to_color(al_map_rgb(0, 0, 0));
 	
-	for (i = 0; i <= count; i++){
-		bg->tileSequence[i].x1 += (bg->tileSequence[i].speedX * bg->tileSequence[i].directionX);
-		bg->tileSequence[i].y1 += (bg->tileSequence[i].speedY * bg->tileSequence[i].directionY);
-		
-		al_draw_bitmap(bg->tileSequence[i].canvas, bg->tileSequence[i].x1, bg->tileSequence[i].y1, 0);
-		DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].x1 = %d", i, bg->tileSequence[i].x1);
-	}
-	
-	// caso o primeiro pedaço do background esteja completamente fora da tela,
-	// incia o processo de deslocamento dos pedaços restantes uma posição à esquerda
-	// no vetor. Dispara também o processo de carregar a imagem no último pedaço (buffer fora da tela)
-	if (bg->tileSequence[i].x1 + bg->tileSequence[i].width <= bg->x1){
-		
-		for (i = 0; i <= count-1; i++){
-			bg->tileSequence[i] = bg->tileSequence[i+1];
-		}
+	if (bg->rest_countdown <= 0){
+		bg->rest_countdown = bg->rest;
 
-		bg->tileSequence[count].reload = 1;
+		for (i = 0; i <= count; i++){			
+			bg->tileSequence[i].x1 += (bg->tileSequence[i].speedX * bg->tileSequence[i].directionX);
+			bg->tileSequence[i].y1 += (bg->tileSequence[i].speedY * bg->tileSequence[i].directionY);
+		
+			al_draw_bitmap(bg->tileSequence[i].canvas, bg->tileSequence[i].x1, bg->tileSequence[i].y1, 0);
+			DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].x1 = %d", i, bg->tileSequence[i].x1);
+
+			if (bg->tileSequence[i].x1 + bg->tileSequence[i].width < bg->x1){
+
+				DEBUG_ON("\n----debug:animateBackground():reload");
+				//bg->tileSequence[i].reload = 1;
+				bg->tileSequence[i].x1 = (count * bg->width) + 1.0; 
+			}
+		}
 	}
+	else
+		bg->rest_countdown--;
+	
 	
 	DEBUG_ON("\n----debug:animateBackground():end");
 	return 0;
@@ -159,9 +169,7 @@ int pi_iniAllegroAddons(GameDisplay *display){
 	DEBUG_ON("\n----debug:iniAllegroAddons():start");
 	
 	/* ATENÇÃO! Todos os addons e estrutura de dados devem ser incializados dentro desta função */
-			
-	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-	
+				
 	if (!al_init()){
 		al_show_native_message_box(display->backbuffer, "Erro!", "Allegro 5.x", "Falha ao inicializar o Allegro 5!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
@@ -263,7 +271,7 @@ void pi_setDisplayScale(GameScreen *nativeScreen, GameDisplay *gameDisplay){
 	else{
 		gameDisplay->scale = scaledX;
 	}
-	
+		
 	/* Calcula as escalas a serem utilizadas */
 	nativeScreen->scaledW = nativeScreen->width  * gameDisplay->scale;
 	nativeScreen->scaledH = nativeScreen->height * gameDisplay->scale;
@@ -292,6 +300,7 @@ int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
 	DEBUG_ON("\n----debug:setFullScreen():start");
 	// Configura para tela cheia.
 	
+	al_set_new_bitmap_flags(ALLEGRO_MAG_LINEAR);
 	ALLEGRO_DISPLAY_MODE disp_data;
 	
 	al_get_display_mode(display->mode, &disp_data); // Armazena em disp_data a maior resolução suportada pelo monitor

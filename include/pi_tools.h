@@ -19,7 +19,7 @@
 	int pi_setTelaPoderes	(GameScreen *, GameScreen *, GameDisplay *);
 	int pi_iniScreens		(GameScreen *, GameScreen *, GameScreen *);
 
-	int pi_iniBackground	(BGImageStream *, int);
+	int pi_iniBackground	(BGImageStream *, GameScreen *, int);
 	int pi_loadBackground	(BGImageStream *);
 	int pi_animateBackground(BGImageStream *);	
 #endif
