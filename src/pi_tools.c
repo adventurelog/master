@@ -22,18 +22,47 @@
 
 //======================================================================
 int pi_iniBackground(BGImageStream *bg, int layer){
-	
+	DEBUG_ON("\n----debug:iniBackground():start");
+	int i;
+	//char fullPath[MAX_FILE_PATH_SIZE];
+
+	bg->layer = layer;
+
 	if (layer == LAYER_BG_FULL){
 		bg->tileCount 	= 21;
 		bg->id 			= 1;
 		bg->width 		= 100;
 		bg->height 		= 1022;
+		bg->depth		= 10;
 		bg->currentIndex = 0;
 		bg->totalNumImgs = 58;
+
+		bg->fileNamePrefix	= "bg_full_";
+		bg->dirPath			= "img/bg/png/full/";
+		bg->buffer			= al_create_bitmap(bg->width, bg->height);
 	}
 	
-	bg->layer = layer;
+	int count = bg->tileCount - 1;
+
+	for (i = 0; i <= count; i++){
+		//sprintf(fullPath, "%s%s%d.png", bg->dirPath, bg->fileNamePrefix, i);
+		//DEBUG_ON("\ndebug:loadBackGround:fullFilePath:%s", fullPath);
+		//const char *file = fullPath;
+		bg->tileSequence[i].canvas 	= al_create_bitmap(bg->width, bg->height);
+		bg->tileSequence[i].width 	= bg->width;
+		bg->tileSequence[i].height 	= bg->height;
+		bg->tileSequence[i].x1		= i * (bg->width);
+		bg->tileSequence[i].y1		= 0;
+		bg->tileSequence[i].speedX 	= 1;
+		bg->tileSequence[i].speedY 	= 1;
+		bg->tileSequence[i].reload	= 1; 
+		bg->tileSequence[i].rest	= bg->depth;
+		bg->tileSequence[i].directionX 	= 1;
+		bg->tileSequence[i].directionY 	= 1;
+		bg->tileSequence[i].rest_countdown = bg->tileSequence[i].depth;
+	}
 	
+	DEBUG_ON("\n----debug:iniBackground():end");
 	return 0;
 }
 //======================================================================
@@ -41,21 +70,27 @@ int pi_loadBackground(BGImageStream *bg){
 	DEBUG_ON("\n----debug:loadBackground():start");
 
 	int count = bg->tileCount - 1;
+	int index = bg->currentIndex;
 	int i;
 	char fullPath[MAX_FILE_PATH_SIZE];
 	
-	if (bg->layer == LAYER_BG_FULL){
-		bg->fileNamePrefix	= "bg_full_";
-		bg->dirPath			= "img/bg/png/full/";
-	}
-	
 	for (i = 0; i <= count; i++){
-		sprintf(fullPath, "%s%s%d.png", bg->dirPath, bg->fileNamePrefix, i);
-		DEBUG_ON("\ndebug:loadBackGround:fullFilePath:%s", fullPath);
-		const char *file = fullPath;
-		bg->tileSequence[i].canvas = al_create_bitmap(bg->width, bg->height);
-		//bg->tileSequence[i].canvas = al_load_bitmap(file);
+		if (bg->tileSequence[i].reload){
+			if (index > bg->totalNumImgs - 1)
+				index = 0;	
+
+			sprintf(fullPath, "%s%s%d.png", bg->dirPath, bg->fileNamePrefix, i);
+			DEBUG_ON("\ndebug:loadBackGround:fullFilePath:%s", fullPath);
+			const char *file = fullPath;
+		
+			bg->tileSequence[i].canvas = al_load_bitmap(file);
+			bg->tileSequence[i].reload = 0;
+			
+			index++;
+		}
 	}
+
+	bg->currentIndex = index;
 	
 	DEBUG_ON("\n----debug:loadBackground():end");
 	return 0;
@@ -63,25 +98,15 @@ int pi_loadBackground(BGImageStream *bg){
 //======================================================================
 int pi_animateBackground(BGImageStream *bg){
 	DEBUG_ON("\n----debug:animateBackground():start");
-	int count = bg->tileCount - 1;
-	int index = bg->currentIndex;
+	
 	int i;
-	char fullPath[MAX_FILE_PATH_SIZE];
+	int count = bg->tileCount - 1;
+	al_set_target_bitmap(bg->buffer);
 	
 	for (i = 0; i <= count; i++){
-		if (index > bg->totalNumImgs - 1)
-			index = 0;	
-			
-		sprintf(fullPath, "%s%s%d.png", bg->dirPath, bg->fileNamePrefix, index);
-		const char *file = fullPath;
-
-		DEBUG_ON("\ndebug:animateBackground():file:%s", fullPath);		
-		bg->tileSequence[i].canvas = al_load_bitmap(file);
-
-		index++;
+		bg->tileSequence[i].x1 -= bg->tileSequence[i].speedX * bg->tileSequence[i].directionX;
+		bg->tileSequence[i].y1 -= bg->tileSequence[i].speedY * bg->tileSequence[i].directionY;
 	}
-	
-	bg->currentIndex = index;
 	
 	DEBUG_ON("\n----debug:animateBackground():end");
 	return 0;

@@ -13,8 +13,12 @@
 	#define DIR_OPPOSITE -1 // inverte a direção do movimento
 	#define DIR_KEEP 1 // mantém o moviment na direção atual
 	
-	#define LAYER_BG_FULL 2
-
+	#define FPS 60
+	
+	#define LAYER_BG_FULL 2 // id do fundo
+	#define BG_TILE_WIDTH 100 // largura de cada pedaço do fundo a ser carregado
+	#define BG_TILE_HEIGHT 1022 // largura de cada pedaço do fundo a ser carregado
+	
 typedef struct{
 		ALLEGRO_BITMAP *canvas;
 		int id;
@@ -30,6 +34,8 @@ typedef struct{
 		float scaledH;
 } GameScreen;
 
+// Display onde é armazenado todo o conteúdo atual do jogo, ou seja,
+// é criado um display para cada parte do jogo: menu principal, jogo, pontuação
 typedef struct{
 		ALLEGRO_DISPLAY *display;
 		int width;
@@ -38,25 +44,33 @@ typedef struct{
 		float scale;
 } GameDisplay;
 
+// Estrutura base para armazenar imagens
 typedef struct {
 		ALLEGRO_BITMAP *canvas;
+		int rest; // para usar no cálculo de velocidade do objeto
+		int rest_countdown; // quando chegar a zero, o objeto é deslocado.
 		int looping;
 		int x1;
 		int y1;
-		int animX;
-		int animY;
-		int direction;
-		int depth;
+		int speedX;	// quantidade de pixels deslocados a cada iteração na animação
+		int speedY; // quantidade de pixels deslocados a cada iteração na animação
+		int directionX;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
+		int directionY;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
+		int depth; // profundidade no eixo Z.
 		int width;
 		int height;
+		int reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
 } ImageTile;
 
+// Estrutura para carregar em pedaços pequenos as imagens de background
 typedef struct {
+	ALLEGRO_BITMAP *buffer;
 	int tileCount;
 	int id;
 	int layer;
 	int width;
 	int height;
+	int depth;
 	int currentIndex;
 	int totalNumImgs;
 	char *fileNamePrefix;

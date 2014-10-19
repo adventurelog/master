@@ -22,4 +22,5 @@
 	int pi_iniBackground	(BGImageStream *bg, int layer);
 	int pi_loadBackground	(BGImageStream *bg);
 	int pi_animateBackground(BGImageStream *bg);
+	
 #endif
