@@ -16,9 +16,16 @@
 	#define FPS 60
 	
 	#define LAYER_BG_FULL 2 // id do fundo
+	#define LAYER_SCENE_GRASS 3 // id do fundo
+	#define LAYER_SCENE_GRASS_2 4 // id do fundo
+	
 	#define BG_TILE_WIDTH 100 // largura de cada pedaço do fundo a ser carregado
 	#define BG_TILE_HEIGHT 1022 // largura de cada pedaço do fundo a ser carregado
 	
+	#define ID_GROUP_SPRITES 110
+	#define ID_GROUP_SPRITES_SKY 111
+
+	#define ID_STILL_SPRITE 100
 /*
   	enum KEYS {
 		KEY_DOWN
@@ -27,17 +34,17 @@
 	
 typedef struct{
 		ALLEGRO_BITMAP *canvas;
-		int id;
-		float x1;
-		float x2;
-		float y1;
-		float y2;
-		int width;
-		int height;
-		float scaledX;
-		float scaledY;
-		float scaledW;
-		float scaledH;
+		int 	id;
+		float 	x1;
+		float 	x2;
+		float 	y1;
+		float 	y2;
+		int 	width;
+		int 	height;
+		float 	scaledX;
+		float 	scaledY;
+		float 	scaledW;
+		float 	scaledH;
 } GameScreen;
 
 // Display onde é armazenado todo o conteúdo atual do jogo, ou seja,
@@ -45,49 +52,82 @@ typedef struct{
 typedef struct{
 		ALLEGRO_DISPLAY *backbuffer;
 		ALLEGRO_TIMER	*timer;
-		int width;
-		int height;
-		int mode;
-		float scale;
+		int 	width;
+		int 	height;
+		int 	mode;
+		float 	scale;
 } GameDisplay;
 
 // Estrutura base para armazenar imagens
 typedef struct {
 		ALLEGRO_BITMAP *canvas;
-		int rest; // para usar no cálculo de velocidade do objeto
-		int rest_countdown; // quando chegar a zero, o objeto é deslocado.
-		int looping;
-		float x1;
-		float y1;
-		float speedX;	// quantidade de pixels deslocados a cada iteração na animação
-		float speedY; // quantidade de pixels deslocados a cada iteração na animação
-		int directionX;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
-		int directionY;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
-		int depth; // profundidade no eixo Z.
-		float width;
-		float height;
-		int reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
+		int 	rest; // para usar no cálculo de velocidade do objeto
+		int 	rest_countdown; // quando chegar a zero, o objeto é deslocado.
+		int 	looping;
+		float 	x1;
+		float 	y1;
+		float 	speedX;	// quantidade de pixels deslocados a cada iteração na animação
+		float 	speedY; // quantidade de pixels deslocados a cada iteração na animação
+		int 	directionX;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
+		int 	directionY;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
+		float 	depth; // profundidade no eixo Z.
+		float 	width;
+		float 	height;
+		int 	reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
 } ImageTile;
 
 // Estrutura para carregar em pedaços pequenos as imagens de background
 typedef struct {
 	ALLEGRO_BITMAP *buffer;
-	int rest; // para usar no cálculo de velocidade do objeto
-	int rest_countdown; // quando chegar a zero, o objeto é deslocado.
-	int tileCount;
-	int id;
-	int layer;
-	int width;
-	int height;
-	int depth;
-	int currentIndex;
-	int totalNumImgs;
-	float x1;
-	float y1;
-	char *fileNamePrefix;
-	char *dirPath;
+	int 	rest; // para usar no cálculo de velocidade do objeto
+	int 	rest_countdown; // quando chegar a zero, o objeto é deslocado.
+	int 	tileCount;
+	int 	id;
+	int 	layer;
+	int 	width;
+	int 	height;
+	int 	currentIndex;
+	int 	totalNumImgs;
+	float 	depth;
+	float 	x1;
+	float 	y1;
+	char 	*fileNamePrefix;
+	char 	*dirPath;
 	ImageTile tileSequence[59];
 } BGImageStream;
+
+typedef struct {
+		ALLEGRO_BITMAP *canvas;
+		int 	id;
+		int 	rest; // para usar no cálculo de velocidade do objeto
+		int 	rest_countdown; // quando chegar a zero, o objeto é deslocado.
+		float 	x1;
+		float 	y1;
+		float 	speedX;	// quantidade de pixels deslocados a cada iteração na animação
+		float 	speedY; // quantidade de pixels deslocados a cada iteração na animação
+		int 	directionX;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
+		int 	directionY;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
+		float 	depth; // profundidade no eixo Z.
+		float 	width;
+		float 	height;
+		int 	reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
+} StillSprite;
+
+typedef struct {
+		ALLEGRO_BITMAP *buffer;
+		int 	id;
+		float 	x1;
+		float 	y1;
+		float 	speedX;	// quantidade de pixels deslocados a cada iteração na animação
+		float 	speedY; // quantidade de pixels deslocados a cada iteração na animação
+		int 	directionX;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
+		int 	directionY;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
+		float 	depth; // profundidade no eixo Z.
+		int 	reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
+		char 	*dirPath;
+		StillSprite spriteArray[20];
+} GroupSprites;
+
 
 #endif
 

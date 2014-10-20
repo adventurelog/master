@@ -39,6 +39,9 @@ int main(int argc, char **argv[]){
 	GameScreen telaPoderes;
 	GameDisplay gameDisplay = {.mode = 0}; // display onde aparecem as telas de Aventura e Poderes		
 	BGImageStream bgFull;
+	BGImageStream sceneGrass;
+	BGImageStream sceneGrass2;
+	
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 	ALLEGRO_TIMER *gameTimer = NULL;
 	int exitGame = 0, redraw = false;
@@ -50,10 +53,14 @@ int main(int argc, char **argv[]){
 	gameTimer = al_create_timer(1.0 / FPS);
 	
 	pi_iniScreens(&nativeScreen, &telaAventura, &telaPoderes); // Inicializa as telas do jogo.
-	DEBUG_ON("\ndebug:nativeScreen:x2=%d", nativeScreen.x2);
+	DEBUG_ON("\ndebug:nativeScreen:x2=%f", nativeScreen.x2);
 		
-	pi_iniBackground(&bgFull, &nativeScreen, LAYER_BG_FULL);
-	pi_loadBackground(&bgFull);
+	pi_iniBackground(&sceneGrass, &nativeScreen, LAYER_SCENE_GRASS);
+	pi_loadBackground(&sceneGrass);
+
+	pi_iniBackground(&sceneGrass2, &nativeScreen, LAYER_SCENE_GRASS_2);
+	pi_loadBackground(&sceneGrass2);
+	
 	
 	/* Inicializa o jogo em tela cheia */
  	if (pi_setFullScreen(&nativeScreen, &gameDisplay) < 0)
@@ -89,9 +96,13 @@ int main(int argc, char **argv[]){
 			pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, &telaPoderes, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 		//	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 	
-			pi_loadBackground(&bgFull);
-			pi_animateBackground(&bgFull);
-			pi_drawGraphics(bgFull.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
+			pi_loadBackground(&sceneGrass2);
+			pi_animateBackground(&sceneGrass2);
+			pi_drawGraphics(sceneGrass2.buffer, 0, 0, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
+
+			pi_loadBackground(&sceneGrass);
+			pi_animateBackground(&sceneGrass);
+			pi_drawGraphics(sceneGrass.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
 
 			redraw = true;
 		}

@@ -21,34 +21,86 @@
 #endif
 
 //======================================================================
+int pi_iniGroupSprites(GroupSprites *gs, GameScreen *display, int id){
+	DEBUG_ON("\n----debug:iniGroupSprites():start");
+	int i;
+	float spdY, spdX, offsetX, offsetY, dirX, dirY;
+	
+	gs->id = id;
+
+	if (id == ID_GROUP_SPRITES_SKY){
+		gs->id 			= layer;
+		bg->depth		= 1;
+		bg->x1			= 0.0;
+		bg->y1			= 1020.0;
+		bg->currentIndex = 0;
+		bg->totalNumImgs = 7;
+		bg->rest			= bg->depth;
+		bg->rest_countdown	= bg->rest;
+		
+		bg->dirPath			= "img/sky/png/";
+		bg->buffer			= al_create_bitmap(display->width, display->height);
+		
+		dirX = 1;
+		dirY = 1;
+		spdX = 0.0;
+		spdY = 0.0;
+	}	
+	
+}
+//----------------------------------------------------------------------
 int pi_iniBackground(BGImageStream *bg, GameScreen *display, int layer){
 	DEBUG_ON("\n----debug:iniBackground():start");
-	int i, dirX;
-	float spdY, spdX, offsetX, offsetY, dirY;
+	int i;
+	float spdY, spdX, offsetX, offsetY, dirX, dirY;
 	//char fullPath[MAX_FILE_PATH_SIZE];
 
 	bg->layer = layer;
 
-	if (layer == LAYER_BG_FULL){
-		bg->tileCount 	= 58;
-		bg->id 			= 1;
-		bg->width 		= 100;
-		bg->height 		= 1022;
-		bg->depth		= 0;
+	if (layer == LAYER_SCENE_GRASS){
+		bg->tileCount 	= 7;
+		bg->id 			= layer;
+		bg->width 		= 502;
+		bg->height 		= 105;
+		bg->depth		= 1;
 		bg->x1			= 0.0;
-		bg->y1			= 0.0;
+		bg->y1			= 1020.0;
 		bg->currentIndex = 0;
-		bg->totalNumImgs = 58;
+		bg->totalNumImgs = 7;
 		bg->rest			= bg->depth;
 		bg->rest_countdown	= bg->rest;
 		
-		bg->fileNamePrefix	= "bg_full_";
-		bg->dirPath			= "img/bg/png/full/";
+		bg->fileNamePrefix	= "grass_";
+		bg->dirPath			= "img/ground/png/";
 		bg->buffer			= al_create_bitmap(display->width, display->height);
 		
 		dirX = -1;
 		dirY = 1;
-		spdX = 5.0;
+		spdX = 2.0;
+		spdY = 0.0;
+		offsetX = bg->width;
+		offsetY = 0.0;
+	}
+	else if (layer == LAYER_SCENE_GRASS_2){
+		bg->tileCount 	= 7;
+		bg->id 			= layer;
+		bg->width 		= 502;
+		bg->height 		= 105;
+		bg->depth		= 0.98;
+		bg->x1			= 50.0;
+		bg->y1			= 1010.0;
+		bg->currentIndex = 0;
+		bg->totalNumImgs = 7;
+		bg->rest			= bg->depth;
+		bg->rest_countdown	= bg->rest;
+		
+		bg->fileNamePrefix	= "grass_";
+		bg->dirPath			= "img/ground/png/";
+		bg->buffer			= al_create_bitmap(display->width, display->height);
+		
+		dirX = -1;
+		dirY = 1;
+		spdX = 2.0;
 		spdY = 0.0;
 		offsetX = bg->width;
 		offsetY = 0.0;
@@ -63,15 +115,19 @@ int pi_iniBackground(BGImageStream *bg, GameScreen *display, int layer){
 		bg->tileSequence[i].canvas 	= al_create_bitmap(bg->width, bg->height);
 		bg->tileSequence[i].width 	= bg->width;
 		bg->tileSequence[i].height 	= bg->height;
-		bg->tileSequence[i].x1		= i * offsetX;
-		bg->tileSequence[i].y1		= i * offsetY;
+		bg->tileSequence[i].x1		= bg->x1 + (i * offsetX);
+		bg->tileSequence[i].y1		= bg->y1 + (i * offsetY);
 		bg->tileSequence[i].speedX 	= spdX;
 		bg->tileSequence[i].speedY 	= spdY;
 		bg->tileSequence[i].reload	= 1; 
+		bg->tileSequence[i].depth	= bg->depth;
 		bg->tileSequence[i].rest	= bg->tileSequence[i].depth;
 		bg->tileSequence[i].directionX 	= dirX;
 		bg->tileSequence[i].directionY 	= dirY;
 		bg->tileSequence[i].rest_countdown = 0;
+		
+		al_set_target_bitmap(bg->tileSequence[i].canvas);
+		al_set_clipping_rectangle(bg->tileSequence[i].x1, bg->tileSequence[i].y1, bg->tileSequence[i].width, bg->tileSequence[i].height);
 	}
 	
 	DEBUG_ON("\n----debug:iniBackground():end");
@@ -93,10 +149,10 @@ int pi_loadBackground(BGImageStream *bg){
 		
 			
 			sprintf(fullPath, "%s%s%d.png", bg->dirPath, bg->fileNamePrefix, index);
-			//al_rest(0.1);
 			DEBUG_ON("\ndebug:loadBackGround:fullFilePath:%s", fullPath);
 			const char *file = fullPath;
 			
+			//al_rest(0.5);
 			bg->tileSequence[i].canvas = al_load_bitmap(file);
 			bg->tileSequence[i].reload = 0;
 			
@@ -111,36 +167,39 @@ int pi_loadBackground(BGImageStream *bg){
 }
 //----------------------------------------------------------------------
 int pi_animateBackground(BGImageStream *bg){
-	DEBUG_ON("\n----debug:animateBackground():start");
+	//DEBUG_ON("\n----debug:animateBackground():start");
 	
 	int i;
 	int count = bg->tileCount - 1;
 	al_set_target_bitmap(bg->buffer);
-	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 	
-	if (bg->rest_countdown <= 0){
-		bg->rest_countdown = bg->rest;
+	//if (bg->rest_countdown <= 0){
+		
+		//bg->rest_countdown = bg->rest;
 
 		for (i = 0; i <= count; i++){			
-			bg->tileSequence[i].x1 += (bg->tileSequence[i].speedX * bg->tileSequence[i].directionX);
+			bg->tileSequence[i].x1 += (bg->tileSequence[i].speedX * bg->tileSequence[i].directionX * bg->tileSequence[i].depth) / 0.5;
 			bg->tileSequence[i].y1 += (bg->tileSequence[i].speedY * bg->tileSequence[i].directionY);
 		
 			al_draw_bitmap(bg->tileSequence[i].canvas, bg->tileSequence[i].x1, bg->tileSequence[i].y1, 0);
-			DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].x1 = %d", i, bg->tileSequence[i].x1);
+			//DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].depth = %f", i, bg->tileSequence[i].depth);
+			DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].x1 = %f", i, bg->tileSequence[i].x1);
+			//DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].y1 = %f", i, bg->tileSequence[i].y1);
 
 			if (bg->tileSequence[i].x1 + bg->tileSequence[i].width < bg->x1){
 
-				DEBUG_ON("\n----debug:animateBackground():reload");
+				//DEBUG_ON("\n----debug:animateBackground():reload");
 				//bg->tileSequence[i].reload = 1;
 				bg->tileSequence[i].x1 = (count * bg->width) + 1.0; 
 			}
 		}
-	}
-	else
-		bg->rest_countdown--;
+	//}
+	//else
+		//bg->rest_countdown--;
 	
 	
-	DEBUG_ON("\n----debug:animateBackground():end");
+	//DEBUG_ON("\n----debug:animateBackground():end");
 	return 0;
 }
 //----------------------------------------------------------------------
@@ -211,8 +270,8 @@ int pi_setTelaAventura(GameScreen *nativeScreen, GameScreen *telaAventura, GameD
 	al_set_target_bitmap(telaAventura->canvas);
 	al_clear_to_color(al_map_rgb(100, 50, 200));
 	
-	DEBUG_ON("\ndebug:telaAventura:x2:%d", telaAventura->x2);
-	DEBUG_ON("\ndebug:telaAventura:y2:%d", telaAventura->y2);
+	DEBUG_ON("\ndebug:telaAventura:x2:%f", telaAventura->x2);
+	DEBUG_ON("\ndebug:telaAventura:y2:%f", telaAventura->y2);
 	DEBUG_ON("\n----debug:setTelaAventura():end\n");
 	
 	return 0;
@@ -245,8 +304,8 @@ int pi_setTelaPoderes(GameScreen *nativeScreen, GameScreen *telaPoderes, GameDis
 	
 	
 	
-	DEBUG_ON("\ndebug:telaPoderes:x1:%d", telaPoderes->x1);
-	DEBUG_ON("\ndebug:telaPoderes:y1:%d", telaPoderes->y1);
+	DEBUG_ON("\ndebug:telaPoderes:x1:%f", telaPoderes->x1);
+	DEBUG_ON("\ndebug:telaPoderes:y1:%f", telaPoderes->y1);
 	DEBUG_ON("\n----debug:setTelaPoderes():end\n");
 	
 	return 0;
