@@ -13,6 +13,8 @@
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
 //#define _SET_DEBUG_ON
+#define _SET_DEBUG_FILE
+
 #ifdef 	_SET_DEBUG_ON
 	#define DEBUG_ON printf
 #endif
@@ -20,33 +22,90 @@
 	#define DEBUG_ON //
 #endif
 
+#ifdef 	_SET_DEBUG_FILE
+	#define DEBUG_FILE printf
+#endif
+#ifndef _SET_DEBUG_FILE
+	#define DEBUG_FILE //
+#endif
+
 //======================================================================
-int pi_iniGroupSprites(GroupSprites *gs, GameScreen *display, int id){
+int pi_iniSpriteGroup(SpriteGroup *sg, GameScreen *display, int id){
 	DEBUG_ON("\n----debug:iniGroupSprites():start");
 	int i;
 	float spdY, spdX, offsetX, offsetY, dirX, dirY;
 	
-	gs->id = id;
+	sg->id = id;
 
 	if (id == ID_GROUP_SPRITES_SKY){
-		gs->id 			= layer;
-		bg->depth		= 1;
-		bg->x1			= 0.0;
-		bg->y1			= 1020.0;
-		bg->currentIndex = 0;
-		bg->totalNumImgs = 7;
-		bg->rest			= bg->depth;
-		bg->rest_countdown	= bg->rest;
+		sg->depth		= 1;
+		sg->x1			= 0.0;
+		sg->y1			= 1020.0;
+		sg->arraySize	= 20;
 		
-		bg->dirPath			= "img/sky/png/";
-		bg->buffer			= al_create_bitmap(display->width, display->height);
+		sg->dirPath		= "img/sky/png/";
+		sg->buffer		= al_create_bitmap(display->width, display->height);
 		
-		dirX = 1;
-		dirY = 1;
-		spdX = 0.0;
-		spdY = 0.0;
+		sg->directionX	= 1;
+		sg->directionY	= 1;
+		sg->speedX		= 0.0;
+		sg->speedY		= 0.0;
 	}	
 	
+	for (i = 0; i < sg->arraySize - 1; i++){
+		sg->spriteArray[i].canvas = NULL;
+		sg->spriteArray[i].id 		= 0;
+		sg->spriteArray[i].x1 		= 0.0;
+		sg->spriteArray[i].y1 		= 0.0;
+		sg->spriteArray[i].speedX 	= 1.0;
+		sg->spriteArray[i].speedY 	= 1.0;
+		sg->spriteArray[i].depth 	= 1;
+		sg->spriteArray[i].width	= 1;
+		sg->spriteArray[i].height	= 1;
+		sg->spriteArray[i].reload	= 1;
+		sg->spriteArray[i].rest 	= 0;
+		sg->spriteArray[i].directionX	= 1;
+		sg->spriteArray[i].directionY 	= 1;
+		sg->spriteArray[i].incrementX1 	= 0;
+		sg->spriteArray[i].incrementY1 	= 0;
+		sg->spriteArray[i].rest_countdown = sg->spriteArray[i].rest;		
+	}
+	
+	return 0;
+}
+//----------------------------------------------------------------------
+int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
+	
+	int i;
+	char fullPath[MAX_FILE_PATH_SIZE];
+
+	for (i = 0; i < sg->arraySize - 1; i++){
+		
+		if (sg->spriteArray[i].reload == 1){
+			sprintf(fullPath, "%s%s.png", sg->dirPath, fileName);
+			DEBUG_FILE("\ndebug:loadStillSprite:fullFilePath:%s\n", fullPath);
+			const char *file = fullPath;
+
+			sg->spriteArray[i].canvas = al_load_bitmap(file);
+			sg->spriteArray[i].reload = 0;
+			return 0;
+		}
+	}
+		
+	return 0;
+}
+//----------------------------------------------------------------------
+int pi_AnimateSpriteGroup(SpriteGroup *sg){
+	int i;
+	
+	al_set_target_bitmap(sg->buffer);
+	
+	for (i = 0; i < sg->arraySize - 1; i++){
+		sg->spriteArray[i].x1 += sg->spriteArray[i].incrementX1;
+		sg->spriteArray[i].y1 += sg->spriteArray[i].incrementY1;
+		
+		al_draw_bitmap(sg->spriteArray[i].canvas, sg->spriteArray[i].x1, sg->spriteArray[i].x1);
+	}
 }
 //----------------------------------------------------------------------
 int pi_iniBackground(BGImageStream *bg, GameScreen *display, int layer){

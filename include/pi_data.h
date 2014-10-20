@@ -103,6 +103,8 @@ typedef struct {
 		int 	rest_countdown; // quando chegar a zero, o objeto é deslocado.
 		float 	x1;
 		float 	y1;
+		float 	incrementX1;
+		float 	incrementY1;
 		float 	speedX;	// quantidade de pixels deslocados a cada iteração na animação
 		float 	speedY; // quantidade de pixels deslocados a cada iteração na animação
 		int 	directionX;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
@@ -111,6 +113,7 @@ typedef struct {
 		float 	width;
 		float 	height;
 		int 	reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
+		char	*tagName;
 } StillSprite;
 
 typedef struct {
@@ -118,6 +121,7 @@ typedef struct {
 		int 	id;
 		float 	x1;
 		float 	y1;
+		float 	arraySize;
 		float 	speedX;	// quantidade de pixels deslocados a cada iteração na animação
 		float 	speedY; // quantidade de pixels deslocados a cada iteração na animação
 		int 	directionX;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
@@ -126,7 +130,7 @@ typedef struct {
 		int 	reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
 		char 	*dirPath;
 		StillSprite spriteArray[20];
-} GroupSprites;
+} SpriteGroup;
 
 
 #endif

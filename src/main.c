@@ -38,9 +38,9 @@ int main(int argc, char **argv[]){
 	GameScreen telaAventura;
 	GameScreen telaPoderes;
 	GameDisplay gameDisplay = {.mode = 0}; // display onde aparecem as telas de Aventura e Poderes		
-	BGImageStream bgFull;
 	BGImageStream sceneGrass;
 	BGImageStream sceneGrass2;
+	SpriteGroup spriteGroupSky;
 	
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 	ALLEGRO_TIMER *gameTimer = NULL;
@@ -61,6 +61,8 @@ int main(int argc, char **argv[]){
 	pi_iniBackground(&sceneGrass2, &nativeScreen, LAYER_SCENE_GRASS_2);
 	pi_loadBackground(&sceneGrass2);
 	
+	pi_iniSpriteGroup(&spriteGroupSky, &nativeScreen, ID_GROUP_SPRITES_SKY);
+	pi_loadStillSprite(&spriteGroupSky, "moon", "moon");
 	
 	/* Inicializa o jogo em tela cheia */
  	if (pi_setFullScreen(&nativeScreen, &gameDisplay) < 0)

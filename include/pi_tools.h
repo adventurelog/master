@@ -13,13 +13,17 @@
 
 	int pi_iniAllegroAddons(GameDisplay *);
 
-	void pi_setDisplayScale	(GameScreen *, GameDisplay *);
-	int pi_setFullScreen	(GameScreen *, GameDisplay *);
-	int pi_setTelaAventura	(GameScreen *, GameScreen *, GameDisplay *);
-	int pi_setTelaPoderes	(GameScreen *, GameScreen *, GameDisplay *);
-	int pi_iniScreens		(GameScreen *, GameScreen *, GameScreen *);
+	void pi_setDisplayScale	(GameScreen*, GameDisplay*);
+	int pi_setFullScreen	(GameScreen*, GameDisplay*);
+	int pi_setTelaAventura	(GameScreen*, GameScreen*, GameDisplay*);
+	int pi_setTelaPoderes	(GameScreen*, GameScreen*, GameDisplay*);
+	int pi_iniScreens		(GameScreen*, GameScreen*, GameScreen*);
 
-	int pi_iniBackground	(BGImageStream *, GameScreen *, int);
-	int pi_loadBackground	(BGImageStream *);
-	int pi_animateBackground(BGImageStream *);	
+	int pi_iniBackground	(BGImageStream*, GameScreen*, int);
+	int pi_loadBackground	(BGImageStream*);
+	int pi_animateBackground(BGImageStream*);	
+	
+	int pi_iniSpriteGroup(SpriteGroup*, GameScreen*, int);
+	int pi_loadStillSprite(SpriteGroup*, char*, char*);
+	int pi_AnimateSpriteGroup(SpriteGroup *);
 #endif
