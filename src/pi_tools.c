@@ -113,7 +113,7 @@ int pi_iniSpriteGroup(SpriteGroup *sg, GameScreen *display, int id){
 //----------------------------------------------------------------------
 int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
 	
-	int i;
+	int i, x, y, w, h;
 	char fullPath[MAX_FILE_PATH_SIZE];
 	char tName[MAX_TAG_NAME_SIZE];
 
@@ -132,6 +132,13 @@ int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
 			const char *file = fullPath;
 
 			sg->spriteArray[i].canvas = al_load_bitmap(file);
+
+			w = al_get_bitmap_height(sg->spriteArray[i].canvas);
+			h = al_get_bitmap_width(sg->spriteArray[i].canvas);
+			
+			al_set_target_bitmap(sg->spriteArray[i].canvas);
+			al_set_clipping_rectangle(0, 0, w, h);
+			
 			sg->spriteArray[i].reload = 0;
 			return 0;
 		}
