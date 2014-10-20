@@ -13,7 +13,8 @@
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
 //#define _SET_DEBUG_ON
-#define _SET_DEBUG_FILE
+//#define _SET_DEBUG_ON
+#define _SET_DEBUG_STRING
 
 #ifdef 	_SET_DEBUG_ON
 	#define DEBUG_ON printf
@@ -29,7 +30,44 @@
 	#define DEBUG_FILE //
 #endif
 
+#ifdef 	_SET_DEBUG_STRING
+	#define DEBUG_STRING printf
+#endif
+#ifndef _SET_DEBUG_STRING
+	#define DEBUG_STRING //
+#endif
+
 //======================================================================
+int pi_stringCompare(char s1[], char s2[]){
+	int i, size, count;
+	
+	size = 0;
+	count = 0;
+
+	DEBUG_STRING("\ndebug:stringCompare:s1:%s", s1);
+	DEBUG_STRING("\ndebug:stringCompare:s2:%s", s2);
+	
+	for (i = 0; i < MAX_TAG_NAME_SIZE - 1; i++){
+		if (s1[i] != '\0')
+			size++;
+		else
+			break;
+	}
+	
+	for (i = 0; i < size - 1; i++){
+		if (s1[i] == s2[i])
+			count++;
+	}
+
+	DEBUG_STRING("\ndebug:stringCompare:count:%d", count);
+	DEBUG_STRING("\ndebug:stringCompare:size:%d", size);
+	
+	if (count == size - 1)
+		return true;	
+
+	return false;	
+}
+//----------------------------------------------------------------------
 int pi_iniSpriteGroup(SpriteGroup *sg, GameScreen *display, int id){
 	DEBUG_ON("\n----debug:iniGroupSprites():start");
 	int i;
@@ -58,17 +96,16 @@ int pi_iniSpriteGroup(SpriteGroup *sg, GameScreen *display, int id){
 		sg->spriteArray[i].x1 		= 0.0;
 		sg->spriteArray[i].y1 		= 0.0;
 		sg->spriteArray[i].speedX 	= 1.0;
-		sg->spriteArray[i].speedY 	= 1.0;
+		sg->spriteArray[i].speedY 	= 0.0;
 		sg->spriteArray[i].depth 	= 1;
 		sg->spriteArray[i].width	= 1;
 		sg->spriteArray[i].height	= 1;
 		sg->spriteArray[i].reload	= 1;
 		sg->spriteArray[i].rest 	= 0;
+		sg->spriteArray[i].tagName 	= "empty";	
 		sg->spriteArray[i].directionX	= 1;
 		sg->spriteArray[i].directionY 	= 1;
-		sg->spriteArray[i].incrementX1 	= 0;
-		sg->spriteArray[i].incrementY1 	= 0;
-		sg->spriteArray[i].rest_countdown = sg->spriteArray[i].rest;		
+		sg->spriteArray[i].rest_countdown = sg->spriteArray[i].rest;	
 	}
 	
 	return 0;
@@ -78,12 +115,20 @@ int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
 	
 	int i;
 	char fullPath[MAX_FILE_PATH_SIZE];
+	char tName[MAX_TAG_NAME_SIZE];
 
 	for (i = 0; i < sg->arraySize - 1; i++){
 		
 		if (sg->spriteArray[i].reload == 1){
+			
+			sprintf(tName, "%s", tagName);
+			
+			sg->spriteArray[i].tagName = tName;
+
 			sprintf(fullPath, "%s%s.png", sg->dirPath, fileName);
-			DEBUG_FILE("\ndebug:loadStillSprite:fullFilePath:%s\n", fullPath);
+			DEBUG_FILE("\ndebug:loadStillSprite:fullFilePath:%s", fullPath);
+			DEBUG_FILE("\ndebug:loadStillSprite:tagName:%s", tName);
+			
 			const char *file = fullPath;
 
 			sg->spriteArray[i].canvas = al_load_bitmap(file);
@@ -95,17 +140,37 @@ int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
 	return 0;
 }
 //----------------------------------------------------------------------
+int pi_findSpriteByName(SpriteGroup *sg, char *tagName){
+	int i;
+	char v1[MAX_TAG_NAME_SIZE];
+	char v2[MAX_TAG_NAME_SIZE];
+	
+	for (i = 0; i < sg->arraySize - 1; i++){
+		sprintf(v1, "%s", sg->spriteArray[i].tagName);
+		sprintf(v2, "%s", tagName);
+		
+		if (pi_stringCompare(v1, v2) == true)
+			return i;
+	}
+	
+	return -1;
+}
+//----------------------------------------------------------------------
 int pi_AnimateSpriteGroup(SpriteGroup *sg){
 	int i;
 	
 	al_set_target_bitmap(sg->buffer);
+	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 	
 	for (i = 0; i < sg->arraySize - 1; i++){
-		sg->spriteArray[i].x1 += sg->spriteArray[i].incrementX1;
-		sg->spriteArray[i].y1 += sg->spriteArray[i].incrementY1;
-		
-		al_draw_bitmap(sg->spriteArray[i].canvas, sg->spriteArray[i].x1, sg->spriteArray[i].x1);
+		if (sg->spriteArray[i].canvas != NULL){
+			sg->spriteArray[i].x1 += (sg->spriteArray[i].speedX * sg->spriteArray[i].directionX * sg->spriteArray[i].depth);
+			sg->spriteArray[i].y1 += (sg->spriteArray[i].speedY * sg->spriteArray[i].directionY * sg->spriteArray[i].depth);
+			al_draw_bitmap(sg->spriteArray[i].canvas, sg->spriteArray[i].x1, sg->spriteArray[i].y1, 0);
+		}
 	}
+	
+	return 0;
 }
 //----------------------------------------------------------------------
 int pi_iniBackground(BGImageStream *bg, GameScreen *display, int layer){
@@ -239,7 +304,7 @@ int pi_animateBackground(BGImageStream *bg){
 
 		for (i = 0; i <= count; i++){			
 			bg->tileSequence[i].x1 += (bg->tileSequence[i].speedX * bg->tileSequence[i].directionX * bg->tileSequence[i].depth) / 0.5;
-			bg->tileSequence[i].y1 += (bg->tileSequence[i].speedY * bg->tileSequence[i].directionY);
+			bg->tileSequence[i].y1 += (bg->tileSequence[i].speedY * bg->tileSequence[i].directionY * bg->tileSequence[i].depth) / 0.5;
 		
 			al_draw_bitmap(bg->tileSequence[i].canvas, bg->tileSequence[i].x1, bg->tileSequence[i].y1, 0);
 			//DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].depth = %f", i, bg->tileSequence[i].depth);
@@ -418,7 +483,9 @@ int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
 	DEBUG_ON("\n----debug:setFullScreen():start");
 	// Configura para tela cheia.
 	
+	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
 	al_set_new_bitmap_flags(ALLEGRO_MAG_LINEAR);
+	
 	ALLEGRO_DISPLAY_MODE disp_data;
 	
 	al_get_display_mode(display->mode, &disp_data); // Armazena em disp_data a maior resolução suportada pelo monitor

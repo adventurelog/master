@@ -3,6 +3,7 @@
 	#include <allegro5/allegro.h>
 	
 	#define MAX_FILE_PATH_SIZE 30
+	#define MAX_TAG_NAME_SIZE 20
 	
 	#define TELA_AVENTURA 1
 	#define TELA_PODERES  2
@@ -103,8 +104,6 @@ typedef struct {
 		int 	rest_countdown; // quando chegar a zero, o objeto é deslocado.
 		float 	x1;
 		float 	y1;
-		float 	incrementX1;
-		float 	incrementY1;
 		float 	speedX;	// quantidade de pixels deslocados a cada iteração na animação
 		float 	speedY; // quantidade de pixels deslocados a cada iteração na animação
 		int 	directionX;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)

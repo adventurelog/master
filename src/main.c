@@ -52,17 +52,31 @@ int main(int argc, char **argv[]){
 	
 	gameTimer = al_create_timer(1.0 / FPS);
 	
+	/* Configura as telas do jogo*/
 	pi_iniScreens(&nativeScreen, &telaAventura, &telaPoderes); // Inicializa as telas do jogo.
 	DEBUG_ON("\ndebug:nativeScreen:x2=%f", nativeScreen.x2);
-		
+	
+	/* Configura BACKGROUND*/
 	pi_iniBackground(&sceneGrass, &nativeScreen, LAYER_SCENE_GRASS);
 	pi_loadBackground(&sceneGrass);
 
 	pi_iniBackground(&sceneGrass2, &nativeScreen, LAYER_SCENE_GRASS_2);
 	pi_loadBackground(&sceneGrass2);
 	
+	/* Configura SPRITES*/
 	pi_iniSpriteGroup(&spriteGroupSky, &nativeScreen, ID_GROUP_SPRITES_SKY);
 	pi_loadStillSprite(&spriteGroupSky, "moon", "moon");
+	
+	int spriteNum = pi_findSpriteByName(&spriteGroupSky, "moon");
+	if (spriteNum > -1){
+		spriteGroupSky.spriteArray[spriteNum].x1 			= 400;
+		spriteGroupSky.spriteArray[spriteNum].y1 			= 210;
+		spriteGroupSky.spriteArray[spriteNum].depth 		= 0.1;
+		spriteGroupSky.spriteArray[spriteNum].directionX 	= -1;
+		spriteGroupSky.spriteArray[spriteNum].directionY 	= -1;
+		spriteGroupSky.spriteArray[spriteNum].speedX 		= 0.4;
+		spriteGroupSky.spriteArray[spriteNum].speedY 		= 0.4;
+	}
 	
 	/* Inicializa o jogo em tela cheia */
  	if (pi_setFullScreen(&nativeScreen, &gameDisplay) < 0)
@@ -80,7 +94,7 @@ int main(int argc, char **argv[]){
 	al_register_event_source(event_queue, al_get_timer_event_source(gameTimer));
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 
-	//***** Inicio do looping principal
+	//***** INICIO DO LOOPING PRINCIAPL
 	al_start_timer(gameTimer);
 	
 	while(!exitGame){
@@ -98,14 +112,17 @@ int main(int argc, char **argv[]){
 			pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, &telaPoderes, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 		//	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 	
+			pi_AnimateSpriteGroup(&spriteGroupSky);
+			pi_drawGraphics(spriteGroupSky.buffer, 0, 0, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
+			
 			pi_loadBackground(&sceneGrass2);
 			pi_animateBackground(&sceneGrass2);
-			pi_drawGraphics(sceneGrass2.buffer, 0, 0, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
+			pi_drawGraphics(sceneGrass2.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
 
 			pi_loadBackground(&sceneGrass);
 			pi_animateBackground(&sceneGrass);
 			pi_drawGraphics(sceneGrass.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
-
+			
 			redraw = true;
 		}
 		else if (event.type == ALLEGRO_EVENT_KEY_DOWN && get_event){

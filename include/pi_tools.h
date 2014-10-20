@@ -25,5 +25,6 @@
 	
 	int pi_iniSpriteGroup(SpriteGroup*, GameScreen*, int);
 	int pi_loadStillSprite(SpriteGroup*, char*, char*);
-	int pi_AnimateSpriteGroup(SpriteGroup *);
+	int pi_AnimateSpriteGroup(SpriteGroup*);
+	int pi_findSpriteByName(SpriteGroup*, char*);
 #endif
