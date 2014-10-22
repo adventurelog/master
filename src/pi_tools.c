@@ -38,6 +38,28 @@
 #endif
 
 //======================================================================
+int pi_addToRenderQueue(RenderQueue *q, ALLEGRO_IMAGE *buffer){
+	int i;
+	
+	for (i = 0; i RENDER_QUEUE_SIZE - 1; i++){
+		if (q[i].buffer == NULL){
+			q[i].buffer = buffer;
+			q[i].render = YES;
+		}
+	}
+}
+//----------------------------------------------------------------------
+int pi_resetRenderQueue(RenderQueue *q){
+	int i;
+	
+	for (i = 0; i < RENDER_QUEUE_SIZE - 1; i++){
+		q[i].buffer = NULL;
+		q[i].render = NO;
+	}
+	
+	return 0;
+}
+//----------------------------------------------------------------------
 int pi_stringCompare(char s1[], char s2[]){
 	int i, size, count;
 	
@@ -167,8 +189,9 @@ int pi_AnimateSpriteGroup(SpriteGroup *sg){
 	int i;
 	
 	al_set_target_bitmap(sg->buffer);
+	al_hold_bitmap_drawing(true);
 	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-	
+
 	for (i = 0; i < sg->arraySize - 1; i++){
 		if (sg->spriteArray[i].canvas != NULL){
 			sg->spriteArray[i].x1 += (sg->spriteArray[i].speedX * sg->spriteArray[i].directionX * sg->spriteArray[i].depth);
@@ -177,6 +200,7 @@ int pi_AnimateSpriteGroup(SpriteGroup *sg){
 		}
 	}
 	
+	al_hold_bitmap_drawing(false);
 	return 0;
 }
 //----------------------------------------------------------------------
@@ -303,6 +327,7 @@ int pi_animateBackground(BGImageStream *bg){
 	int i;
 	int count = bg->tileCount - 1;
 	al_set_target_bitmap(bg->buffer);
+	al_hold_bitmap_drawing(true);
 	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 	
 	//if (bg->rest_countdown <= 0){
@@ -331,6 +356,7 @@ int pi_animateBackground(BGImageStream *bg){
 	
 	
 	//DEBUG_ON("\n----debug:animateBackground():end");
+	al_hold_bitmap_drawing(false);
 	return 0;
 }
 //----------------------------------------------------------------------
@@ -496,6 +522,12 @@ int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
 	ALLEGRO_DISPLAY_MODE disp_data;
 	
 	al_get_display_mode(display->mode, &disp_data); // Armazena em disp_data a maior resolução suportada pelo monitor
+
+	al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_SUGGEST);
+	al_set_new_display_option(ALLEGRO_RENDER_METHOD, 1, ALLEGRO_SUGGEST);
+	al_set_new_display_option(ALLEGRO_CAN_DRAW_INTO_BITMAP, 1, ALLEGRO_SUGGEST);
+	al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
+	al_set_new_display_option(ALLEGRO_SAMPLES, 1, ALLEGRO_SUGGEST);
 
 	al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 	

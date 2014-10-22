@@ -27,12 +27,19 @@
 	#define ID_GROUP_SPRITES_SKY 111
 
 	#define ID_STILL_SPRITE 100
+	
+	#define RENDER_QUEUE_SIZE 10
 /*
   	enum KEYS {
 		KEY_DOWN
 	};
 */
-	
+
+typedef struct {
+	ALLEGRO_BITMAP *buffer;
+	int render;
+} RenderQueue;
+
 typedef struct{
 		ALLEGRO_BITMAP *canvas;
 		int 	id;

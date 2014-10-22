@@ -40,6 +40,8 @@ int main(int argc, char **argv[]){
 	GameDisplay gameDisplay = {.mode = 0}; // display onde aparecem as telas de Aventura e Poderes		
 	BGImageStream sceneGrass;
 	BGImageStream sceneGrass2;
+	RenderQueue renderQueue[RENDER_QUEUE_SIZE];
+	
 	SpriteGroup spriteGroupSky;
 	
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -107,21 +109,25 @@ int main(int argc, char **argv[]){
 				
 		if (event.type == ALLEGRO_EVENT_TIMER && get_event){
 			
+			pi_resetRenderQueue(renderQueue);
 			DEBUG_ON("\ndebug:main():event.type:timer ");
+			
 			pi_drawGraphics(NULL, 10, 10, REFRESH, &nativeScreen, &nativeScreen, &gameDisplay); // Limpa o backbuffer
 			pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, &telaPoderes, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
-		//	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 	
 			pi_AnimateSpriteGroup(&spriteGroupSky);
-			pi_drawGraphics(spriteGroupSky.buffer, 0, 0, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
+			pi_addToRenderQueue(&renderQeue, &spriteArray.canvas);
+			//pi_drawGraphics(spriteGroupSky.buffer, 0, 0, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
 			
-			pi_loadBackground(&sceneGrass2);
+			//pi_loadBackground(&sceneGrass2);
 			pi_animateBackground(&sceneGrass2);
-			pi_drawGraphics(sceneGrass2.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
+			pi_addToRenderQueue(&renderQeue, &sceneGrass2.canvas);
+//			pi_drawGraphics(sceneGrass2.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
 
-			pi_loadBackground(&sceneGrass);
+			//pi_loadBackground(&sceneGrass);
 			pi_animateBackground(&sceneGrass);
-			pi_drawGraphics(sceneGrass.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
+			pi_addToRenderQueue(&renderQeue, &sceneGrass.canvas);
+//			pi_drawGraphics(sceneGrass.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
 			
 			redraw = true;
 		}
@@ -167,21 +173,27 @@ int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, GameScreen
 	if (tela->id == NATIVE_SCREEN) // Caso image=null e tela==0, sai da função após ter limpado o buffer
 			return 0;
 	
+	al_hold_bitmap_drawing(true);
 	al_draw_bitmap(image, x, y, 0);
 	
 	float x1 = tela->x1 * 1.0;
 	float x2 = tela->x2 * 1.0;
 	float y1 = tela->y1 * 1.0;
 	float y2 = tela->y2 * 1.0;
+	al_hold_bitmap_drawing(false);
 	
 	al_set_target_bitmap(nativeScreen->canvas);
+	al_hold_bitmap_drawing(true);
 	al_draw_bitmap(tela->canvas, 0, 0, 0);
+	al_hold_bitmap_drawing(false);
 
 	al_set_target_backbuffer(display->backbuffer);
+	al_hold_bitmap_drawing(true);
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	
 	al_draw_bitmap(nativeScreen->canvas, 0, 0, 0);
 
+	al_hold_bitmap_drawing(false);
 	DEBUG_ON("\n----debug:drawGraphics():end");	
 
 	return 0;
