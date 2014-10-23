@@ -1,10 +1,10 @@
 #ifndef H_PI_DATA
 	#define H_PI_DATA
 	#include <allegro5/allegro.h>
-	
+
 	#define MAX_FILE_PATH_SIZE 30
 	#define MAX_TAG_NAME_SIZE 20
-	
+
 	#define TELA_AVENTURA 1
 	#define TELA_PODERES  2
 	#define NATIVE_SCREEN 3
@@ -13,28 +13,29 @@
 	#define	NO 6
 	#define DIR_OPPOSITE -1 // inverte a direção do movimento
 	#define DIR_KEEP 1 // mantém o moviment na direção atual
-	
+
 	#define FPS 60
-	
+
 	#define LAYER_BG_FULL 2
 	#define LAYER_SCENE_GRASS 3
 	#define LAYER_SCENE_GRASS_2 4
-	#define LAYER_SCENE_TREELINE_1 5	
+	#define LAYER_SCENE_TREELINE_1 5
 	#define BG_TILE_WIDTH 100 // largura de cada pedaço do fundo a ser carregado
 	#define BG_TILE_HEIGHT 1022 // largura de cada pedaço do fundo a ser carregado
-	
+
 	#define ID_GROUP_SPRITES 110
 	#define ID_GROUP_SPRITES_SKY 111
+	#define ID_GROUP_SPRITES_TREES 112
 
 	#define ID_STILL_SPRITE 100
-	
+
 	#define LOOP_INFINITE -1
 /*
   	enum KEYS {
 		KEY_DOWN
 	};
 */
-	
+
 typedef struct{
 		ALLEGRO_BITMAP *canvas;
 		int 	id;
@@ -109,6 +110,10 @@ typedef struct {
 		int 	rest; // para usar no cálculo de velocidade do objeto
 		int 	rest_countdown; // quando chegar a zero, o objeto é deslocado.
 		int		loop;
+		float	startX;
+		float	startY;
+		float	endX;
+		float	endY;
 		float 	x1;
 		float 	y1;
 		float 	speedX;	// quantidade de pixels deslocados a cada iteração na animação
@@ -140,4 +145,3 @@ typedef struct {
 
 
 #endif
-
