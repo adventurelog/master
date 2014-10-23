@@ -38,28 +38,6 @@
 #endif
 
 //======================================================================
-int pi_addToRenderQueue(RenderQueue *q, ALLEGRO_IMAGE *buffer){
-	int i;
-	
-	for (i = 0; i RENDER_QUEUE_SIZE - 1; i++){
-		if (q[i].buffer == NULL){
-			q[i].buffer = buffer;
-			q[i].render = YES;
-		}
-	}
-}
-//----------------------------------------------------------------------
-int pi_resetRenderQueue(RenderQueue *q){
-	int i;
-	
-	for (i = 0; i < RENDER_QUEUE_SIZE - 1; i++){
-		q[i].buffer = NULL;
-		q[i].render = NO;
-	}
-	
-	return 0;
-}
-//----------------------------------------------------------------------
 int pi_stringCompare(char s1[], char s2[]){
 	int i, size, count;
 	
@@ -133,7 +111,7 @@ int pi_iniSpriteGroup(SpriteGroup *sg, GameScreen *display, int id){
 	return 0;
 }
 //----------------------------------------------------------------------
-int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
+int pi_loadStillSprite(SpriteGroup *sg, int startX, int startY, int endX, int endY, char *fileName, char *tagName){
 	
 	int i, x, y, w, h;
 	char fullPath[MAX_FILE_PATH_SIZE];
@@ -162,6 +140,10 @@ int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
 			al_set_clipping_rectangle(0, 0, w, h);
 			
 			sg->spriteArray[i].reload = 0;
+			
+			sg->spriteArray[i].startX = startX;
+			sg->spriteArray[i].startY = startY;
+			
 			return 0;
 		}
 	}
@@ -185,22 +167,50 @@ int pi_findSpriteByName(SpriteGroup *sg, char *tagName){
 	return -1;
 }
 //----------------------------------------------------------------------
-int pi_AnimateSpriteGroup(SpriteGroup *sg){
+int pi_AnimateSpriteGroup(SpriteGroup *sg, GameScreen *display){
 	int i;
+	float x = sg->spriteArray[i].x1;
+	float y = sg->spriteArray[i].y1;
+	float z = sg->spriteArray[i].depth;
+	float endX	= sg->spriteArray[i].startX;
+	float endY	= sg->spriteArray[i].startY;
+	float startX = sg->spriteArray[i].startX;
+	float startY = sg->spriteArray[i].startY;
+	float width  = sg->spriteArray[i].width;
+	float height = sg->spriteArray[i].height;
+	
 	
 	al_set_target_bitmap(sg->buffer);
-	al_hold_bitmap_drawing(true);
 	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-
+	
 	for (i = 0; i < sg->arraySize - 1; i++){
 		if (sg->spriteArray[i].canvas != NULL){
+			
 			sg->spriteArray[i].x1 += (sg->spriteArray[i].speedX * sg->spriteArray[i].directionX * sg->spriteArray[i].depth);
 			sg->spriteArray[i].y1 += (sg->spriteArray[i].speedY * sg->spriteArray[i].directionY * sg->spriteArray[i].depth);
-			al_draw_bitmap(sg->spriteArray[i].canvas, sg->spriteArray[i].x1, sg->spriteArray[i].y1, 0);
+
+			if (sg->spriteArray[i].startX < sg->spriteArray[i].endX){
+				if
+			}
+			else{
+			}
+			
+
+			
+			// apenas desenha a imagem se ela estiver dentro da tela
+			if (sg->spriteArray[i].x1 + sg->spriteArray[i].width >= display->x1){
+				if (sg->spriteArray[i].x1 <= display->width){
+					if (sg->spriteArray[i].y1 + sg->spriteArray[i].height >= display->y1){
+						if (sg->spriteArray[i].y1 <= display->height){
+							al_draw_bitmap(sg->spriteArray[i].canvas, sg->spriteArray[i].x1, sg->spriteArray[i].y1, 0);
+						}
+					}
+				}
+			}
+			
 		}
 	}
 	
-	al_hold_bitmap_drawing(false);
 	return 0;
 }
 //----------------------------------------------------------------------
@@ -224,11 +234,9 @@ int pi_iniBackground(BGImageStream *bg, GameScreen *display, int layer){
 		bg->totalNumImgs = 7;
 		bg->rest			= bg->depth;
 		bg->rest_countdown	= bg->rest;
-		
 		bg->fileNamePrefix	= "grass_";
 		bg->dirPath			= "img/ground/png/";
 		bg->buffer			= al_create_bitmap(display->width, display->height);
-		
 		dirX = -1;
 		dirY = 1;
 		spdX = 2.0;
@@ -248,14 +256,34 @@ int pi_iniBackground(BGImageStream *bg, GameScreen *display, int layer){
 		bg->totalNumImgs = 7;
 		bg->rest			= bg->depth;
 		bg->rest_countdown	= bg->rest;
-		
 		bg->fileNamePrefix	= "grass_";
 		bg->dirPath			= "img/ground/png/";
 		bg->buffer			= al_create_bitmap(display->width, display->height);
-		
 		dirX = -1;
 		dirY = 1;
 		spdX = 2.0;
+		spdY = 0.0;
+		offsetX = bg->width;
+		offsetY = 0.0;
+	}
+	else if (layer == LAYER_SCENE_TREELINE_1){
+		bg->tileCount 	= 6;
+		bg->id 			= layer;
+		bg->width 		= 1000;
+		bg->height 		= 376;
+		bg->depth		= 0.97;
+		bg->x1			= 50.0;
+		bg->y1			= 690.0;
+		bg->currentIndex = 0;
+		bg->totalNumImgs = 6;
+		bg->rest			= bg->depth;
+		bg->rest_countdown	= bg->rest;
+		bg->fileNamePrefix	= "treeline1_";
+		bg->dirPath			= "img/trees/png/treeline1/";
+		bg->buffer			= al_create_bitmap(display->width, display->height);
+		dirX = -1;
+		dirY = 1;
+		spdX = 1.0;
 		spdY = 0.0;
 		offsetX = bg->width;
 		offsetY = 0.0;
@@ -327,7 +355,6 @@ int pi_animateBackground(BGImageStream *bg){
 	int i;
 	int count = bg->tileCount - 1;
 	al_set_target_bitmap(bg->buffer);
-	al_hold_bitmap_drawing(true);
 	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 	
 	//if (bg->rest_countdown <= 0){
@@ -335,8 +362,8 @@ int pi_animateBackground(BGImageStream *bg){
 		//bg->rest_countdown = bg->rest;
 
 		for (i = 0; i <= count; i++){			
-			bg->tileSequence[i].x1 += (bg->tileSequence[i].speedX * bg->tileSequence[i].directionX * bg->tileSequence[i].depth) / 0.5;
-			bg->tileSequence[i].y1 += (bg->tileSequence[i].speedY * bg->tileSequence[i].directionY * bg->tileSequence[i].depth) / 0.5;
+			bg->tileSequence[i].x1 += (bg->tileSequence[i].speedX * bg->tileSequence[i].directionX * bg->tileSequence[i].depth);
+			bg->tileSequence[i].y1 += (bg->tileSequence[i].speedY * bg->tileSequence[i].directionY * bg->tileSequence[i].depth);
 		
 			al_draw_bitmap(bg->tileSequence[i].canvas, bg->tileSequence[i].x1, bg->tileSequence[i].y1, 0);
 			//DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].depth = %f", i, bg->tileSequence[i].depth);
@@ -356,7 +383,6 @@ int pi_animateBackground(BGImageStream *bg){
 	
 	
 	//DEBUG_ON("\n----debug:animateBackground():end");
-	al_hold_bitmap_drawing(false);
 	return 0;
 }
 //----------------------------------------------------------------------
@@ -522,12 +548,6 @@ int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
 	ALLEGRO_DISPLAY_MODE disp_data;
 	
 	al_get_display_mode(display->mode, &disp_data); // Armazena em disp_data a maior resolução suportada pelo monitor
-
-	al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_SUGGEST);
-	al_set_new_display_option(ALLEGRO_RENDER_METHOD, 1, ALLEGRO_SUGGEST);
-	al_set_new_display_option(ALLEGRO_CAN_DRAW_INTO_BITMAP, 1, ALLEGRO_SUGGEST);
-	al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-	al_set_new_display_option(ALLEGRO_SAMPLES, 1, ALLEGRO_SUGGEST);
 
 	al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 	

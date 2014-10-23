@@ -16,10 +16,10 @@
 	
 	#define FPS 60
 	
-	#define LAYER_BG_FULL 2 // id do fundo
-	#define LAYER_SCENE_GRASS 3 // id do fundo
-	#define LAYER_SCENE_GRASS_2 4 // id do fundo
-	
+	#define LAYER_BG_FULL 2
+	#define LAYER_SCENE_GRASS 3
+	#define LAYER_SCENE_GRASS_2 4
+	#define LAYER_SCENE_TREELINE_1 5	
 	#define BG_TILE_WIDTH 100 // largura de cada pedaço do fundo a ser carregado
 	#define BG_TILE_HEIGHT 1022 // largura de cada pedaço do fundo a ser carregado
 	
@@ -28,18 +28,13 @@
 
 	#define ID_STILL_SPRITE 100
 	
-	#define RENDER_QUEUE_SIZE 10
+	#define LOOP_INFINITE -1
 /*
   	enum KEYS {
 		KEY_DOWN
 	};
 */
-
-typedef struct {
-	ALLEGRO_BITMAP *buffer;
-	int render;
-} RenderQueue;
-
+	
 typedef struct{
 		ALLEGRO_BITMAP *canvas;
 		int 	id;
@@ -74,6 +69,10 @@ typedef struct {
 		int 	looping;
 		float 	x1;
 		float 	y1;
+		float	startX; // posição X inicial, utilizada para looping
+		float	startY;	// posição Y inicial, utilizada para looping
+		float	endX; 	// posição X final, utilizada para looping
+		float	endY;	// posição Y final, utilizada para looping
 		float 	speedX;	// quantidade de pixels deslocados a cada iteração na animação
 		float 	speedY; // quantidade de pixels deslocados a cada iteração na animação
 		int 	directionX;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
@@ -109,6 +108,7 @@ typedef struct {
 		int 	id;
 		int 	rest; // para usar no cálculo de velocidade do objeto
 		int 	rest_countdown; // quando chegar a zero, o objeto é deslocado.
+		int		loop;
 		float 	x1;
 		float 	y1;
 		float 	speedX;	// quantidade de pixels deslocados a cada iteração na animação
@@ -135,7 +135,7 @@ typedef struct {
 		float 	depth; // profundidade no eixo Z.
 		int 	reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
 		char 	*dirPath;
-		StillSprite spriteArray[20];
+		StillSprite spriteArray[30];
 } SpriteGroup;
 
 
