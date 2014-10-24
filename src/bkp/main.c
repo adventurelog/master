@@ -26,7 +26,7 @@
 #endif
 
 //----------------------------------------------------------------------
-int pi_drawGraphics(ALLEGRO_BITMAP *image, float x, float y, int refresh, GameScreen *tela, GameScreen *nativeScreen, GameDisplay *display);
+int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, GameScreen *tela, GameScreen *nativeScreen, GameDisplay *display);
 
 //======================================================================
 int main(int argc, char **argv[]){
@@ -47,7 +47,6 @@ int main(int argc, char **argv[]){
     StillSprite spriteArrayGrass[20];
 
     int spriteNum = -1;
-	int i;
 
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 	ALLEGRO_TIMER *gameTimer = NULL;
@@ -96,6 +95,7 @@ int main(int argc, char **argv[]){
     pi_loadStillSprite(&spriteGroupTrees, "tree2", "tree2");
 
 //	spriteNum = pi_findSpriteByName(&spriteGroupSky, "moon");
+	int i;
 	
 	// Configura a grama
 	for (i = 0; i < spriteGroupGrass.arraySize - 1; i++){	
@@ -189,7 +189,7 @@ int main(int argc, char **argv[]){
 
 	while(!exitGame){
 		frame++;
-		//printf("\nFrame:%d", frame);
+		printf("\nFrame:%d", frame);
 		ALLEGRO_EVENT event;
 		ALLEGRO_TIMEOUT timeout;
 		al_init_timeout(&timeout, 0.06);
@@ -203,17 +203,27 @@ int main(int argc, char **argv[]){
 			pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, &telaPoderes, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 		//	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 						
-			pi_AnimateSprite(&spriteGroupSky, &nativeScreen);
-			pi_drawGraphics(spriteGroupSky.spriteArray[0].canvas, spriteGroupSky.spriteArray[0].x1, spriteGroupSky.spriteArray[0].y1, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
+		//	pi_AnimateSprite(&spriteGroupSky, &nativeScreen);
+		//	pi_drawGraphics(spriteGroupSky.buffer, 0, 0, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
 
-			pi_AnimateSprite(&spriteGroupTrees, &nativeScreen);
-			pi_drawGraphics(spriteGroupTrees.spriteArray[0].canvas, spriteGroupTrees.spriteArray[0].x1, spriteGroupTrees.spriteArray[0].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
-			pi_drawGraphics(spriteGroupTrees.spriteArray[1].canvas, spriteGroupTrees.spriteArray[1].x1, spriteGroupTrees.spriteArray[1].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
+		//	pi_AnimateSprite(&spriteGroupTrees, &nativeScreen);
+        //   pi_drawGraphics(spriteGroupTrees.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
 
-			pi_AnimateSprite(&spriteGroupGrass, &nativeScreen);
-			pi_drawGraphics(spriteGroupGrass.spriteArray[0].canvas, spriteGroupGrass.spriteArray[0].x1, spriteGroupGrass.spriteArray[0].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
-			pi_drawGraphics(spriteGroupGrass.spriteArray[1].canvas, spriteGroupGrass.spriteArray[1].x1, spriteGroupGrass.spriteArray[1].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
+		//	pi_AnimateSprite(&spriteGroupGrass, &nativeScreen);
+        //   pi_drawGraphics(spriteGroupGrass.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
 
+			//pi_loadBackground(&treeLine1);
+			//pi_animateBackground(&treeLine1);
+			//pi_drawGraphics(treeLine1.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
+/*
+			pi_loadBackground(&sceneGrass2);
+			pi_animateBackground(&sceneGrass2);
+			pi_drawGraphics(sceneGrass2.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
+
+			pi_loadBackground(&sceneGrass);
+			pi_animateBackground(&sceneGrass);
+			pi_drawGraphics(sceneGrass.buffer, 0, 0, 0, &telaAventura, &nativeScreen, &gameDisplay);
+*/		
 			redraw = true;
 		}
 		else if (event.type == ALLEGRO_EVENT_KEY_DOWN && get_event){
@@ -241,7 +251,7 @@ int main(int argc, char **argv[]){
 
 }
 //======================================================================
-int pi_drawGraphics(ALLEGRO_BITMAP *image, float x, float y, int refresh, GameScreen *tela, GameScreen *nativeScreen, GameDisplay *display){
+int pi_drawGraphics(ALLEGRO_BITMAP *image, int x, int y, int refresh, GameScreen *tela, GameScreen *nativeScreen, GameDisplay *display){
 	DEBUG_ON("\n----debug:drawGraphics():start");
 	DEBUG_ON("\ndebug:tela:%d", tela->id);
 
@@ -250,8 +260,7 @@ int pi_drawGraphics(ALLEGRO_BITMAP *image, float x, float y, int refresh, GameSc
 		return -1;
 	}
 
-//	al_set_target_bitmap(tela->canvas);
-	al_set_target_backbuffer(display->backbuffer);
+	al_set_target_bitmap(tela->canvas);
 
 	if (refresh){
 		al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -259,24 +268,20 @@ int pi_drawGraphics(ALLEGRO_BITMAP *image, float x, float y, int refresh, GameSc
 	if (tela->id == NATIVE_SCREEN) // Caso image=null e tela==0, sai da função após ter limpado o buffer
 			return 0;
 
-	//al_draw_bitmap(image, x, y, 0);
+	al_draw_bitmap(image, x, y, 0);
 
-	/*float x1 = tela->x1 * 1.0;
+	float x1 = tela->x1 * 1.0;
 	float x2 = tela->x2 * 1.0;
 	float y1 = tela->y1 * 1.0;
-	float y2 = tela->y2 * 1.0;*/
+	float y2 = tela->y2 * 1.0;
 
-	//al_set_target_bitmap(nativeScreen->canvas);
-	//al_draw_bitmap(tela->canvas, 0, 0, 0);
+	al_set_target_bitmap(nativeScreen->canvas);
+	al_draw_bitmap(tela->canvas, 0, 0, 0);
 
-//	al_set_target_backbuffer(display->backbuffer);
-	//al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_set_target_backbuffer(display->backbuffer);
+	al_clear_to_color(al_map_rgb(0, 0, 0));
 
-	//al_draw_bitmap(nativeScreen->canvas, 0, 0, 0);
-	//if (tela->id == TELA_AVENTURA) al_set_clipping_rectangle(0, 0, (display->width/3)*2, display->height);
-	//if (tela->id == TELA_PODERES)  al_set_clipping_rectangle((display->width/3), 0, (display->width/3)*2, display->height);
-	al_draw_bitmap(image, x, y, 0);
-	//al_draw_bitmap_region(image, 0, 0, tela->width, tela->height, x, y, 0);
+	al_draw_bitmap(nativeScreen->canvas, 0, 0, 0);
 
 	DEBUG_ON("\n----debug:drawGraphics():end");
 

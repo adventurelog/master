@@ -4,6 +4,7 @@
 
 	#define MAX_FILE_PATH_SIZE 30
 	#define MAX_TAG_NAME_SIZE 20
+	#define MAX_ARRAY_SIZE_SPRITEGROUP 10
 
 	#define TELA_AVENTURA 1
 	#define TELA_PODERES  2
@@ -14,7 +15,7 @@
 	#define DIR_OPPOSITE -1 // inverte a direção do movimento
 	#define DIR_KEEP 1 // mantém o moviment na direção atual
 
-	#define FPS 60
+	#define FPS 30
 
 	#define LAYER_BG_FULL 2
 	#define LAYER_SCENE_GRASS 3
@@ -26,6 +27,7 @@
 	#define ID_GROUP_SPRITES 110
 	#define ID_GROUP_SPRITES_SKY 111
 	#define ID_GROUP_SPRITES_TREES 112
+	#define ID_GROUP_SPRITES_GRASS 113
 
 	#define ID_STILL_SPRITE 100
 
@@ -125,6 +127,7 @@ typedef struct {
 		float 	height;
 		int 	reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
 		char	*tagName;
+		char 	*dirPath;
 } StillSprite;
 
 typedef struct {
@@ -140,7 +143,7 @@ typedef struct {
 		float 	depth; // profundidade no eixo Z.
 		int 	reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
 		char 	*dirPath;
-		StillSprite spriteArray[30];
+		StillSprite spriteArray[MAX_ARRAY_SIZE_SPRITEGROUP];
 } SpriteGroup;
 
 

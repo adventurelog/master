@@ -192,7 +192,6 @@ int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 
 	al_set_target_bitmap(sg->buffer);
 	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-	al_hold_bitmap_drawing(true);
 	
 	for (i = 0; i < sg->arraySize - 1; i++){
 		if (sg->spriteArray[i].canvas != NULL){
@@ -247,16 +246,15 @@ int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 		//				if (y1 <= 1080){
 							sg->spriteArray[i].x1 = x1;
 							sg->spriteArray[i].y1 = y1;
-							//al_draw_bitmap(sg->spriteArray[i].canvas, x1, y1, 0);
+							al_draw_bitmap(sg->spriteArray[i].canvas, x1, y1, 0);
 		//				}
 		//			}
-		//		}
-		//	}
+				}
+			}
 
 		}
 	}
 
-	al_hold_bitmap_drawing(false);
 	return 0;
 }
 //----------------------------------------------------------------------
