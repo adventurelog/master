@@ -4,7 +4,7 @@
 
 	#define MAX_FILE_PATH_SIZE 30
 	#define MAX_TAG_NAME_SIZE 20
-	#define MAX_ARRAY_SIZE_SPRITEGROUP 10
+	#define MAX_ARRAY_SIZE_SPRITEGROUP 20
 
 	#define TELA_AVENTURA 1
 	#define TELA_PODERES  2
@@ -15,7 +15,7 @@
 	#define DIR_OPPOSITE -1 // inverte a direção do movimento
 	#define DIR_KEEP 1 // mantém o moviment na direção atual
 
-	#define FPS 30
+	#define FPS 24
 
 	#define LAYER_BG_FULL 2
 	#define LAYER_SCENE_GRASS 3
@@ -28,6 +28,7 @@
 	#define ID_GROUP_SPRITES_SKY 111
 	#define ID_GROUP_SPRITES_TREES 112
 	#define ID_GROUP_SPRITES_GRASS 113
+	#define ID_GROUP_SPRITES_TOMBS 114
 
 	#define ID_STILL_SPRITE 100
 

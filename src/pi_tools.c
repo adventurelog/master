@@ -123,6 +123,16 @@ int pi_iniSpriteGroup(SpriteGroup *sg, GameScreen *display, int id){
 		sg->speedX		= 0.0;
 		sg->speedY		= 0.0;
 	}
+	else if (id == ID_GROUP_SPRITES_TOMBS){
+		sg->depth		= 1;
+		sg->x1			= 0.0;
+		sg->y1			= 0;
+		sg->dirPath		= "img/tomb/png/";
+		sg->directionX	= 1;
+		sg->directionY	= 1;
+		sg->speedX		= 0.0;
+		sg->speedY		= 0.0;
+	}
 
 	for (i = 0; i < sg->arraySize - 1; i++){
 		sg->spriteArray[i].canvas 	= NULL;
@@ -190,9 +200,9 @@ int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 	int i;
 	float deltaX, deltaY;
 
-	al_set_target_bitmap(sg->buffer);
-	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-	al_hold_bitmap_drawing(true);
+//	al_set_target_bitmap(sg->buffer);
+//	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+//	al_hold_bitmap_drawing(true);
 	
 	for (i = 0; i < sg->arraySize - 1; i++){
 		if (sg->spriteArray[i].canvas != NULL){
@@ -252,11 +262,10 @@ int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 		//			}
 		//		}
 		//	}
-
 		}
 	}
 
-	al_hold_bitmap_drawing(false);
+//	al_hold_bitmap_drawing(false);
 	return 0;
 }
 //----------------------------------------------------------------------
@@ -586,11 +595,14 @@ int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
 	DEBUG_ON("\n----debug:setFullScreen():start");
 	// Configura para tela cheia.
 
-	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+	//al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
 	al_set_new_bitmap_flags(ALLEGRO_MAG_LINEAR);
 
 	ALLEGRO_DISPLAY_MODE disp_data;
 
+	al_set_new_display_option(ALLEGRO_RENDER_METHOD, 1, ALLEGRO_SUGGEST);
+	al_set_new_display_option(ALLEGRO_CAN_DRAW_INTO_BITMAP, 1, ALLEGRO_SUGGEST);
+	
 	al_get_display_mode(display->mode, &disp_data); // Armazena em disp_data a maior resolução suportada pelo monitor
 
 	al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
@@ -603,6 +615,7 @@ int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
 	// e todo o resto é ajustado automaticamente.
 	nativeScreen->canvas = al_create_bitmap(nativeScreen->width, nativeScreen->height);
 
+	
 	if (!display->backbuffer){
 		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao inicializar o display!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		al_destroy_display(display->backbuffer);
