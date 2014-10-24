@@ -7,7 +7,7 @@
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/allegro_primitives.h"
 #include <stdio.h>
-
+#include <math.h>
 
 #include "pi_data.h"
 
@@ -133,6 +133,36 @@ int pi_iniSpriteGroup(SpriteGroup *sg, GameScreen *display, int id){
 		sg->speedX		= 0.0;
 		sg->speedY		= 0.0;
 	}
+	else if (id == ID_GROUP_SPRITES_FOG){
+		sg->depth		= 1;
+		sg->x1			= 0.0;
+		sg->y1			= 0;
+		sg->dirPath		= "img/fog/png/";
+		sg->directionX	= 1;
+		sg->directionY	= 1;
+		sg->speedX		= 0.0;
+		sg->speedY		= 0.0;
+	}
+	else if (id == ID_GROUP_SPRITES_GROUND){
+		sg->depth		= 1;
+		sg->x1			= 0.0;
+		sg->y1			= 0;
+		sg->dirPath		= "img/ground/png/";
+		sg->directionX	= 1;
+		sg->directionY	= 1;
+		sg->speedX		= 0.0;
+		sg->speedY		= 0.0;
+	}
+	else if (id == ID_GROUP_SPRITES_GHOST){
+		sg->depth		= 1;
+		sg->x1			= 0.0;
+		sg->y1			= 0;
+		sg->dirPath		= "img/ghost/png/";
+		sg->directionX	= 1;
+		sg->directionY	= 1;
+		sg->speedX		= 0.0;
+		sg->speedY		= 0.0;
+	}
 
 	for (i = 0; i < sg->arraySize - 1; i++){
 		sg->spriteArray[i].canvas 	= NULL;
@@ -178,8 +208,8 @@ int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
 			sg->spriteArray[i].canvas = al_load_bitmap(file);
 			DEBUG_FILE("\ndebug:loadStillSprite:loaded:%s", fullPath);
 
-			w = al_get_bitmap_height(sg->spriteArray[i].canvas);
-			h = al_get_bitmap_width(sg->spriteArray[i].canvas);
+			h = al_get_bitmap_height(sg->spriteArray[i].canvas);
+			w = al_get_bitmap_width(sg->spriteArray[i].canvas);
 
 			al_set_target_bitmap(sg->spriteArray[i].canvas);
 			al_set_clipping_rectangle(0, 0, w, h);
@@ -199,6 +229,7 @@ int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
 int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 	int i;
 	float deltaX, deltaY;
+	float val, ret;
 
 //	al_set_target_bitmap(sg->buffer);
 //	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
@@ -221,9 +252,22 @@ int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 			float width		= sg->spriteArray[i].width;
 			float height	= sg->spriteArray[i].height;
 
-			x1 += (spdX * dirX * depth);
-			y1 += (spdY * dirY * depth);
+			
+//			y1 += (spdY * dirY * depth);
+			ret = 0;
+			
+			if (sg->id == ID_GROUP_SPRITES_GHOST){	
+				x1 += (spdX * dirX * depth) * sg->spriteArray[i].randVar2;
+				
+				val = PI / 180;
+				ret = sin(x1 * val) * sg->spriteArray[i].randVar;
+			}
+			else
+				x1 += (spdX * dirX * depth);
 
+			y1 += (spdY * dirY * depth) + (ret * 2);
+				
+			
 			deltaX = endX - startX;
 			deltaY = endY - startY;
 
@@ -341,6 +385,7 @@ int pi_iniBackground(BGImageStream *bg, GameScreen *display, int layer){
 		offsetX = bg->width;
 		offsetY = 0.0;
 	}
+
 
 	int count = bg->tileCount - 1;
 

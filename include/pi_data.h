@@ -4,7 +4,7 @@
 
 	#define MAX_FILE_PATH_SIZE 30
 	#define MAX_TAG_NAME_SIZE 20
-	#define MAX_ARRAY_SIZE_SPRITEGROUP 20
+	#define MAX_ARRAY_SIZE_SPRITEGROUP 40
 
 	#define TELA_AVENTURA 1
 	#define TELA_PODERES  2
@@ -29,10 +29,16 @@
 	#define ID_GROUP_SPRITES_TREES 112
 	#define ID_GROUP_SPRITES_GRASS 113
 	#define ID_GROUP_SPRITES_TOMBS 114
+	#define ID_GROUP_SPRITES_FOG 115
+	#define ID_GROUP_SPRITES_GROUND 116
+	#define ID_GROUP_SPRITES_GHOST 117
 
 	#define ID_STILL_SPRITE 100
 
 	#define LOOP_INFINITE -1
+
+	#define PI 3.14159265
+
 /*
   	enum KEYS {
 		KEY_DOWN
@@ -129,6 +135,8 @@ typedef struct {
 		int 	reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
 		char	*tagName;
 		char 	*dirPath;
+		float  randVar;
+		float  randVar2;
 } StillSprite;
 
 typedef struct {

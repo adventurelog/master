@@ -46,7 +46,12 @@ int main(int argc, char **argv[]){
     SpriteGroup spriteGroupTrees;
     SpriteGroup spriteGroupTrees2;
     SpriteGroup spriteGroupGrass;
+    SpriteGroup spriteGroupGrass2;
     SpriteGroup spriteGroupTombs;
+    SpriteGroup spriteGroupFog;
+    SpriteGroup spriteGroupFog2;
+    SpriteGroup spriteGroupGround;
+    SpriteGroup spriteGroupGhost;
     //StillSprite spriteArrayGrass[20];
 
     int spriteNum = -1;
@@ -78,6 +83,27 @@ int main(int argc, char **argv[]){
 	//pi_loadBackground(&treeLine1);
 
 	/* Configura SPRITES*/
+	pi_iniSpriteGroup(&spriteGroupGround, &nativeScreen, ID_GROUP_SPRITES_GROUND);
+	pi_loadStillSprite(&spriteGroupGround, "ground", "ground");
+
+	pi_iniSpriteGroup(&spriteGroupGhost, &nativeScreen, ID_GROUP_SPRITES_GHOST);
+	pi_loadStillSprite(&spriteGroupGhost, "ghost1", "ghost1");
+	pi_loadStillSprite(&spriteGroupGhost, "ghost1", "ghost2");
+	pi_loadStillSprite(&spriteGroupGhost, "ghost1", "ghost3");
+
+	pi_iniSpriteGroup(&spriteGroupFog, &nativeScreen, ID_GROUP_SPRITES_FOG);
+	pi_loadStillSprite(&spriteGroupFog, "fog2", "fog2");
+	pi_loadStillSprite(&spriteGroupFog, "fog3", "fog3");
+	pi_loadStillSprite(&spriteGroupFog, "fog4", "fog4");
+	pi_loadStillSprite(&spriteGroupFog, "fog5", "fog5");
+	pi_loadStillSprite(&spriteGroupFog, "fog6", "fog6");
+
+	pi_iniSpriteGroup(&spriteGroupFog2, &nativeScreen, ID_GROUP_SPRITES_FOG);
+	pi_loadStillSprite(&spriteGroupFog2, "fog4", "fog4");
+	pi_loadStillSprite(&spriteGroupFog2, "fog6", "fog6");
+	pi_loadStillSprite(&spriteGroupFog2, "fog3", "fog3");
+	pi_loadStillSprite(&spriteGroupFog2, "fog5", "fog5");
+
 	pi_iniSpriteGroup(&spriteGroupTombs, &nativeScreen, ID_GROUP_SPRITES_TOMBS);
 	pi_loadStillSprite(&spriteGroupTombs, "cross1", "cross1");
 	pi_loadStillSprite(&spriteGroupTombs, "cross2", "cross2");
@@ -104,53 +130,130 @@ int main(int argc, char **argv[]){
 	pi_loadStillSprite(&spriteGroupGrass, "grass_1", "grass_8");
 	pi_loadStillSprite(&spriteGroupGrass, "grass_2", "grass_9");
 	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_10");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_11");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_0", "grass_11");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_6", "grass_11");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_1", "grass_11");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_12");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_0", "grass_13");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_6", "grass_14");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_1", "grass_15");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_2", "grass_16");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_17");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_18");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_5", "grass_19");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_20");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_21");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_5", "grass_22");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_6", "grass_23");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_0", "grass_24");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_1", "grass_25");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_2", "grass_26");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_27");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_28");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_5", "grass_29");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_5", "grass_30");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_31");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_32");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_5", "grass_33");
+	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_34");
 
 	pi_iniSpriteGroup(&spriteGroupSky, &nativeScreen, ID_GROUP_SPRITES_SKY);
 	pi_loadStillSprite(&spriteGroupSky, "moon", "moon");
 	pi_loadStillSprite(&spriteGroupSky, "sky", "moon");
 
     pi_iniSpriteGroup(&spriteGroupTrees, &nativeScreen, ID_GROUP_SPRITES_TREES);
-    pi_loadStillSprite(&spriteGroupTrees, "tree1", "tree2");
-    pi_loadStillSprite(&spriteGroupTrees, "tree1", "tree3");
-    pi_loadStillSprite(&spriteGroupTrees, "tree1", "tree4");
+    pi_loadStillSprite(&spriteGroupTrees, "tree3", "tree2");
+    pi_loadStillSprite(&spriteGroupTrees, "tree6", "tree3");
+    pi_loadStillSprite(&spriteGroupTrees, "tree3", "tree4");
     pi_loadStillSprite(&spriteGroupTrees, "tree1", "tree5");
-    pi_loadStillSprite(&spriteGroupTrees, "tree1", "tree6");
-    pi_loadStillSprite(&spriteGroupTrees, "tree1", "tree7");
+    pi_loadStillSprite(&spriteGroupTrees, "tree3", "tree6");
+    pi_loadStillSprite(&spriteGroupTrees, "tree7", "tree7");
     pi_loadStillSprite(&spriteGroupTrees, "tree1", "tree8");
 
     pi_iniSpriteGroup(&spriteGroupTrees2, &nativeScreen, ID_GROUP_SPRITES_TREES);
-    pi_loadStillSprite(&spriteGroupTrees2, "tree2", "tree2");
+    pi_loadStillSprite(&spriteGroupTrees2, "tree8", "tree2");
     pi_loadStillSprite(&spriteGroupTrees2, "tree2", "tree3");
-    pi_loadStillSprite(&spriteGroupTrees2, "tree2", "tree4");
+    pi_loadStillSprite(&spriteGroupTrees2, "tree5", "tree4");
     pi_loadStillSprite(&spriteGroupTrees2, "tree2", "tree5");
-    pi_loadStillSprite(&spriteGroupTrees2, "tree2", "tree6");
-    pi_loadStillSprite(&spriteGroupTrees2, "tree2", "tree7");
-    pi_loadStillSprite(&spriteGroupTrees2, "tree2", "tree8");
+    pi_loadStillSprite(&spriteGroupTrees2, "tree4", "tree6");
+    pi_loadStillSprite(&spriteGroupTrees2, "tree8", "tree7");
+    pi_loadStillSprite(&spriteGroupTrees2, "tree5", "tree8");
 
 //	spriteNum = pi_findSpriteByName(&spriteGroupSky, "moon");
 	
+	// Configura a nevoa
+	for (i = 0; i < spriteGroupFog.arraySize - 1; i++){	
+		if (spriteGroupFog.spriteArray[i].canvas != NULL){
+			spriteGroupFog.spriteArray[i].x1 			= (i * spriteGroupFog.spriteArray[i].width);
+			printf("\nx1:%f", spriteGroupGrass.spriteArray[i].x1);
+			spriteGroupFog.spriteArray[i].y1 			= 940;
+			spriteGroupFog.spriteArray[i].depth 		= 0.85;
+			spriteGroupFog.spriteArray[i].directionX 	= -1;
+			spriteGroupFog.spriteArray[i].directionY 	= 1;
+			spriteGroupFog.spriteArray[i].speedX 		= 1.0;
+			spriteGroupFog.spriteArray[i].speedY 		= 0.0;
+			spriteGroupFog.spriteArray[i].startY 		= spriteGroupFog.spriteArray[i].y1;
+			spriteGroupFog.spriteArray[i].startX 		= 1920 + spriteGroupFog.spriteArray[i].x1;
+			spriteGroupFog.spriteArray[i].endY   		= spriteGroupFog.spriteArray[i].y1;
+			spriteGroupFog.spriteArray[i].endX 	    	= 0.0;
+			printf("\nstartX:%f", spriteGroupFog.spriteArray[i].startX);
+			spriteGroupFog.spriteArray[i].id 	    	= 4;
+			spriteGroupFog.spriteArray[i].loop 	   		= YES;
+		}	
+	}
+	for (i = 0; i < spriteGroupFog2.arraySize - 1; i++){	
+		if (spriteGroupFog2.spriteArray[i].canvas != NULL){
+			spriteGroupFog2.spriteArray[i].x1 			= (i * spriteGroupFog2.spriteArray[i].width) + 200;
+			printf("\nx1:%f", spriteGroupFog2.spriteArray[i].x1);
+			spriteGroupFog2.spriteArray[i].y1 			= 940;
+			spriteGroupFog2.spriteArray[i].depth 		= 0.95;
+			spriteGroupFog2.spriteArray[i].directionX 	= -1;
+			spriteGroupFog2.spriteArray[i].directionY 	= 1;
+			spriteGroupFog2.spriteArray[i].speedX 		= 1.0;
+			spriteGroupFog2.spriteArray[i].speedY 		= 0.0;
+			spriteGroupFog2.spriteArray[i].startY 		= spriteGroupFog2.spriteArray[i].y1;
+			spriteGroupFog2.spriteArray[i].startX 		= 1920 + spriteGroupFog2.spriteArray[i].x1;
+			spriteGroupFog2.spriteArray[i].endY   		= spriteGroupFog2.spriteArray[i].y1;
+			spriteGroupFog2.spriteArray[i].endX 	   	= 0.0;
+			printf("\nstartX:%f", spriteGroupFog.spriteArray[i].startX);
+			spriteGroupFog2.spriteArray[i].id 	    	= 4;
+			spriteGroupFog2.spriteArray[i].loop 	   	= YES;
+		}	
+	}
+
 	// Configura a grama
 	for (i = 0; i < spriteGroupGrass.arraySize - 1; i++){	
 		if (spriteGroupGrass.spriteArray[i].canvas != NULL){
 			spriteGroupGrass.spriteArray[i].x1 			= (i * spriteGroupGrass.spriteArray[i].width);
 			printf("\nx1:%f", spriteGroupGrass.spriteArray[i].x1);
-			spriteGroupGrass.spriteArray[i].y1 			= nativeScreen.scaledH  - 50;
+			spriteGroupGrass.spriteArray[i].y1 			= 1080  - 40;
 			spriteGroupGrass.spriteArray[i].depth 		= 1.7;
 			spriteGroupGrass.spriteArray[i].directionX 	= -1;
 			spriteGroupGrass.spriteArray[i].directionY 	= 1;
 			spriteGroupGrass.spriteArray[i].speedX 		= 1.0;
 			spriteGroupGrass.spriteArray[i].speedY 		= 0.0;
 			spriteGroupGrass.spriteArray[i].startY 		= spriteGroupGrass.spriteArray[i].y1;
-			spriteGroupGrass.spriteArray[i].startX 		= nativeScreen.scaledW + spriteGroupGrass.spriteArray[i].x1;
+			spriteGroupGrass.spriteArray[i].startX 		= 1920 + spriteGroupGrass.spriteArray[i].x1;
 			spriteGroupGrass.spriteArray[i].endY   		= spriteGroupGrass.spriteArray[i].y1;
 			spriteGroupGrass.spriteArray[i].endX 	    = 0.0;
 			printf("\nstartX:%f", spriteGroupGrass.spriteArray[i].startX);
 			spriteGroupGrass.spriteArray[i].id 	    	= 4;
 			spriteGroupGrass.spriteArray[i].loop 	    = YES;
+		}	
+	}
+    spriteGroupGrass2 = spriteGroupGrass;
+	for (i = 0; i < spriteGroupGrass2.arraySize - 1; i++){	
+		if (spriteGroupGrass2.spriteArray[i].canvas != NULL){
+			spriteGroupGrass2.spriteArray[i].x1 			= (i * spriteGroupGrass2.spriteArray[i].width);
+			spriteGroupGrass2.spriteArray[i].y1 			= 1080  - 50;
+			spriteGroupGrass2.spriteArray[i].depth 		= 1.0;
+			spriteGroupGrass2.spriteArray[i].directionX 	= -1;
+			spriteGroupGrass2.spriteArray[i].directionY 	= 1;
+			spriteGroupGrass2.spriteArray[i].speedX 		= 1.0;
+			spriteGroupGrass2.spriteArray[i].speedY 		= 0.0;
+			spriteGroupGrass2.spriteArray[i].startY 		= spriteGroupGrass2.spriteArray[i].y1;
+			spriteGroupGrass2.spriteArray[i].startX 		= 1920 + spriteGroupGrass2.spriteArray[i].x1;
+			spriteGroupGrass2.spriteArray[i].endY   		= spriteGroupGrass2.spriteArray[i].y1;
+			spriteGroupGrass2.spriteArray[i].endX 	    = 0.0;
+			spriteGroupGrass2.spriteArray[i].id 	    	= 4;
+			spriteGroupGrass2.spriteArray[i].loop 	    = YES;
 		}	
 	}
 
@@ -171,7 +274,7 @@ int main(int argc, char **argv[]){
 
 //	Configura a o céu de fundo
 		spriteGroupSky.spriteArray[1].x1 			= 0;
-		spriteGroupSky.spriteArray[1].y1 			= 0;
+		spriteGroupSky.spriteArray[1].y1 			= 1080 - spriteGroupSky.spriteArray[1].height;
 		spriteGroupSky.spriteArray[1].depth 		= 1.0;
 		spriteGroupSky.spriteArray[1].directionX 	= 1;
 		spriteGroupSky.spriteArray[1].directionY 	= 1;
@@ -184,15 +287,53 @@ int main(int argc, char **argv[]){
         spriteGroupSky.spriteArray[1].id 	    	= 1;
         spriteGroupSky.spriteArray[1].loop 	    	= NO;
 
-	// configura arveros profundidade 1
+//	Configura o chão
+		spriteGroupGround.spriteArray[0].x1 			= 0;
+		spriteGroupGround.spriteArray[0].y1 			= 1080 - spriteGroupGround.spriteArray[0].height;
+		spriteGroupGround.spriteArray[0].depth 			= 1.0;
+		spriteGroupGround.spriteArray[0].directionX 	= 1;
+		spriteGroupGround.spriteArray[0].directionY 	= 1;
+		spriteGroupGround.spriteArray[0].speedX 		= 0.0;
+		spriteGroupGround.spriteArray[0].speedY 		= 0.0;
+        spriteGroupGround.spriteArray[0].startY 		= 0.0;
+        spriteGroupGround.spriteArray[0].startX 		= 0.0;
+        spriteGroupGround.spriteArray[0].endY   		= 0.0;
+        spriteGroupGround.spriteArray[0].endX 	    	= 0.0;
+        spriteGroupGround.spriteArray[0].id 	    	= 1;
+        spriteGroupGround.spriteArray[0].loop 	    	= NO;
+
+//	Configura os fantasmas
+	for (i = 0; i < spriteGroupTrees.arraySize - 1; i++){	
+		if (spriteGroupTrees.spriteArray[i].canvas != NULL){
+			float r = (rand() / 1000000000.0);
+			float r2 = (rand() / 1000000000.0);
+			spriteGroupGhost.spriteArray[0].x1 			= 0;
+			spriteGroupGhost.spriteArray[0].y1 			= 950;
+			spriteGroupGhost.spriteArray[0].depth 		= 1.5;
+			spriteGroupGhost.spriteArray[0].directionX 	= -1;
+			spriteGroupGhost.spriteArray[0].directionY 	= 1;
+			spriteGroupGhost.spriteArray[0].speedX 		= 3.0;
+			spriteGroupGhost.spriteArray[0].speedY 		= 0.0;
+			spriteGroupGhost.spriteArray[0].startY 		= spriteGroupGhost.spriteArray[0].y1;
+			spriteGroupGhost.spriteArray[0].startX 		= 1920.0;
+			spriteGroupGhost.spriteArray[0].endY   		= spriteGroupGhost.spriteArray[0].y1;
+			spriteGroupGhost.spriteArray[0].endX 	    = 0.0;
+			spriteGroupGhost.spriteArray[0].id 	    	= 1;
+			spriteGroupGhost.spriteArray[0].randVar    	= r;
+			spriteGroupGhost.spriteArray[0].randVar2    = r2;
+			spriteGroupGhost.spriteArray[0].loop 	    = YES;
+		}
+	}
+
+	// configura arvores profundidade 1
 	for (i = 0; i < spriteGroupTrees.arraySize - 1; i++){	
 		if (spriteGroupTrees.spriteArray[i].canvas != NULL){
 			float r = (rand() / 100000000.0);
 			//printf("\nrand:%f", r);
-			spriteGroupTrees.spriteArray[i].x1 			= spriteGroupTrees.spriteArray[i].width + ((spriteGroupTrees.spriteArray[i].width * i) * r);
+			spriteGroupTrees.spriteArray[i].x1 			= (spriteGroupTrees.spriteArray[i].width * i) * r;
 			spriteGroupTrees.spriteArray[i].y1 			= nativeScreen.scaledH - spriteGroupTrees.spriteArray[i].height - 10;
 			//printf("\ny1:%f", spriteGroupTrees.spriteArray[i].y1);
-			spriteGroupTrees.spriteArray[i].depth 		= 1.2;
+			spriteGroupTrees.spriteArray[i].depth 		= 1.0;
 			spriteGroupTrees.spriteArray[i].directionX 	= -1;
 			spriteGroupTrees.spriteArray[i].directionY 	= 1;
 			spriteGroupTrees.spriteArray[i].speedX 		= 1.0;
@@ -206,14 +347,14 @@ int main(int argc, char **argv[]){
 		}
 	}
 
-	// configura arveros profundidade 2
+	// configura arvores profundidade 2
 	for (i = 0; i < spriteGroupTrees2.arraySize - 1; i++){	
 		if (spriteGroupTrees2.spriteArray[i].canvas != NULL){
-			float r = (rand() / 1000000000.0);
+			float r = (rand() / 100000000.0);
 			printf("\nrand:%f", r);
 
-			spriteGroupTrees2.spriteArray[i].x1 			= 100 + ((spriteGroupTrees2.spriteArray[i].width * i) * r);
-			spriteGroupTrees2.spriteArray[i].y1 			= 900;
+			spriteGroupTrees2.spriteArray[i].x1 			= 300 + (spriteGroupTrees2.spriteArray[i].width * i) * r;
+			spriteGroupTrees2.spriteArray[i].y1 			= 1080 - spriteGroupTrees2.spriteArray[i].height - 10;
 			printf("\ny1:%f", spriteGroupTrees2.spriteArray[i].y1);
 			spriteGroupTrees2.spriteArray[i].depth 			= 0.7;
 			spriteGroupTrees2.spriteArray[i].directionX 	= -1;
@@ -221,11 +362,11 @@ int main(int argc, char **argv[]){
 			spriteGroupTrees2.spriteArray[i].speedX 		= 1.0;
 			spriteGroupTrees2.spriteArray[i].speedY 		= 0.0;
 			spriteGroupTrees2.spriteArray[i].startY 		= spriteGroupTrees2.spriteArray[i].y1;
-			spriteGroupTrees2.spriteArray[i].startX 		= nativeScreen.scaledW + spriteGroupTrees2.spriteArray[i].x1;
+			spriteGroupTrees2.spriteArray[i].startX 		= 1920 + spriteGroupTrees2.spriteArray[i].x1;
 			spriteGroupTrees2.spriteArray[i].endY   		= spriteGroupTrees2.spriteArray[i].y1;
-			spriteGroupTrees2.spriteArray[i].endX 	   	= 0.0;
+			spriteGroupTrees2.spriteArray[i].endX 	   		= 0.0;
 			spriteGroupTrees2.spriteArray[i].id 	    	= i;
-			spriteGroupTrees2.spriteArray[i].loop 	   	= YES;
+			spriteGroupTrees2.spriteArray[i].loop 	   		= YES;
 
 		}
 	}
@@ -236,7 +377,7 @@ int main(int argc, char **argv[]){
 			float r = (rand() / 100000000.0);
 			printf("\nrand:%f", r);
 			spriteGroupTombs.spriteArray[i].x1 			= (spriteGroupTombs.spriteArray[i].width * i) * r + 20;
-			spriteGroupTombs.spriteArray[i].y1 			= nativeScreen.height - spriteGroupTombs.spriteArray[i].height - 10;
+			spriteGroupTombs.spriteArray[i].y1 			= nativeScreen.height - spriteGroupTombs.spriteArray[i].height - 5;
 			//printf("\ny1:%f", spriteGroupTrees.spriteArray[i].y1);
 			spriteGroupTombs.spriteArray[i].depth 		= 1.3;
 			spriteGroupTombs.spriteArray[i].directionX 	= -1;
@@ -288,14 +429,17 @@ int main(int argc, char **argv[]){
 	al_start_timer(gameTimer);
 	
 	int frame = 0;
-	al_set_target_backbuffer(gameDisplay.backbuffer);
-	//al_set_clipping_rectangle(0, 0, gameDisplay.width, gameDisplay.height);
+	ALLEGRO_BITMAP *ground = NULL;
+	ground = al_load_bitmap("img/ground/png/ground.png");
+	ALLEGRO_BITMAP *sky = NULL;
+	sky = al_load_bitmap("img/sky/png/sky.png");
 
-	ALLEGRO_BITMAP *sky = al_load_bitmap("img/sky/png/sky.png");
 
 	while(!exitGame){
+		al_set_target_backbuffer(gameDisplay.backbuffer);
+		al_set_clipping_rectangle(0, 0, gameDisplay.width, gameDisplay.height);
 		frame++;
-		printf("\nFrame:%d", frame);
+		//printf("\nFrame:%d", frame);
 		ALLEGRO_EVENT event;
 		ALLEGRO_TIMEOUT timeout;
 		al_init_timeout(&timeout, 0.06);
@@ -303,18 +447,22 @@ int main(int argc, char **argv[]){
 		bool get_event = al_wait_for_event_until(event_queue, &event, &timeout);
 
 		if (event.type == ALLEGRO_EVENT_TIMER && get_event){
-			al_hold_bitmap_drawing(true);
+			//al_hold_bitmap_drawing(true);
 
 			DEBUG_ON("\ndebug:main():event.type:timer ");
 		//	pi_drawGraphics(NULL, 10, 10, REFRESH, &nativeScreen, &nativeScreen, &gameDisplay); // Limpa o backbuffer
 		//	pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, &telaPoderes, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 		//	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 						
-			//pi_drawGraphics(sky, 0, 0, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
+			pi_drawGraphics(sky, 0, 950, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
 
 			pi_AnimateSprite(&spriteGroupSky, &nativeScreen);
 			//pi_drawGraphics(spriteGroupSky.spriteArray[1].canvas, spriteGroupSky.spriteArray[1].x1, spriteGroupSky.spriteArray[1].y1, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
-			pi_drawGraphics(spriteGroupSky.spriteArray[0].canvas, spriteGroupSky.spriteArray[0].x1, spriteGroupSky.spriteArray[0].y1, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
+			pi_drawGraphics(spriteGroupSky.spriteArray[0].canvas, spriteGroupSky.spriteArray[0].x1, spriteGroupSky.spriteArray[0].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
+
+			pi_drawGraphics(ground, 0, 1065, 0, &telaAventura, &nativeScreen, &gameDisplay);
+//			pi_AnimateSprite(&spriteGroupGround, &nativeScreen);
+//			pi_drawGraphics(spriteGroupGround.spriteArray[0].canvas, spriteGroupGround.spriteArray[0].x1, spriteGroupGround.spriteArray[0].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
 
 			pi_AnimateSprite(&spriteGroupTrees2, &nativeScreen);
 			for (i = 0; i < spriteGroupTrees2.arraySize - 1; i++){	
@@ -324,7 +472,24 @@ int main(int argc, char **argv[]){
 				else
 					break;
 			}
-
+			pi_AnimateSprite(&spriteGroupFog, &nativeScreen);
+			for (i = 0; i < spriteGroupFog.arraySize - 1; i++){	
+				if (spriteGroupFog.spriteArray[i].canvas != NULL){
+					pi_drawGraphics(spriteGroupFog.spriteArray[i].canvas, spriteGroupFog.spriteArray[i].x1, spriteGroupFog.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
+				}
+				else
+					break;
+			}
+/*
+			pi_AnimateSprite(&spriteGroupFog2, &nativeScreen);
+			for (i = 0; i < spriteGroupFog2.arraySize - 1; i++){	
+				if (spriteGroupFog2.spriteArray[i].canvas != NULL){
+					pi_drawGraphics(spriteGroupFog2.spriteArray[i].canvas, spriteGroupFog2.spriteArray[i].x1, spriteGroupFog2.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
+				}
+				else
+					break;
+			}
+*/
 			pi_AnimateSprite(&spriteGroupTrees, &nativeScreen);
 			for (i = 0; i < spriteGroupTrees.arraySize - 1; i++){	
 				if (spriteGroupTrees.spriteArray[i].canvas != NULL){
@@ -334,15 +499,28 @@ int main(int argc, char **argv[]){
 					break;
 			}
 
-/*			pi_AnimateSprite(&spriteGroupTrees, &nativeScreen);
-			pi_drawGraphics(spriteGroupTrees.spriteArray[0].canvas, spriteGroupTrees.spriteArray[0].x1, spriteGroupTrees.spriteArray[0].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
-			pi_drawGraphics(spriteGroupTrees.spriteArray[1].canvas, spriteGroupTrees.spriteArray[1].x1, spriteGroupTrees.spriteArray[1].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
-			pi_drawGraphics(spriteGroupTrees.spriteArray[2].canvas, spriteGroupTrees.spriteArray[2].x1, spriteGroupTrees.spriteArray[2].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
-*/
+			pi_AnimateSprite(&spriteGroupGrass2, &nativeScreen);
+			for (i = 0; i < spriteGroupGrass2.arraySize - 1; i++){	
+				if (spriteGroupGrass2.spriteArray[i].canvas != NULL){
+					pi_drawGraphics(spriteGroupGrass2.spriteArray[i].canvas, spriteGroupGrass2.spriteArray[i].x1, spriteGroupGrass2.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
+				}
+				else
+					break;
+			}
+
 			pi_AnimateSprite(&spriteGroupTombs, &nativeScreen);
 			for (i = 0; i < spriteGroupTombs.arraySize - 1; i++){	
 				if (spriteGroupTombs.spriteArray[i].canvas != NULL){
 					pi_drawGraphics(spriteGroupTombs.spriteArray[i].canvas, spriteGroupTombs.spriteArray[i].x1, spriteGroupTombs.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
+				}
+				else
+					break;
+			}
+
+			pi_AnimateSprite(&spriteGroupGhost, &nativeScreen);
+			for (i = 0; i < spriteGroupGhost.arraySize - 1; i++){	
+				if (spriteGroupGhost.spriteArray[i].canvas != NULL){
+					pi_drawGraphics(spriteGroupGhost.spriteArray[i].canvas, spriteGroupGhost.spriteArray[i].x1, spriteGroupGhost.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
 				}
 				else
 					break;
@@ -357,7 +535,7 @@ int main(int argc, char **argv[]){
 					break;
 			}
 			
-			al_hold_bitmap_drawing(false);
+			//al_hold_bitmap_drawing(false);
 
 			redraw = true;
 		}
