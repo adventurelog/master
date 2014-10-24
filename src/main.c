@@ -13,6 +13,7 @@
 #include "allegro5/allegro_primitives.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "pi_tools.h"
 #include "pi_data.h"
@@ -308,7 +309,7 @@ int main(int argc, char **argv[]){
 			float r = (rand() / 1000000000.0);
 			float r2 = (rand() / 1000000000.0);
 			spriteGroupGhost.spriteArray[i].x1 			= 1920 + (r * r);
-			spriteGroupGhost.spriteArray[i].y1 			= 950;
+			spriteGroupGhost.spriteArray[i].y1 			= 990;
 			spriteGroupGhost.spriteArray[i].depth 		= 1.5;
 			spriteGroupGhost.spriteArray[i].directionX 	= -1;
 			spriteGroupGhost.spriteArray[i].directionY 	= 1;

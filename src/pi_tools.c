@@ -7,6 +7,8 @@
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/allegro_primitives.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <math.h>
 
 #include "pi_data.h"
@@ -227,9 +229,9 @@ int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
 }
 //----------------------------------------------------------------------
 int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
-	int i;
+	int i, recomecou = 0;
 	float deltaX, deltaY;
-	float val, ret;
+	float val, ret, r = 1.0, r2 = 1.0;
 
 //	al_set_target_bitmap(sg->buffer);
 //	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
@@ -276,23 +278,39 @@ int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 				if (deltaX < 0){
 					if ((x1 + width) < endX - width){
 						x1 = startX;
+						recomecou = 1;
 					}
 				}
 				else{
 					if (x1 > endX){
 						x1 = startX;
+						recomecou = 1;
 					}
 				}
 
 				if (deltaY < 0){
 					if (y1 + height < endY)
 					y1 = startY;
+					//recomecou = 1;
 				}
 				else{
 					if (y1 > endY)
 					y1 = startY;
+					//recomecou = 1;
 				}
 			}
+
+		if (recomecou == 1){
+			if (sg->id == ID_GROUP_SPRITES_GHOST){
+				srand(time(NULL));
+				r = (rand() / 1000000000.0);
+				r2 = (rand() / 1000000000.0);
+				sg->spriteArray[i].randVar = r;
+				sg->spriteArray[i].randVar2 = r2;
+				sg->spriteArray[i].speedX = 2.0 * r;
+			}
+			recomecou = 0;
+		}
 
 			// apenas desenha a imagem se ela estiver dentro da tela
 		//	if (x1 + width >= 0){
