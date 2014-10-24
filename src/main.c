@@ -303,25 +303,25 @@ int main(int argc, char **argv[]){
         spriteGroupGround.spriteArray[0].loop 	    	= NO;
 
 //	Configura os fantasmas
-	for (i = 0; i < spriteGroupTrees.arraySize - 1; i++){	
-		if (spriteGroupTrees.spriteArray[i].canvas != NULL){
+	for (i = 0; i < spriteGroupGhost.arraySize - 1; i++){	
+		if (spriteGroupGhost.spriteArray[i].canvas != NULL){
 			float r = (rand() / 1000000000.0);
 			float r2 = (rand() / 1000000000.0);
-			spriteGroupGhost.spriteArray[0].x1 			= 0;
-			spriteGroupGhost.spriteArray[0].y1 			= 950;
-			spriteGroupGhost.spriteArray[0].depth 		= 1.5;
-			spriteGroupGhost.spriteArray[0].directionX 	= -1;
-			spriteGroupGhost.spriteArray[0].directionY 	= 1;
-			spriteGroupGhost.spriteArray[0].speedX 		= 3.0;
-			spriteGroupGhost.spriteArray[0].speedY 		= 0.0;
-			spriteGroupGhost.spriteArray[0].startY 		= spriteGroupGhost.spriteArray[0].y1;
-			spriteGroupGhost.spriteArray[0].startX 		= 1920.0;
-			spriteGroupGhost.spriteArray[0].endY   		= spriteGroupGhost.spriteArray[0].y1;
-			spriteGroupGhost.spriteArray[0].endX 	    = 0.0;
-			spriteGroupGhost.spriteArray[0].id 	    	= 1;
-			spriteGroupGhost.spriteArray[0].randVar    	= r;
-			spriteGroupGhost.spriteArray[0].randVar2    = r2;
-			spriteGroupGhost.spriteArray[0].loop 	    = YES;
+			spriteGroupGhost.spriteArray[i].x1 			= 1920 + (r * r);
+			spriteGroupGhost.spriteArray[i].y1 			= 950;
+			spriteGroupGhost.spriteArray[i].depth 		= 1.5;
+			spriteGroupGhost.spriteArray[i].directionX 	= -1;
+			spriteGroupGhost.spriteArray[i].directionY 	= 1;
+			spriteGroupGhost.spriteArray[i].speedX 		= 2.0 * r;
+			spriteGroupGhost.spriteArray[i].speedY 		= 0.0;
+			spriteGroupGhost.spriteArray[i].startY 		= spriteGroupGhost.spriteArray[0].y1;
+			spriteGroupGhost.spriteArray[i].startX 		= 1920.0;
+			spriteGroupGhost.spriteArray[i].endY   		= spriteGroupGhost.spriteArray[0].y1;
+			spriteGroupGhost.spriteArray[i].endX 	    = 0.0;
+			spriteGroupGhost.spriteArray[i].id 	    	= 1;
+			spriteGroupGhost.spriteArray[i].randVar    	= r;
+			spriteGroupGhost.spriteArray[i].randVar2    = r2;
+			spriteGroupGhost.spriteArray[i].loop 	    = YES;
 		}
 	}
 
@@ -433,6 +433,8 @@ int main(int argc, char **argv[]){
 	ground = al_load_bitmap("img/ground/png/ground.png");
 	ALLEGRO_BITMAP *sky = NULL;
 	sky = al_load_bitmap("img/sky/png/sky.png");
+	ALLEGRO_BITMAP *moon = NULL;
+	moon = al_load_bitmap("img/sky/png/moon.png");
 
 
 	while(!exitGame){
@@ -454,11 +456,12 @@ int main(int argc, char **argv[]){
 		//	pi_drawGraphics(al_load_bitmap("img/guile.png"), 1300, 100, 0, &telaPoderes, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 		//	pi_drawGraphics(al_load_bitmap("img/fallout.jpg"), 0, 10, 0, &telaAventura, &nativeScreen, &gameDisplay); // Desenha o bitmap na escala correta
 						
-			pi_drawGraphics(sky, 0, 950, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
+			pi_drawGraphics(moon, 400, 300, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
+			pi_drawGraphics(sky, 0, 950, 0, &telaAventura, &nativeScreen, &gameDisplay);
 
-			pi_AnimateSprite(&spriteGroupSky, &nativeScreen);
+			//pi_AnimateSprite(&spriteGroupSky, &nativeScreen);
 			//pi_drawGraphics(spriteGroupSky.spriteArray[1].canvas, spriteGroupSky.spriteArray[1].x1, spriteGroupSky.spriteArray[1].y1, REFRESH, &telaAventura, &nativeScreen, &gameDisplay);
-			pi_drawGraphics(spriteGroupSky.spriteArray[0].canvas, spriteGroupSky.spriteArray[0].x1, spriteGroupSky.spriteArray[0].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
+			//pi_drawGraphics(spriteGroupSky.spriteArray[0].canvas, spriteGroupSky.spriteArray[0].x1, spriteGroupSky.spriteArray[0].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
 
 			pi_drawGraphics(ground, 0, 1065, 0, &telaAventura, &nativeScreen, &gameDisplay);
 //			pi_AnimateSprite(&spriteGroupGround, &nativeScreen);
