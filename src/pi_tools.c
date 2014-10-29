@@ -309,7 +309,7 @@ int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 				r2 = (rand() / 1000000000.0);
 				sg->spriteArray[i].randVar = r;
 				sg->spriteArray[i].randVar2 = r2;
-				sg->spriteArray[i].speedX = (1.5 * r) + 0.2;
+				sg->spriteArray[i].speedX = (1.5 + r);
 			}
 			recomecou = 0;
 		}
