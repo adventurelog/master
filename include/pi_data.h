@@ -125,6 +125,8 @@ typedef struct {
 		float	endY;
 		float 	x1;
 		float 	y1;
+		float	offsetX; // deslocamento relativo ao x1, garantindo que o objeto fique no mesmo lugar quando reiniciar o looping  
+		float	offsetY; // deslocamento relativo ao y1, garantindo que o objeto fique no mesmo lugar quando reiniciar o looping  
 		float 	speedX;	// quantidade de pixels deslocados a cada iteração na animação
 		float 	speedY; // quantidade de pixels deslocados a cada iteração na animação
 		int 	directionX;	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)

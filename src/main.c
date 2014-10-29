@@ -183,8 +183,10 @@ int main(int argc, char **argv[]){
 	for (i = 0; i < spriteGroupFog.arraySize - 1; i++){	
 		if (spriteGroupFog.spriteArray[i].canvas != NULL){
 			spriteGroupFog.spriteArray[i].x1 			= (i * spriteGroupFog.spriteArray[i].width);
-			printf("\nx1:%f", spriteGroupGrass.spriteArray[i].x1);
+			//printf("\nx1:%f", spriteGroupGrass.spriteArray[i].x1);
 			spriteGroupFog.spriteArray[i].y1 			= 940;
+			spriteGroupFog.spriteArray[i].offsetX		= spriteGroupFog.spriteArray[i].x1;
+			spriteGroupFog.spriteArray[i].offsetY		= 940;
 			spriteGroupFog.spriteArray[i].depth 		= 0.85;
 			spriteGroupFog.spriteArray[i].directionX 	= -1;
 			spriteGroupFog.spriteArray[i].directionY 	= 1;
@@ -194,7 +196,7 @@ int main(int argc, char **argv[]){
 			spriteGroupFog.spriteArray[i].startX 		= 1920 + spriteGroupFog.spriteArray[i].x1;
 			spriteGroupFog.spriteArray[i].endY   		= spriteGroupFog.spriteArray[i].y1;
 			spriteGroupFog.spriteArray[i].endX 	    	= 0.0;
-			printf("\nstartX:%f", spriteGroupFog.spriteArray[i].startX);
+			//printf("\nstartX:%f", spriteGroupFog.spriteArray[i].startX);
 			spriteGroupFog.spriteArray[i].id 	    	= 4;
 			spriteGroupFog.spriteArray[i].loop 	   		= YES;
 		}	
@@ -204,6 +206,8 @@ int main(int argc, char **argv[]){
 			spriteGroupFog2.spriteArray[i].x1 			= (i * spriteGroupFog2.spriteArray[i].width) + 200;
 			printf("\nx1:%f", spriteGroupFog2.spriteArray[i].x1);
 			spriteGroupFog2.spriteArray[i].y1 			= 940;
+			spriteGroupFog2.spriteArray[i].offsetX		= spriteGroupFog2.spriteArray[i].x1;
+			spriteGroupFog2.spriteArray[i].offsetY		= 940;
 			spriteGroupFog2.spriteArray[i].depth 		= 0.95;
 			spriteGroupFog2.spriteArray[i].directionX 	= -1;
 			spriteGroupFog2.spriteArray[i].directionY 	= 1;
@@ -224,7 +228,9 @@ int main(int argc, char **argv[]){
 		if (spriteGroupGrass.spriteArray[i].canvas != NULL){
 			spriteGroupGrass.spriteArray[i].x1 			= (i * spriteGroupGrass.spriteArray[i].width);
 			printf("\nx1:%f", spriteGroupGrass.spriteArray[i].x1);
-			spriteGroupGrass.spriteArray[i].y1 			= 1080  - 40;
+			spriteGroupGrass.spriteArray[i].y1 			= 1040;
+			spriteGroupGrass.spriteArray[i].offsetX		= spriteGroupGrass.spriteArray[i].x1;
+			spriteGroupGrass.spriteArray[i].offsetY		= 1040;
 			spriteGroupGrass.spriteArray[i].depth 		= 1.7;
 			spriteGroupGrass.spriteArray[i].directionX 	= -1;
 			spriteGroupGrass.spriteArray[i].directionY 	= 1;
@@ -243,8 +249,10 @@ int main(int argc, char **argv[]){
 	for (i = 0; i < spriteGroupGrass2.arraySize - 1; i++){	
 		if (spriteGroupGrass2.spriteArray[i].canvas != NULL){
 			spriteGroupGrass2.spriteArray[i].x1 			= (i * spriteGroupGrass2.spriteArray[i].width);
-			spriteGroupGrass2.spriteArray[i].y1 			= 1080  - 50;
-			spriteGroupGrass2.spriteArray[i].depth 		= 1.0;
+			spriteGroupGrass2.spriteArray[i].y1 			= 1030;
+			spriteGroupGrass2.spriteArray[i].offsetX		= spriteGroupGrass2.spriteArray[i].x1;
+			spriteGroupGrass2.spriteArray[i].offsetY		= 1030;
+			spriteGroupGrass2.spriteArray[i].depth 			= 1.0;
 			spriteGroupGrass2.spriteArray[i].directionX 	= -1;
 			spriteGroupGrass2.spriteArray[i].directionY 	= 1;
 			spriteGroupGrass2.spriteArray[i].speedX 		= 1.0;
@@ -252,9 +260,9 @@ int main(int argc, char **argv[]){
 			spriteGroupGrass2.spriteArray[i].startY 		= spriteGroupGrass2.spriteArray[i].y1;
 			spriteGroupGrass2.spriteArray[i].startX 		= 1920 + spriteGroupGrass2.spriteArray[i].x1;
 			spriteGroupGrass2.spriteArray[i].endY   		= spriteGroupGrass2.spriteArray[i].y1;
-			spriteGroupGrass2.spriteArray[i].endX 	    = 0.0;
+			spriteGroupGrass2.spriteArray[i].endX 	    	= 0.0;
 			spriteGroupGrass2.spriteArray[i].id 	    	= 4;
-			spriteGroupGrass2.spriteArray[i].loop 	    = YES;
+			spriteGroupGrass2.spriteArray[i].loop 	    	= YES;
 		}	
 	}
 
@@ -309,11 +317,13 @@ int main(int argc, char **argv[]){
 			float r = (rand() / 1000000000.0);
 			float r2 = (rand() / 1000000000.0);
 			spriteGroupGhost.spriteArray[i].x1 			= 1920 + (r * r);
-			spriteGroupGhost.spriteArray[i].y1 			= 990;
+			spriteGroupGhost.spriteArray[i].y1 			= 930;
+			spriteGroupGhost.spriteArray[i].offsetX		= spriteGroupGhost.spriteArray[i].x1;
+			spriteGroupGhost.spriteArray[i].offsetY		= 930;
 			spriteGroupGhost.spriteArray[i].depth 		= 1.5;
 			spriteGroupGhost.spriteArray[i].directionX 	= -1;
 			spriteGroupGhost.spriteArray[i].directionY 	= 1;
-			spriteGroupGhost.spriteArray[i].speedX 		= 2.0 * r;
+			spriteGroupGhost.spriteArray[i].speedX 		= (2.0 * r) + 0.5;
 			spriteGroupGhost.spriteArray[i].speedY 		= 0.0;
 			spriteGroupGhost.spriteArray[i].startY 		= spriteGroupGhost.spriteArray[0].y1;
 			spriteGroupGhost.spriteArray[i].startX 		= 1920.0;
@@ -334,6 +344,8 @@ int main(int argc, char **argv[]){
 			spriteGroupTrees.spriteArray[i].x1 			= (spriteGroupTrees.spriteArray[i].width * i) * r;
 			spriteGroupTrees.spriteArray[i].y1 			= nativeScreen.scaledH - spriteGroupTrees.spriteArray[i].height - 10;
 			//printf("\ny1:%f", spriteGroupTrees.spriteArray[i].y1);
+			spriteGroupTrees.spriteArray[i].offsetX		= spriteGroupTrees.spriteArray[i].x1;
+			spriteGroupTrees.spriteArray[i].offsetY		= spriteGroupTrees.spriteArray[i].y1;
 			spriteGroupTrees.spriteArray[i].depth 		= 1.0;
 			spriteGroupTrees.spriteArray[i].directionX 	= -1;
 			spriteGroupTrees.spriteArray[i].directionY 	= 1;
@@ -357,6 +369,8 @@ int main(int argc, char **argv[]){
 			spriteGroupTrees2.spriteArray[i].x1 			= 300 + (spriteGroupTrees2.spriteArray[i].width * i) * r;
 			spriteGroupTrees2.spriteArray[i].y1 			= 1080 - spriteGroupTrees2.spriteArray[i].height - 10;
 			printf("\ny1:%f", spriteGroupTrees2.spriteArray[i].y1);
+			spriteGroupTrees2.spriteArray[i].offsetX		= spriteGroupTrees2.spriteArray[i].x1;
+			spriteGroupTrees2.spriteArray[i].offsetY		= spriteGroupTrees2.spriteArray[i].y1;
 			spriteGroupTrees2.spriteArray[i].depth 			= 0.7;
 			spriteGroupTrees2.spriteArray[i].directionX 	= -1;
 			spriteGroupTrees2.spriteArray[i].directionY 	= 1;
@@ -380,6 +394,8 @@ int main(int argc, char **argv[]){
 			spriteGroupTombs.spriteArray[i].x1 			= (spriteGroupTombs.spriteArray[i].width * i) * r + 20;
 			spriteGroupTombs.spriteArray[i].y1 			= nativeScreen.height - spriteGroupTombs.spriteArray[i].height - 5;
 			//printf("\ny1:%f", spriteGroupTrees.spriteArray[i].y1);
+			spriteGroupTombs.spriteArray[i].offsetX		= spriteGroupTombs.spriteArray[i].x1;
+			spriteGroupTombs.spriteArray[i].offsetY		= spriteGroupTombs.spriteArray[i].y1;
 			spriteGroupTombs.spriteArray[i].depth 		= 1.3;
 			spriteGroupTombs.spriteArray[i].directionX 	= -1;
 			spriteGroupTombs.spriteArray[i].directionY 	= 1;
@@ -426,7 +442,8 @@ int main(int argc, char **argv[]){
 	al_register_event_source(event_queue, al_get_timer_event_source(gameTimer));
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 
-	//***** INICIO DO LOOPING PRINCIAPL
+	//***** INICIO DO LOOPING PRINCIPAL ***********************************************************************************
+	//*********************************************************************************************************************
 	al_start_timer(gameTimer);
 	
 	int frame = 0;
@@ -449,6 +466,14 @@ int main(int argc, char **argv[]){
 
 		bool get_event = al_wait_for_event_until(event_queue, &event, &timeout);
 
+		pi_AnimateSprite(&spriteGroupTrees2, &nativeScreen);
+		pi_AnimateSprite(&spriteGroupFog, &nativeScreen);
+		pi_AnimateSprite(&spriteGroupTrees, &nativeScreen);
+		pi_AnimateSprite(&spriteGroupGrass2, &nativeScreen);
+		pi_AnimateSprite(&spriteGroupTombs, &nativeScreen);
+		pi_AnimateSprite(&spriteGroupGhost, &nativeScreen);
+		pi_AnimateSprite(&spriteGroupGrass, &nativeScreen);
+
 		if (event.type == ALLEGRO_EVENT_TIMER && get_event){
 			//al_hold_bitmap_drawing(true);
 
@@ -468,7 +493,6 @@ int main(int argc, char **argv[]){
 //			pi_AnimateSprite(&spriteGroupGround, &nativeScreen);
 //			pi_drawGraphics(spriteGroupGround.spriteArray[0].canvas, spriteGroupGround.spriteArray[0].x1, spriteGroupGround.spriteArray[0].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
 
-			pi_AnimateSprite(&spriteGroupTrees2, &nativeScreen);
 			for (i = 0; i < spriteGroupTrees2.arraySize - 1; i++){	
 				if (spriteGroupTrees2.spriteArray[i].canvas != NULL){
 					pi_drawGraphics(spriteGroupTrees2.spriteArray[i].canvas, spriteGroupTrees2.spriteArray[i].x1, spriteGroupTrees2.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
@@ -476,7 +500,6 @@ int main(int argc, char **argv[]){
 				else
 					break;
 			}
-			pi_AnimateSprite(&spriteGroupFog, &nativeScreen);
 			for (i = 0; i < spriteGroupFog.arraySize - 1; i++){	
 				if (spriteGroupFog.spriteArray[i].canvas != NULL){
 					pi_drawGraphics(spriteGroupFog.spriteArray[i].canvas, spriteGroupFog.spriteArray[i].x1, spriteGroupFog.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
@@ -494,7 +517,6 @@ int main(int argc, char **argv[]){
 					break;
 			}
 */
-			pi_AnimateSprite(&spriteGroupTrees, &nativeScreen);
 			for (i = 0; i < spriteGroupTrees.arraySize - 1; i++){	
 				if (spriteGroupTrees.spriteArray[i].canvas != NULL){
 					pi_drawGraphics(spriteGroupTrees.spriteArray[i].canvas, spriteGroupTrees.spriteArray[i].x1, spriteGroupTrees.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
@@ -503,7 +525,6 @@ int main(int argc, char **argv[]){
 					break;
 			}
 
-			pi_AnimateSprite(&spriteGroupGrass2, &nativeScreen);
 			for (i = 0; i < spriteGroupGrass2.arraySize - 1; i++){	
 				if (spriteGroupGrass2.spriteArray[i].canvas != NULL){
 					pi_drawGraphics(spriteGroupGrass2.spriteArray[i].canvas, spriteGroupGrass2.spriteArray[i].x1, spriteGroupGrass2.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
@@ -512,7 +533,6 @@ int main(int argc, char **argv[]){
 					break;
 			}
 
-			pi_AnimateSprite(&spriteGroupTombs, &nativeScreen);
 			for (i = 0; i < spriteGroupTombs.arraySize - 1; i++){	
 				if (spriteGroupTombs.spriteArray[i].canvas != NULL){
 					pi_drawGraphics(spriteGroupTombs.spriteArray[i].canvas, spriteGroupTombs.spriteArray[i].x1, spriteGroupTombs.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
@@ -521,7 +541,6 @@ int main(int argc, char **argv[]){
 					break;
 			}
 
-			pi_AnimateSprite(&spriteGroupGhost, &nativeScreen);
 			for (i = 0; i < spriteGroupGhost.arraySize - 1; i++){	
 				if (spriteGroupGhost.spriteArray[i].canvas != NULL){
 					pi_drawGraphics(spriteGroupGhost.spriteArray[i].canvas, spriteGroupGhost.spriteArray[i].x1, spriteGroupGhost.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
@@ -530,7 +549,6 @@ int main(int argc, char **argv[]){
 					break;
 			}
 
-			pi_AnimateSprite(&spriteGroupGrass, &nativeScreen);
 			for (i = 0; i < spriteGroupGrass.arraySize - 1; i++){	
 				if (spriteGroupGrass.spriteArray[i].canvas != NULL){
 					pi_drawGraphics(spriteGroupGrass.spriteArray[i].canvas, spriteGroupGrass.spriteArray[i].x1, spriteGroupGrass.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);

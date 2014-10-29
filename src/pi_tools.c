@@ -244,6 +244,8 @@ int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 			float y1 		= sg->spriteArray[i].y1;
 			float startX 	= sg->spriteArray[i].startX;
 			float startY 	= sg->spriteArray[i].startY;
+			float offsetX 	= sg->spriteArray[i].offsetX;
+			float offsetY 	= sg->spriteArray[i].offsetY;
 			float endX 		= sg->spriteArray[i].endX;
 			float endY		= sg->spriteArray[i].endY;
 			float spdX		= sg->spriteArray[i].speedX;
@@ -259,7 +261,7 @@ int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 			ret = 0;
 			
 			if (sg->id == ID_GROUP_SPRITES_GHOST){	
-				x1 += (spdX * dirX * depth) * sg->spriteArray[i].randVar2;
+				x1 += (spdX * dirX * depth);// * sg->spriteArray[i].randVar2) + 0.3;
 				
 				val = PI / 180;
 				ret = sin(x1 * val) * sg->spriteArray[i].randVar;
@@ -277,57 +279,46 @@ int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 			if (sg->spriteArray[i].loop == YES){
 				if (deltaX < 0){
 					if ((x1 + width) < endX - width){
-						x1 = startX;
+						x1 = startX + offsetX;
 						recomecou = 1;
 					}
 				}
 				else{
 					if (x1 > endX){
-						x1 = startX;
+						x1 = startX + offsetX;
 						recomecou = 1;
 					}
 				}
 
 				if (deltaY < 0){
 					if (y1 + height < endY)
-					y1 = startY;
+					y1 = startY + offsetY;
 					//recomecou = 1;
 				}
 				else{
 					if (y1 > endY)
-					y1 = startY;
+					y1 = startY + offsetY;
 					//recomecou = 1;
 				}
 			}
 
 		if (recomecou == 1){
 			if (sg->id == ID_GROUP_SPRITES_GHOST){
-				srand(time(NULL));
-				r = (rand() / 1000000000.0);
+				srand(y1);
+				r = (rand() / 100000000.0);
 				r2 = (rand() / 1000000000.0);
 				sg->spriteArray[i].randVar = r;
 				sg->spriteArray[i].randVar2 = r2;
-				sg->spriteArray[i].speedX = 2.0 * r;
+				sg->spriteArray[i].speedX = (1.5 * r) + 0.2;
 			}
 			recomecou = 0;
 		}
 
-			// apenas desenha a imagem se ela estiver dentro da tela
-		//	if (x1 + width >= 0){
-		//		if (x1 <= 1920){
-		//			if (y1 + height >= 0){
-		//				if (y1 <= 1080){
-							sg->spriteArray[i].x1 = x1;
-							sg->spriteArray[i].y1 = y1;
-							//al_draw_bitmap(sg->spriteArray[i].canvas, x1, y1, 0);
-		//				}
-		//			}
-		//		}
-		//	}
+		sg->spriteArray[i].x1 = x1;
+		sg->spriteArray[i].y1 = y1;
 		}
 	}
 
-//	al_hold_bitmap_drawing(false);
 	return 0;
 }
 //----------------------------------------------------------------------
