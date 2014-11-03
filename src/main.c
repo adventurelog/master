@@ -54,9 +54,10 @@ int main(int argc, char **argv[]){
     SpriteGroup spriteGroupGround;
     SpriteGroup spriteGroupGhost;
     //StillSprite spriteArrayGrass[20];
+    SpriteSheet fantasmas;
 
     int spriteNum = -1;
-	int i;
+	int i, j;
 	srand(10);
 
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -83,7 +84,61 @@ int main(int argc, char **argv[]){
 	//pi_iniBackground(&treeLine1, &nativeScreen, LAYER_SCENE_TREELINE_1);
 	//pi_loadBackground(&treeLine1);
 
-	/* Configura SPRITES*/
+	/** configura spritesheet fantasmas**/
+	fantasmas.canvas = al_load_bitmap("img/png/fantasmas.png");
+	fantasmas.x1		 = 0.0;
+	fantasmas.y1		 = 0.0;
+	fantasmas.width		 = 64.0;
+	fantasmas.height	 = 77.0;
+	fantasmas.sheetSizeX = 3;
+	fantasmas.sheetSizeY = 1;
+	fantasmas.id    	 = ID_GHOST;
+
+	fantasmas.startX[0]  = 1920;
+	fantasmas.startY[0]  = 500;
+	fantasmas.endX[0] 	 = 0;
+	fantasmas.endY[0] 	 = 0;
+	fantasmas.posX[0] 	 = 100;
+	fantasmas.posY[0] 	 = 500;
+
+	fantasmas.startX[1]  = 1920;
+	fantasmas.startY[1]  = 500;
+	fantasmas.endX[1] 	 = 0;
+	fantasmas.endY[1] 	 = 0;
+	fantasmas.posX[1] 	 = 100;
+	fantasmas.posY[1] 	 = 500;
+
+	fantasmas.startX[2]  = 1920;
+	fantasmas.startY[2]  = 500;
+	fantasmas.endX[2] 	 = 0;
+	fantasmas.endY[2] 	 = 0;
+	fantasmas.posX[2] 	 = 100;
+	fantasmas.posY[2] 	 = 500;
+
+	for (i = 0; i < fantasmas.sheetSizeX; i++){	
+		for (j = 0; j < fantasmas.sheetSizeY; j++){
+			float r = (rand() / 1000000000.0);
+			float r2 = (rand() / 1000000000.0);
+			fantasmas.posX[i+j]			= 1920 * r;
+			fantasmas.posY[i+j]			= 930;
+			fantasmas.offsetX[i+j]		= fantasmas.posX[i+j];
+			fantasmas.offsetY[i+j]		= 0;
+			fantasmas.depth[i+j] 		= 1.5;
+			fantasmas.directionX[i+j] 	= -1;
+			fantasmas.directionY[i+j] 	= 1;
+			fantasmas.speedX[i+j] 		= (1.5 + r);
+			fantasmas.speedY[i+j] 		= 0.0;
+			fantasmas.startY[i+j] 		= fantasmas.posY[i+j];
+			fantasmas.startX[i+j] 		= 1920.0;
+			fantasmas.endY[i+j]   		= fantasmas.posY[i+j];
+			fantasmas.endX[i+j] 	   	= 0.0;
+			fantasmas.spriteId[i+j]    	= i+j;
+			fantasmas.loop[i+j] 	   	= YES;
+		}
+	}
+
+
+	/** Configura SPRITES **/
 	pi_iniSpriteGroup(&spriteGroupGround, &nativeScreen, ID_GROUP_SPRITES_GROUND);
 	pi_loadStillSprite(&spriteGroupGround, "ground", "ground");
 
@@ -454,8 +509,9 @@ int main(int argc, char **argv[]){
 		pi_AnimateSprite(&spriteGroupTrees, &nativeScreen);
 		pi_AnimateSprite(&spriteGroupGrass2, &nativeScreen);
 		pi_AnimateSprite(&spriteGroupTombs, &nativeScreen);
-		pi_AnimateSprite(&spriteGroupGhost, &nativeScreen);
+//		pi_AnimateSprite(&spriteGroupGhost, &nativeScreen);
 		pi_AnimateSprite(&spriteGroupGrass, &nativeScreen);
+		pi_AnimateSpriteSheet(&fantasmas, &nativeScreen);
 
 		if (event.type == ALLEGRO_EVENT_TIMER && get_event){
 
@@ -520,15 +576,26 @@ int main(int argc, char **argv[]){
 			al_hold_bitmap_drawing(false);
 
 			al_hold_bitmap_drawing(true);
+			
+			//** anima e desenha os fantasmas **/
+			for (i = 0; i < fantasmas.sheetSizeX; i++){
+				for (j = 0; fantasmas.sheetSizeY; j++){
+					
+				}
+			}
+			
+			/**
 			for (i = 0; i < spriteGroupGhost.arraySize - 1; i++){	
 				if (spriteGroupGhost.spriteArray[i].canvas != NULL){
 					pi_drawGraphics(spriteGroupGhost.spriteArray[i].canvas, spriteGroupGhost.spriteArray[i].x1, spriteGroupGhost.spriteArray[i].y1, 0, &telaAventura, &nativeScreen, &gameDisplay);
-					printf("\nx1:%f", spriteGroupGhost.spriteArray[i].x1);
-					printf("\ny1:%f", spriteGroupGhost.spriteArray[i].y1);
+					//printf("\nx1:%f", spriteGroupGhost.spriteArray[i].x1);
+					//printf("\ny1:%f", spriteGroupGhost.spriteArray[i].y1);
 				}
 				else
 					break;
 			}
+			**/
+			
 			al_hold_bitmap_drawing(false);
 
 			al_hold_bitmap_drawing(true);
@@ -583,8 +650,8 @@ int pi_drawGraphics(ALLEGRO_BITMAP *image, float x, float y, int refresh, GameSc
 	if (refresh){
 		al_clear_to_color(al_map_rgb(0, 0, 0));
 	}
-	if (tela->id == NATIVE_SCREEN) // Caso image=null e tela==0, sai da função após ter limpado o buffer
-			return 0;
+	//if (tela->id == NATIVE_SCREEN) // Caso image=null e tela==0, sai da função após ter limpado o buffer
+	//		return 0;
 
 	//al_draw_bitmap(image, x, y, 0);
 

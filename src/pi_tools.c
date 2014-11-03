@@ -228,6 +228,92 @@ int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
 	return 0;
 }
 //----------------------------------------------------------------------
+int pi_AnimateSpriteSheet(SpriteSheet *st, GameScreen *display){
+	int i, j, recomecou = 0;
+	float deltaX, deltaY;
+	float val, ret, r = 1.0, r2 = 1.0;
+	
+	for (i = 0; i < st->sheetSizeX; i++){
+		for (j = 0; j < st->sheetSizeY; i++){
+			float x1 		= st->x1;
+			float y1 		= st->y1;
+			float posX 		= st->posX[i+j];
+			float posY 		= st->posY[i+j];
+			float startX 	= st->startX[i+j];
+			float startY 	= st->startY[i+j];
+			float offsetX 	= st->offsetX[i+j];
+			float offsetY 	= st->offsetY[i+j];
+			float endX 		= st->endX[i+j];
+			float endY		= st->endY[i+j];
+			float spdX		= st->speedX[i+j];
+			float spdY		= st->speedY[i+j];
+			float dirX		= st->directionX[i+j];
+			float dirY 		= st->directionY[i+j];
+			float depth		= st->depth[i+j];
+			float width		= st->width * i;
+			float height	= st->height * j;
+			
+//			y1 += (spdY * dirY * depth);
+			ret = 0;
+			
+			if (st->id == ID_GHOST){	
+				posX += (spdX * dirX * depth);// * sg->spriteArray[i].randVar2) + 0.3;
+				
+				val = PI / 180;
+				ret = sin(posX * val);
+			}
+			else
+				posX += (spdX * dirX * depth);
+
+			posY += (spdY * dirY * depth) + (ret * 2);
+				
+			
+			deltaX = endX - startX;
+			deltaY = endY - startY;
+
+			if (st->loop[i+j] == YES){
+				if (deltaX < 0){
+					if ((posX + width) < endX - width){
+						posX = startX + offsetX;
+						recomecou = 1;
+					}
+				}
+				else{
+					if (posX > endX){
+						posX = startX + offsetX;
+						recomecou = 1;
+					}
+				}
+
+				if (deltaY < 0){
+					if (posY + height < endY)
+					posY = startY + offsetY;
+					//recomecou = 1;
+				}
+				else{
+					if (posY > endY)
+					posY = startY + offsetY;
+					//recomecou = 1;
+				}
+			}
+
+			if (recomecou == 1){
+				if (st->id == ID_GHOST){
+					srand(posY);
+					r = (rand() / 100000000.0);
+					st->speedX[i+j] = (1.5 + r);
+				}
+				recomecou = 0;
+			}
+
+			st->posX[i+j] = posX;
+			st->posY[i+j] = posY;
+		}		
+	}
+
+	return 0;
+}
+//----------------------------------------------------------------------
 int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
 	int i, recomecou = 0;
 	float deltaX, deltaY;

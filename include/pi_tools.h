@@ -23,8 +23,10 @@
 	int pi_loadBackground	(BGImageStream*);
 	int pi_animateBackground(BGImageStream*);
 
-	int pi_iniSpriteGroup	(SpriteGroup*, GameScreen*, int);
-	int pi_loadStillSprite	(SpriteGroup*, char*, char*);
-	int pi_findSpriteByName	(SpriteGroup*, char*);
-	int pi_AnimateSprite	(SpriteGroup*, GameScreen*);
+	int pi_iniSpriteGroup	 (SpriteGroup*, GameScreen*, int);
+	int pi_loadStillSprite	 (SpriteGroup*, char*, char*);
+	int pi_findSpriteByName	 (SpriteGroup*, char*);
+	int pi_AnimateSprite	 (SpriteGroup*, GameScreen*);
+	int pi_AnimateSpriteSheet(SpriteSheet*, GameScreen*);
+
 #endif

@@ -5,6 +5,7 @@
 	#define MAX_FILE_PATH_SIZE 30
 	#define MAX_TAG_NAME_SIZE 20
 	#define MAX_ARRAY_SIZE_SPRITEGROUP 40
+	#define MAX_ARRAY_SIZE_SPRITESHEET 10
 
 	#define TELA_AVENTURA 1
 	#define TELA_PODERES  2
@@ -32,6 +33,8 @@
 	#define ID_GROUP_SPRITES_FOG 115
 	#define ID_GROUP_SPRITES_GROUND 116
 	#define ID_GROUP_SPRITES_GHOST 117
+	
+	#define ID_GHOST 118
 
 	#define ID_STILL_SPRITE 100
 
@@ -116,6 +119,35 @@ typedef struct {
 typedef struct {
 		ALLEGRO_BITMAP *canvas;
 		int 	id;
+		int 	spriteId[MAX_ARRAY_SIZE_SPRITESHEET];
+		int 	rest; 									// para usar no cálculo de velocidade do objeto
+		int 	rest_countdown; 						// quando chegar a zero, o objeto é deslocado.
+		int		loop[MAX_ARRAY_SIZE_SPRITESHEET];
+		float	startX[MAX_ARRAY_SIZE_SPRITESHEET];
+		float	startY[MAX_ARRAY_SIZE_SPRITESHEET];
+		float	endX[MAX_ARRAY_SIZE_SPRITESHEET];
+		float	endY[MAX_ARRAY_SIZE_SPRITESHEET];		
+		float 	posX[MAX_ARRAY_SIZE_SPRITESHEET];		// posicao atual do sprite
+		float 	posY[MAX_ARRAY_SIZE_SPRITESHEET];		// posicao atual do sprite
+		float	offsetX[MAX_ARRAY_SIZE_SPRITESHEET]; 	// deslocamento relativo ao x1, garantindo que o objeto fique no mesmo lugar quando reiniciar o looping  
+		float	offsetY[MAX_ARRAY_SIZE_SPRITESHEET]; 	// deslocamento relativo ao y1, garantindo que o objeto fique no mesmo lugar quando reiniciar o looping  
+		float 	speedX[MAX_ARRAY_SIZE_SPRITESHEET];		// quantidade de pixels deslocados a cada iteração na animação
+		float 	speedY[MAX_ARRAY_SIZE_SPRITESHEET]; 	// quantidade de pixels deslocados a cada iteração na animação
+		int 	directionX[MAX_ARRAY_SIZE_SPRITESHEET];	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
+		int 	directionY[MAX_ARRAY_SIZE_SPRITESHEET];	// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)
+		float 	depth[MAX_ARRAY_SIZE_SPRITESHEET];		// profundidade no eixo Z.
+		float 	x1;
+		float 	y1;
+		float 	width;
+		float 	height;
+		int		sheetSizeX;
+		int		sheetSizeY;
+		int 	reload; // 0 ou 1 para definir se a imagem precisa ser recarregada
+} SpriteSheet;
+
+typedef struct {
+		ALLEGRO_BITMAP *canvas;
+		int 	id;
 		int 	rest; // para usar no cálculo de velocidade do objeto
 		int 	rest_countdown; // quando chegar a zero, o objeto é deslocado.
 		int		loop;
@@ -140,6 +172,7 @@ typedef struct {
 		float  randVar;
 		float  randVar2;
 } StillSprite;
+
 
 typedef struct {
 		ALLEGRO_BITMAP *buffer;
