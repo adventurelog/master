@@ -15,7 +15,7 @@
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
 //#define _SET_DEBUG_ON
-#define _SET_DEBUG_FILE
+//#define _SET_DEBUG_FILE
 //#define _SET_DEBUG_STRING
 
 #ifdef 	_SET_DEBUG_ON
@@ -92,7 +92,7 @@ int pi_iniSpriteGroup(SpriteGroup *sg, GameScreen *display, int id){
 	float spdY, spdX, offsetX, offsetY, dirX, dirY;
 
 	sg->id = id;
-	sg->buffer = al_create_bitmap(display->width, display->height);
+	//sg->buffer = al_create_bitmap(display->width, display->height);
 	sg->arraySize	= MAX_ARRAY_SIZE_SPRITEGROUP;
 
 	if (id == ID_GROUP_SPRITES_SKY){
@@ -234,7 +234,9 @@ int pi_AnimateSpriteSheet(SpriteSheet *st, GameScreen *display){
 	float val, ret, r = 1.0, r2 = 1.0;
 	
 	for (i = 0; i < st->sheetSizeX; i++){
-		for (j = 0; j < st->sheetSizeY; i++){
+		for (j = 0; j < st->sheetSizeY; j++){
+			//printf("\nsheetSizeX = %d", st->sheetSizeX);
+			//printf("\nsheetSizeY = %d", st->sheetSizeY);
 			float x1 		= st->x1;
 			float y1 		= st->y1;
 			float posX 		= st->posX[i+j];
@@ -250,8 +252,8 @@ int pi_AnimateSpriteSheet(SpriteSheet *st, GameScreen *display){
 			float dirX		= st->directionX[i+j];
 			float dirY 		= st->directionY[i+j];
 			float depth		= st->depth[i+j];
-			float width		= st->width * i;
-			float height	= st->height * j;
+			float width		= st->width;
+			float height	= st->height;
 			
 //			y1 += (spdY * dirY * depth);
 			ret = 0;
@@ -273,7 +275,7 @@ int pi_AnimateSpriteSheet(SpriteSheet *st, GameScreen *display){
 
 			if (st->loop[i+j] == YES){
 				if (deltaX < 0){
-					if ((posX + width) < endX - width){
+					if ((posX + width) < (endX - width)){
 						posX = startX + offsetX;
 						recomecou = 1;
 					}
@@ -300,8 +302,8 @@ int pi_AnimateSpriteSheet(SpriteSheet *st, GameScreen *display){
 			if (recomecou == 1){
 				if (st->id == ID_GHOST){
 					srand(posY);
-					r = (rand() / 100000000.0);
-					st->speedX[i+j] = (1.5 + r);
+					//r = (rand() / 100000000.0);
+					st->speedX[i+j] = (1.5 );
 				}
 				recomecou = 0;
 			}
@@ -310,6 +312,7 @@ int pi_AnimateSpriteSheet(SpriteSheet *st, GameScreen *display){
 			st->posY[i+j] = posY;
 		}		
 	}
+		//		printf("\nsheetSizeX = %d", st->sheetSizeX);
 
 	return 0;
 }
