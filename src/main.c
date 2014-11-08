@@ -473,16 +473,15 @@ int main(int argc, char **argv[]){
 
 	/* Configura as telas de Aventura e Poderes de acordo com a resolução original do jogo
 	   configurada em nativeScreen */
-	pi_setTelaAventura(&nativeScreen, &telaAventura, &gameDisplay);
-	pi_setTelaPoderes(&nativeScreen, &telaPoderes, &gameDisplay);
+//	pi_setTelaAventura(&nativeScreen, &telaAventura, &gameDisplay);
+//	pi_setTelaPoderes(&nativeScreen, &telaPoderes, &gameDisplay);
 
-	event_queue = al_create_event_queue();
-	al_register_event_source(event_queue, al_get_timer_event_source(gameTimer));
-	al_register_event_source(event_queue, al_get_keyboard_event_source());
 
 	//***** INICIO DO LOOPING PRINCIPAL ***********************************************************************************
 	//*********************************************************************************************************************
-	al_start_timer(gameTimer);
+	event_queue = al_create_event_queue();
+	al_register_event_source(event_queue, al_get_timer_event_source(gameTimer));
+	al_register_event_source(event_queue, al_get_keyboard_event_source());
 	
 	int frame = 0;
 	ALLEGRO_BITMAP *ground = NULL;
@@ -494,11 +493,15 @@ int main(int argc, char **argv[]){
 	al_set_target_backbuffer(gameDisplay.backbuffer);
 	al_set_clipping_rectangle(0, 0, gameDisplay.width, gameDisplay.height);
 
+	al_flip_display();
+	
+	al_start_timer(gameTimer);
+	
 	while(!exitGame){
 		frame++;
-		printf("\nFrame:%d", frame);
+		//printf("\nFrame:%d", frame);
 		ALLEGRO_EVENT event;
-		ALLEGRO_TIMEOUT timeout;
+		//ALLEGRO_TIMEOUT timeout;
 		//al_init_timeout(&timeout, 0.06);
 
 
@@ -515,11 +518,11 @@ int main(int argc, char **argv[]){
 
 		if (event.type == ALLEGRO_EVENT_KEY_DOWN)
 				exitGame = 1;
-
 		else if (event.type == ALLEGRO_EVENT_TIMER){
 
 			DEBUG_ON("\ndebug:main():event.type:timer ");
 						
+			al_hold_bitmap_drawing(true);
 //			pi_drawGraphics(moon, spriteGroupSky.spriteArray[0].x1, 300, REFRESH);
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 			al_draw_bitmap(moon, spriteGroupSky.spriteArray[0].x1, 300, 0);
@@ -530,7 +533,7 @@ int main(int argc, char **argv[]){
 
 			// Desenhar na ordem de profundidade no cenário. Começando pelo mais distante para o mais perto
 			
-			al_hold_bitmap_drawing(true);
+//			al_hold_bitmap_drawing(true);
 			for (i = 0; i < spriteGroupTrees2.arraySize - 1; i++){	
 				if (spriteGroupTrees2.spriteArray[i].canvas != NULL){
 					pi_drawGraphics(spriteGroupTrees2.spriteArray[i].canvas, spriteGroupTrees2.spriteArray[i].x1, spriteGroupTrees2.spriteArray[i].y1, 0);
@@ -538,29 +541,37 @@ int main(int argc, char **argv[]){
 				else
 					break;
 			}
-			al_hold_bitmap_drawing(false);
+			//al_hold_bitmap_drawing(false);
 
-			al_hold_bitmap_drawing(true);
+//			al_hold_bitmap_drawing(true);
 			for (i = 0; i < spriteGroupFog.arraySize - 1; i++){	
 				if (spriteGroupFog.spriteArray[i].canvas != NULL){
-					pi_drawGraphics(spriteGroupFog.spriteArray[i].canvas, spriteGroupFog.spriteArray[i].x1, spriteGroupFog.spriteArray[i].y1, 0);
+//					pi_drawGraphics(spriteGroupFog.spriteArray[i].canvas, spriteGroupFog.spriteArray[i].x1, spriteGroupFog.spriteArray[i].y1, 0);
+					al_draw_bitmap_region(spriteGroupFog.spriteArray[i].canvas, 0, 0,
+							spriteGroupFog.spriteArray[i].width, spriteGroupFog.spriteArray[i].height, spriteGroupFog.spriteArray[i].x1, spriteGroupFog.spriteArray[i].y1, 0);
+
+//					al_draw_bitmap_region(fantasmas.canvas, fantasmas.x1 + (fantasmas.width*i),
+//							fantasmas.y1 + (fantasmas.height*j), fantasmas.width, fantasmas.height,
+//							fantasmas.posX[i+j], fantasmas.posY[i+j], 0);
 				}
 				else
 					break;
 			}
-			al_hold_bitmap_drawing(false);
+			//al_hold_bitmap_drawing(false);
 
-			al_hold_bitmap_drawing(true);
+//			al_hold_bitmap_drawing(true);
 			for (i = 0; i < spriteGroupTrees.arraySize - 1; i++){	
 				if (spriteGroupTrees.spriteArray[i].canvas != NULL){
-					pi_drawGraphics(spriteGroupTrees.spriteArray[i].canvas, spriteGroupTrees.spriteArray[i].x1, spriteGroupTrees.spriteArray[i].y1, 0);
+					//pi_drawGraphics(spriteGroupTrees.spriteArray[i].canvas, spriteGroupTrees.spriteArray[i].x1, spriteGroupTrees.spriteArray[i].y1, 0);
+					al_draw_bitmap(spriteGroupTrees.spriteArray[i].canvas,  spriteGroupTrees.spriteArray[i].x1, spriteGroupTrees.spriteArray[i].y1, 0);
+					
 				}
 				else
 					break;
 			}
-			al_hold_bitmap_drawing(false);
+			//al_hold_bitmap_drawing(false);
 
-			al_hold_bitmap_drawing(true);
+			//al_hold_bitmap_drawing(true);
 			for (i = 0; i < spriteGroupGrass2.arraySize - 1; i++){	
 				if (spriteGroupGrass2.spriteArray[i].canvas != NULL){
 					al_draw_bitmap(spriteGroupGrass2.spriteArray[i].canvas, spriteGroupGrass2.spriteArray[i].x1, spriteGroupGrass2.spriteArray[i].y1, 0);
@@ -569,9 +580,9 @@ int main(int argc, char **argv[]){
 				else
 					break;
 			}
-			al_hold_bitmap_drawing(false);
+			//al_hold_bitmap_drawing(false);
 
-			al_hold_bitmap_drawing(true);
+			//al_hold_bitmap_drawing(true);
 			for (i = 0; i < spriteGroupTombs.arraySize - 1; i++){	
 				if (spriteGroupTombs.spriteArray[i].canvas != NULL){
 					al_draw_bitmap(spriteGroupTombs.spriteArray[i].canvas, spriteGroupTombs.spriteArray[i].x1, spriteGroupTombs.spriteArray[i].y1, 0);
@@ -580,9 +591,9 @@ int main(int argc, char **argv[]){
 				else
 					break;
 			}
-			al_hold_bitmap_drawing(false);
+			//al_hold_bitmap_drawing(false);
 
-			al_hold_bitmap_drawing(true);
+			//al_hold_bitmap_drawing(true);
 			
 			/** anima e desenha os fantasmas **/
 			for (i = 0; i < fantasmas.sheetSizeX; i++){
@@ -605,9 +616,9 @@ int main(int argc, char **argv[]){
 			}
 			**/
 			
-			al_hold_bitmap_drawing(false);
+//			al_hold_bitmap_drawing(false);
 
-			al_hold_bitmap_drawing(true);
+//			al_hold_bitmap_drawing(true);
 			for (i = 0; i < spriteGroupGrass.arraySize - 1; i++){	
 				if (spriteGroupGrass.spriteArray[i].canvas != NULL){
 					al_draw_bitmap(spriteGroupGrass.spriteArray[i].canvas, spriteGroupGrass.spriteArray[i].x1, spriteGroupGrass.spriteArray[i].y1, 0);
@@ -623,11 +634,11 @@ int main(int argc, char **argv[]){
 
 		}
 
-		if (redraw){
-			redraw = false;
-
+//		if (redraw){
+//			redraw = false;
+	if (al_is_event_queue_empty(event_queue))
 			al_flip_display();
-		}
+//		}
 	}
 
 	//**** Fim do programa. Destrói os componentes criados para evitar vazamento de memória.

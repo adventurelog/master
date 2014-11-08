@@ -739,7 +739,8 @@ int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
 	// Configura para tela cheia.
 
 	//al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-	al_set_new_bitmap_flags(ALLEGRO_MAG_LINEAR);
+	//al_set_new_bitmap_flags(ALLEGRO_MAG_LINEAR);
+	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
 
 	ALLEGRO_DISPLAY_MODE disp_data;
 
