@@ -146,8 +146,8 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
         for (j = 0; j < sFantasmas->sheetSizeY + sFantasmas->repetirElementosY; j++){
             float r = (rand() / 1000000000.0);
             float r2 = (rand() / 1000000000.0);
-            sFantasmas->posX[counter]			= (1920 + (r * sFantasmas->largura)) * counter;
-            sFantasmas->posY[counter]			= 910;
+            sFantasmas->posX[counter]			= (telaJogo->largura + (r * sFantasmas->largura)) * counter;
+            sFantasmas->posY[counter]			= telaJogo->altura - 120;
             sFantasmas->offsetX[counter]		= 0;
             sFantasmas->offsetY[counter]		= 0;
             sFantasmas->profundidade[counter]	= 1.5;
@@ -549,25 +549,21 @@ int pi_AnimarSpriteSheet(SpriteSheet *st, GameDisplay *display){
 	return 0;
 }
 //----------------------------------------------------------------------
-int pi_iniScreens(GameScreen *telaJogo, GameScreen *telaPoderes, GameScreen *telaAventura){
+int pi_iniScreens(GameScreen *telaJogo){
 	/* Inicializa todas as telas principais de desenho do jogo */
 
-	telaJogo->canvas	= al_create_bitmap(1920, 1080);
+	telaJogo->canvas	= al_create_bitmap(1280, 720);
 	telaJogo->x1		= 0;
-	telaJogo->x2		= 1920;
+	telaJogo->x2		= 1280;
 	telaJogo->y1		= 0;
-	telaJogo->y2		= 1080;
-	telaJogo->largura		= 1920;
-	telaJogo->altura	= 1080;
+	telaJogo->y2		= 720;
+	telaJogo->largura	= 1280;
+	telaJogo->altura	= 720;
 	telaJogo->scaledX	= 1.0;
 	telaJogo->scaledY	= 1.0;
-	telaJogo->scaledW	= 1920.0;
-	telaJogo->scaledH	= 1080.0;
+	telaJogo->scaledW	= 1280.0;
+	telaJogo->scaledH	= 720.0;
 	telaJogo->id		= NATIVE_SCREEN;
-
-	telaAventura->id = TELA_AVENTURA;
-
-	telaPoderes->id	 = TELA_PODERES;
 }
 //----------------------------------------------------------------------
 int pi_iniAllegroAddons(GameDisplay *display){
@@ -602,18 +598,18 @@ void pi_setDisplayScale(GameScreen *telaJogo, GameDisplay *displayJogo){
 
 	DEBUG_ON("\n----debug:setDisplayScale():start");
 	// Calcula a proporção da escala
-	float scaledX, scaledY;
+	float sX, sY;
 
-	scaledX = (float)(displayJogo->largura)  / telaJogo->largura;
-	scaledY = (float)(displayJogo->altura) / telaJogo->altura;
+	sX = (float)(displayJogo->largura)  / telaJogo->largura;
+	sY = (float)(displayJogo->altura) / telaJogo->altura;
 
 	/* Acha qual é o menor entre sx e sy e calcula a escala.
 	   O cálculo é feito pelo menor valor para evitar que a imagem não ultrapasse os limites do monitor.*/
-	if (scaledX < scaledY){
-		displayJogo->scale = scaledX;
+	if (sX < sY){
+		displayJogo->scale = sX;
 	}
 	else{
-		displayJogo->scale = scaledY;
+		displayJogo->scale = sY;
 	}
 
 	/* Calcula as escalas a serem utilizadas */
@@ -624,7 +620,7 @@ void pi_setDisplayScale(GameScreen *telaJogo, GameDisplay *displayJogo){
 
 	ALLEGRO_TRANSFORM trans;
 	al_identity_transform(&trans);
-	al_scale_transform(&trans, displayJogo->scale, displayJogo->scale);
+	al_scale_transform(&trans, sX, sY);
 	al_use_transform(&trans);
 
 	DEBUG_ON("\ndebug:displayJogo:scale:%f", displayJogo->scale);
@@ -639,30 +635,31 @@ void pi_setDisplayScale(GameScreen *telaJogo, GameDisplay *displayJogo){
 	return;
 }
 //----------------------------------------------------------------------BGIma
-int pi_setFullScreen(GameScreen *telaJogo, GameDisplay *display){
+int pi_criaDisplay(GameScreen *telaJogo, GameDisplay *display){
 
 	DEBUG_ON("\n----debug:setFullScreen():start");
 	// Configura para tela cheia.
 
-	al_set_new_bitmap_flags(ALLEGRO_MAG_LINEAR);
+	//al_set_new_bitmap_flags(ALLEGRO_MAG_LINEAR);
 	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-	al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA);
+	//al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA);
 
 	ALLEGRO_DISPLAY_MODE disp_data;
 
 	al_set_new_display_option(ALLEGRO_RENDER_METHOD, 1, ALLEGRO_SUGGEST);
 	al_set_new_display_option(ALLEGRO_CAN_DRAW_INTO_BITMAP, 1, ALLEGRO_SUGGEST);
-	al_set_new_display_option(ALLEGRO_VSYNC, 0, ALLEGRO_REQUIRE);
-	al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
+	//al_set_new_display_option(ALLEGRO_VSYNC, 0, ALLEGRO_REQUIRE);
+	//al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
 	al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, 0, ALLEGRO_REQUIRE);
 	al_set_new_display_option(ALLEGRO_SWAP_METHOD, 2, ALLEGRO_SUGGEST);
-	al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 8, ALLEGRO_SUGGEST);
-	al_get_display_mode(display->mode, &disp_data); // Armazena em disp_data a maior resolução suportada pelo monitor
+	//al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_SUGGEST);
+	//al_get_display_mode(display->mode, &disp_data); // Armazena em disp_data a maior resolução suportada pelo monitor
 
-	al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+//	al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+	al_set_new_display_flags(ALLEGRO_WINDOWED);
 
-	display->largura = disp_data.width;
-	display->altura  = disp_data.height;
+	display->largura = telaJogo->largura;
+	display->altura  = telaJogo->altura;
 
 	// Cria o buffer de desenho da tela. Todas as outras imagens são criadas dentro dele, assim basta mudar a escala dele.
 	// e todo o resto é ajustado automaticamente.

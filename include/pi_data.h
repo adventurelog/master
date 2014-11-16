@@ -15,6 +15,8 @@
 	#define	NO 6
 	#define DIR_OPPOSITE -1 // inverte a direção do movimento
 	#define DIR_KEEP 1 // mantém o moviment na direção atual
+	#define GRAVAR 1000
+	#define DESENHAR 1001
 
 	//#define FPS 24
 
@@ -51,6 +53,12 @@
 		KEY_DOWN
 	};
 */
+typedef struct{
+	ALLEGRO_BITMAP *bitmap[3];
+	int contador; // indica qual buffer está sendo exibido
+	int bitmapAtual; // indica o bitmap que está sendo desenhado no display
+	int operacao; // operacao atual: GRAVAR ou DESENHAR
+} BufferTriplo;
 
 typedef struct{
 		ALLEGRO_BITMAP *canvas;

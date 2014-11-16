@@ -12,14 +12,12 @@
 #include "pi_data.h"
 
 // Atributos da tela
-const int LARGURA_TELA = 1920;   //960;    
-const int ALTURA_TELA =  1080;  //540;     
+const int LARGURA_TELA = 1280;   //960;    
+const int ALTURA_TELA =  720;  //540;     
 const float FPS = 120.0;
 const float animacaoFPS = 60.0;
     
 
-    GameScreen telaAventura;
-    GameScreen telaPoderes;
     GameScreen telaJogo; // tela original do jogo.
     GameDisplay displayJogo = {.mode = 0}; // display onde aparecem as telas de Aventura e Poderes
     //ALLEGRO_DISPLAY     *janela = NULL;
@@ -71,7 +69,7 @@ int main(int argc, char **argv[]){
     
     SpriteSheet sFantasmas, sLapidesCruzes, sGrama1, sGrama2, sArvores1, sArvores2,
 		sNevoa1, sNevoa2, sNevoa3, sNevoa4, sNevoa5, sNevoa6;
-
+		
     int spriteNum = -1;
     int i, j;
     srand(10);
@@ -79,10 +77,9 @@ int main(int argc, char **argv[]){
     /* Inicia todos os addons utilizados no jogo. */
     if (pi_iniAllegroAddons(&displayJogo) < 0)
         return -1;
-
 	
     /* Configura as telas do jogo*/
-    pi_iniScreens(&telaJogo, &telaAventura, &telaPoderes); // Inicializa as telas do jogo.
+    pi_iniScreens(&telaJogo); // Inicializa a tela do jogo.
     DEBUG_ON("\ndebug:telaJogo:x2=%f", telaJogo.x2);
 
 	// Inicializa as imagens e elementos do jogo
@@ -90,11 +87,11 @@ int main(int argc, char **argv[]){
 					&sNevoa2, &sNevoa3, &sNevoa4, &sNevoa5, &sNevoa6, &telaJogo);
    
     /* Inicializa o jogo em tela cheia */
-    if (pi_setFullScreen(&telaJogo, &displayJogo) < 0)
+    if (pi_criaDisplay(&telaJogo, &displayJogo) < 0)
         return -1;
 
      /* Configura a escala das coordenadas e tamanho da imagem no display */
-    pi_setDisplayScale(&telaJogo, &displayJogo);
+   //pi_setDisplayScale(&telaJogo, &displayJogo);
 
     int frame = 0;
     ALLEGRO_BITMAP *piso = NULL;
@@ -105,7 +102,7 @@ int main(int argc, char **argv[]){
     lua = al_load_bitmap("img/sky/png/lua.png");
     
     al_set_target_backbuffer(displayJogo.backbuffer);
-    //al_set_clipping_rectangle(0, 0, displayJogo.largura, displayJogo.altura);
+    al_set_clipping_rectangle(0, 0, displayJogo.largura, displayJogo.altura);
 	
 	int counter;
 	
@@ -179,8 +176,7 @@ while (!sair){
 			posicaoAlt.mousePoderes_x = evento.mouse.x;
 			posicaoAlt.mousePoderes_y = evento.mouse.y;
 			
-            if (evento.timer.source == timerAnimacao){
-				
+            if (evento.timer.source == timerAnimacao){								
 				/* Calcula as novas coordenadas e animações dos elementos */
 				pi_AnimarSpriteSheet(&sFantasmas, &telaJogo);
 				pi_AnimarSpriteSheet(&sLapidesCruzes, &telaJogo);
@@ -191,26 +187,21 @@ while (!sair){
 				//pi_AnimarSpriteSheet(&sNevoa1, &telaJogo);
 				//pi_AnimarSpriteSheet(&sNevoa2, &telaJogo);
 				//pi_AnimarSpriteSheet(&sNevoa3, &telaJogo);
-				//pi_AnimarSpriteSheet(&sNevoa4, &telaJogo);
+				pi_AnimarSpriteSheet(&sNevoa4, &telaJogo);
 
-				if(jogador.acao==0){
+				if(jogador.acao == 0){
 					jogadorCorrer(&jogador); 
 				}
-
 				else if(jogador.acao == 1 ){
 					jogadorPulo(&jogador); 
 				}
-
 				else if(jogador.acao == 2 ){
 					jogadorAbaixar(&jogador); 
-				}
-
+				}			
+					
 			}
-
-            redraw = 1;
-
-            DEBUG_ON("\ndebug:main():event.type:timer ");
-                                   
+			redraw = 1;
+            DEBUG_ON("\ndebug:main():event.type:timer ");                                   
         }
             
 
@@ -291,12 +282,12 @@ while (!sair){
 
         if (redraw && al_is_event_queue_empty(fila_eventos) && evento.timer.source == timerAnimacao) {
             redraw = 0;
-
-            /** Desenhar na ordem de profundidade no cenário. Começando pelo mais distante para o mais perto **/
-
-            al_draw_bitmap(lua, 1000, 400, 0);
-            al_draw_bitmap(ceu, 0, 950, 0);
-            al_draw_bitmap(piso, 0, 1065, 0);
+			
+			/** Desenhar na ordem de profundidade no cenário. Começando pelo mais distante para o mais perto **/
+			al_draw_bitmap(ceu, 0, 0, 0);
+			al_draw_scaled_bitmap(lua, 0, 0, 256, 230, (telaJogo.largura - 500), (telaJogo.altura - 420), (256*2), (230*2), 0);
+			//al_draw_bitmap(lua, (telaJogo.largura - 500), (telaJogo.altura - 420), 0);
+			al_draw_bitmap(piso, 0, telaJogo.altura- 10, 0);
 
 			/* Desenha os elementos do cenario que ficarão ao fundo */
 			//pi_drawGraphics(&sNevoa1);	
@@ -306,18 +297,18 @@ while (!sair){
 			//pi_drawGraphics(&sNevoa3);	
 			pi_drawGraphics(&sGrama2);	
 			pi_drawGraphics(&sLapidesCruzes);	
-			//pi_drawGraphics(&sNevoa4);	
+			pi_drawGraphics(&sNevoa4);	
 			
-            drawResposdeu(fonte_equacao, &questionario, &posicaoAlt);
-            drawPergunta(fonte_equacao, &questionario, &posicaoAlt);
-            drawPontos (fonte_pontos, &questionario, &posicaoAlt, &jogador);
-            drawJogador(&jogador, boneco);
+			drawResposdeu(fonte_equacao, &questionario, &posicaoAlt);
+			drawPergunta(fonte_equacao, &questionario, &posicaoAlt);
+			drawPontos (fonte_pontos, &questionario, &posicaoAlt, &jogador);
+			drawJogador(&jogador, boneco);
 
 			/* Desenha os elementos que ficarão na frente do personagem */
 			pi_drawGraphics(&sFantasmas);	
-			pi_drawGraphics(&sGrama1);	
+			pi_drawGraphics(&sGrama1);
 			
-            al_flip_display();
+			al_flip_display();
             al_clear_to_color(al_map_rgb(0, 0, 0));
         } 
     }
@@ -326,8 +317,6 @@ while (!sair){
 
     return 0;
 }
-
-
 
 int inicializadores(){
 
@@ -564,6 +553,6 @@ void destruir(){
 
     al_destroy_display(displayJogo.backbuffer);
     al_destroy_bitmap(telaJogo.canvas);
-    al_destroy_bitmap(telaPoderes.canvas);
-    al_destroy_bitmap(telaAventura.canvas);
+   // al_destroy_bitmap(telaPoderes.canvas);
+   // al_destroy_bitmap(telaAventura.canvas);
 }

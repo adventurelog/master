@@ -14,8 +14,8 @@
 	int pi_iniAllegroAddons(GameDisplay*);
 
 	void pi_setDisplayScale	(GameScreen*, GameDisplay*);
-	int pi_setFullScreen	(GameScreen*, GameDisplay*);
-	int pi_iniScreens		(GameScreen*, GameScreen*, GameScreen*);
+	int pi_criaDisplay		(GameScreen*, GameDisplay*);
+	int pi_iniScreens		(GameScreen*);
 
 	void pi_iniImagens(SpriteSheet*, SpriteSheet*, SpriteSheet*, SpriteSheet*,
 						SpriteSheet*, SpriteSheet*, SpriteSheet*,
@@ -23,7 +23,6 @@
 						SpriteSheet*, GameScreen*);
 
 	int pi_AnimarSpriteSheet(SpriteSheet*, GameScreen*);
-	
 	void pi_drawGraphics(SpriteSheet*);
 
 #endif
