@@ -101,18 +101,23 @@ void pi_drawGraphics(SpriteSheet *s){
 				if (cj >= s->sheetSizeY)
 					cj = 0;
 
-				if (s->habilitado[counter] == SIM){
-					if (s->novaAltura != -1 && s->novaLargura != -1){
-						// desenha imagem com escala
-						al_draw_scaled_bitmap(s->bitmap, s->x1 + (s->novaLargura * ci),
-								s->y1 + (s->novaAltura * cj), s->largura, s->altura,
-								s->posX[counter], s->posY[counter], s->novaLargura, s->novaAltura, 0);
-					}
-					else{
-						 // desenha imagem sem escala
-						al_draw_bitmap_region(s->bitmap, s->x1 + (s->largura * ci),
-								s->y1 + (s->altura * cj), s->largura, s->altura,
-								s->posX[counter], s->posY[counter], 0);
+				/** somente desenha os sprites que estiverem dentro da tela **/
+				if (s->posX[counter] + s->largura + 1 >= 0 &&
+					s->posX[counter] < 1281){
+
+					if (s->habilitado[counter] == SIM){
+						if (s->novaAltura != -1 && s->novaLargura != -1){
+							// desenha imagem com escala
+							al_draw_scaled_bitmap(s->bitmap, s->x1 + (s->novaLargura * ci),
+									s->y1 + (s->novaAltura * cj), s->largura, s->altura,
+									s->posX[counter], s->posY[counter], s->novaLargura, s->novaAltura, 0);
+						}
+						else{
+						 	// desenha imagem sem escala
+							al_draw_bitmap_region(s->bitmap, s->x1 + (s->largura * ci),
+									s->y1 + (s->altura * cj), s->largura, s->altura,
+									s->posX[counter], s->posY[counter], 0);
+						}
 					}
 				}
 
@@ -274,6 +279,7 @@ int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *disp
 
 			st->posX[counter] = posX;
 			st->posY[counter] = posY;
+
 			counter++;
 		}
 	}
@@ -564,7 +570,7 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 			sArvores2->colunaAtual		[counter] = 0;
 			sArvores2->linhaAtual 		[counter] = 0;
             sArvores2->posX			[counter] = counter * sArvores2->largura + (r * 2);
-            sArvores2->posY			[counter] = telaJogo->altura - sArvores2->altura - 20;
+            sArvores2->posY			[counter] = telaJogo->altura - sArvores2->altura - 10;
             sArvores2->offsetX		[counter] = 0;
             sArvores2->offsetY		[counter] = 0;
             sArvores2->dirX			[counter] = -1;
@@ -834,8 +840,8 @@ int pi_criaDisplay(GameScreen *telaJogo, GameDisplay *display){
 
 	al_set_new_display_option(ALLEGRO_RENDER_METHOD,		1, ALLEGRO_SUGGEST);
 	al_set_new_display_option(ALLEGRO_CAN_DRAW_INTO_BITMAP, 1, ALLEGRO_SUGGEST);
-	al_set_new_display_option(ALLEGRO_SINGLE_BUFFER,		0, ALLEGRO_REQUIRE);
-	al_set_new_display_option(ALLEGRO_SWAP_METHOD,			2, ALLEGRO_SUGGEST);
+	//al_set_new_display_option(ALLEGRO_SINGLE_BUFFER,		0, ALLEGRO_REQUIRE);
+	//al_set_new_display_option(ALLEGRO_SWAP_METHOD,			2, ALLEGRO_SUGGEST);
 
 //	al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 	al_set_new_display_flags(ALLEGRO_WINDOWED);

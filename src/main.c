@@ -181,10 +181,10 @@ while (!sair){
 				pi_AnimarSpriteSheet(&sFantasmas, &sFumacas, &telaJogo);
 				pi_AnimarSpriteSheet(&sFumacas, 		NULL, &telaJogo);
 				pi_AnimarSpriteSheet(&sLapidesCruzes, 	NULL, &telaJogo);
-				pi_AnimarSpriteSheet(&sGrama2, 			NULL, &telaJogo);
+			//	pi_AnimarSpriteSheet(&sGrama2, 			NULL, &telaJogo);
 				pi_AnimarSpriteSheet(&sGrama1, 			NULL, &telaJogo);
 				pi_AnimarSpriteSheet(&sArvores2, 		NULL, &telaJogo);
-				pi_AnimarSpriteSheet(&sArvores1, 		NULL, &telaJogo);
+			//	pi_AnimarSpriteSheet(&sArvores1, 		NULL, &telaJogo);
 				//pi_AnimarSpriteSheet(&sNevoa1,          NULL, &telaJogo);
 				//pi_AnimarSpriteSheet(&sNevoa2,          NULL, &telaJogo);
 				//pi_AnimarSpriteSheet(&sNevoa3,          NULL, &telaJogo);
@@ -289,15 +289,15 @@ while (!sair){
 			al_draw_bitmap(ceu, 0, 0, 0);
 			al_draw_scaled_bitmap(lua, 0, 0, 256, 230, (telaJogo.largura - 500), (telaJogo.altura - 420), (256*2), (230*2), 0);
 			//al_draw_bitmap(lua, (telaJogo.largura - 500), (telaJogo.altura - 420), 0);
-			al_draw_bitmap(piso, 0, telaJogo.altura- 10, 0);
+			//al_draw_bitmap(piso, 0, telaJogo.altura- 10, 0);
 
 			/* Desenha os elementos do cenario que ficarão ao fundo */
 			//pi_drawGraphics(&sNevoa1);
 			pi_drawGraphics(&sArvores2);
 			//pi_drawGraphics(&sNevoa2);
-			pi_drawGraphics(&sArvores1);
+			//pi_drawGraphics(&sArvores1);
 			//pi_drawGraphics(&sNevoa3);
-			pi_drawGraphics(&sGrama2);
+			//pi_drawGraphics(&sGrama2);
 			pi_drawGraphics(&sLapidesCruzes);
 			//pi_drawGraphics(&sNevoa4);
 
