@@ -1,672 +1,561 @@
-/*
- * Baseado nos seguitnes códigos-fonte:
- * 		https://wiki.allegro.cc/index.php?title=Achieving_Resolution_Independence
- * 		https://wiki.allegro.cc/index.php?title=Allegro_5_Tutorial/Displays
- * 		https://wiki.allegro.cc/index.php?title=Creating_a_fullscreen_display_with_maximum/minimum_resolution
- * 		https://wiki.allegro.cc/index.php?title=Basic_Keyboard_Example
- *
- */
-
-#include "allegro5/allegro5.h"
-#include "allegro5/allegro_image.h"
-#include "allegro5/allegro_native_dialog.h"
-#include "allegro5/allegro_primitives.h"
-#include <stdio.h>
-#include <stdlib.h>
+// Os arquivos de cabeçalho
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 #include <time.h>
-
+#include <stdlib.h>
 #include "pi_tools.h"
 #include "pi_data.h"
 
+// Atributos da tela
+const int LARGURA_TELA = 1280;   //960;    
+const int ALTURA_TELA =  720;  //540;     
+const float FPS = 120.0;
+const float animacaoFPS = 60.0;
+    
+
+    GameScreen telaJogo; // tela original do jogo.
+    GameDisplay displayJogo = {.mode = 0}; // display onde aparecem as telas de Aventura e Poderes
+    //ALLEGRO_DISPLAY     *janela = NULL;
+    ALLEGRO_EVENT_QUEUE *fila_eventos	= NULL, *fila_contador = NULL;
+    ALLEGRO_BITMAP      *poderes		= NULL;
+    ALLEGRO_FONT        *fonte_equacao	= NULL;
+    ALLEGRO_FONT        *fonte_pontos	= NULL;
+    ALLEGRO_TIMER       *timer			= NULL, *contador = 0;
+    ALLEGRO_SAMPLE      *som_errou		= NULL;
+    ALLEGRO_SAMPLE      *som_acertou	= NULL;
+    ALLEGRO_BITMAP      *fantasma1		= NULL;
+    ALLEGRO_BITMAP      *fantasma2		= NULL;
+    ALLEGRO_BITMAP      *fantasma3		= NULL;
+    ALLEGRO_BITMAP      *boneco			= NULL;
+
+int inicializadores();
+void destruir ();
+
+//Biblioteca dos structs
+#include "structs.h" 
+//Biblioteca Tela de Poderes (Todas as funcoes relativas a tela de poderes)
+#include "funcPoderes.h"
+//Biblioteca que gera questoes
+#include "equacoes.h"
+#include "funcBoneco.h"
+
+//#include "inicializacao.h"
+//#include "destruir.h"
+#include <stdio.h>
+
+
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
 //#define _SET_DEBUG_ON
-#ifdef 	_SET_DEBUG_ON
-	#define DEBUG_ON printf
+#ifdef  _SET_DEBUG_ON
+    #define DEBUG_ON printf
 #endif
 #ifndef _SET_DEBUG_ON
-	#define DEBUG_ON //
+    #define DEBUG_ON //
 #endif
 
 //----------------------------------------------------------------------
-int pi_drawGraphics(ALLEGRO_BITMAP *image, float x, float y, int refresh);
 
-//======================================================================
 int main(int argc, char **argv[]){
-	printf("\n================================");
-	printf("\ndebug:main():start");
-	printf("\n================================");
-
-	GameScreen nativeScreen; // tela original do jogo.
-	GameScreen telaAventura;
-	GameScreen telaPoderes;
-	GameDisplay gameDisplay = {.mode = 0}; // display onde aparecem as telas de Aventura e Poderes
-	BGImageStream sceneGrass;
-	BGImageStream sceneGrass2;
-	BGImageStream treeLine1;
-	SpriteGroup spriteGroupSky;
-    SpriteGroup spriteGroupTrees;
-    SpriteGroup spriteGroupTrees2;
-    SpriteGroup spriteGroupGrass;
-    SpriteGroup spriteGroupGrass2;
-    SpriteGroup spriteGroupTombs;
-    SpriteGroup spriteGroupFog;
-    SpriteGroup spriteGroupFog2;
-    SpriteGroup spriteGroupGround;
-    SpriteGroup spriteGroupGhost;
-    //StillSprite spriteArrayGrass[20];
-    SpriteSheet fantasmas;
-
+    
+    printf("\n================================");
+    printf("\ndebug:main():start");
+    printf("\n================================");
+   
+    
+    SpriteSheet sFantasmas, sLapidesCruzes, sGrama1, sGrama2, sArvores1, sArvores2,
+		sNevoa1, sNevoa2, sNevoa3, sNevoa4, sNevoa5, sNevoa6, sFumacas;
+		
     int spriteNum = -1;
-	int i, j;
-	srand(10);
+    int i, j;
+    srand(10);
 
-	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
-	ALLEGRO_TIMER *gameTimer = NULL;
-	int exitGame = 0, redraw = false;
-
-	/* Inicia todos os addons utilizados no jogo. */
-	if (pi_iniAllegroAddons(&gameDisplay) < 0)
-		return -1;
-
-	gameTimer = al_create_timer(1.0 / 60);
-
-	/* Configura as telas do jogo*/
-	pi_iniScreens(&nativeScreen, &telaAventura, &telaPoderes); // Inicializa as telas do jogo.
-	DEBUG_ON("\ndebug:nativeScreen:x2=%f", nativeScreen.x2);
-
-	/* Configura BACKGROUND*/
-	//pi_iniBackground(&sceneGrass, &nativeScreen, LAYER_SCENE_GRASS);
-	//pi_loadBackground(&sceneGrass);
-
-	//pi_iniBackground(&sceneGrass2, &nativeScreen, LAYER_SCENE_GRASS_2);
-	//pi_loadBackground(&sceneGrass2);
-
-	//pi_iniBackground(&treeLine1, &nativeScreen, LAYER_SCENE_TREELINE_1);
-	//pi_loadBackground(&treeLine1);
-
-	/** configura spritesheet fantasmas**/
-	fantasmas.canvas = al_load_bitmap("img/ghost/png/fantasmas.png");
-	fantasmas.x1		 = 0.0;
-	fantasmas.y1		 = 0.0;
-	fantasmas.width		 = 64.0;
-	fantasmas.height	 = 77.0;
-	fantasmas.sheetSizeX = 3;
-	fantasmas.sheetSizeY = 1;
-	fantasmas.id    	 = ID_GHOST;
-
-	fantasmas.startX[0]  = 1920;
-	fantasmas.startY[0]  = 500;
-	fantasmas.endX[0] 	 = 0;
-	fantasmas.endY[0] 	 = 0;
-	fantasmas.posX[0] 	 = 100;
-	fantasmas.posY[0] 	 = 500;
-
-	fantasmas.startX[1]  = 1920;
-	fantasmas.startY[1]  = 500;
-	fantasmas.endX[1] 	 = 0;
-	fantasmas.endY[1] 	 = 0;
-	fantasmas.posX[1] 	 = 100;
-	fantasmas.posY[1] 	 = 500;
-
-	fantasmas.startX[2]  = 1920;
-	fantasmas.startY[2]  = 500;
-	fantasmas.endX[2] 	 = 0;
-	fantasmas.endY[2] 	 = 0;
-	fantasmas.posX[2] 	 = 100;
-	fantasmas.posY[2] 	 = 500;
-
-	for (i = 0; i < fantasmas.sheetSizeX; i++){	
-		for (j = 0; j < fantasmas.sheetSizeY; j++){
-			float r = (rand() / 1000000000.0);
-			float r2 = (rand() / 1000000000.0);
-			fantasmas.posX[i+j]			= 1920 * r;
-			fantasmas.posY[i+j]			= 930;
-			fantasmas.offsetX[i+j]		= fantasmas.posX[i+j];
-			fantasmas.offsetY[i+j]		= 0;
-			fantasmas.depth[i+j] 		= 1.5;
-			fantasmas.directionX[i+j] 	= -1;
-			fantasmas.directionY[i+j] 	= 1;
-			fantasmas.speedX[i+j] 		= (1.5 + r);
-			fantasmas.speedY[i+j] 		= 0.0;
-			fantasmas.startY[i+j] 		= fantasmas.posY[i+j];
-			fantasmas.startX[i+j] 		= 1920.0;
-			fantasmas.endY[i+j]   		= fantasmas.posY[i+j];
-			fantasmas.endX[i+j] 	   	= 0.0;
-			fantasmas.spriteId[i+j]    	= i+j;
-			fantasmas.loop[i+j] 	   	= YES;
-		}
-	}
-
-
-	/** Configura SPRITES **/
-	pi_iniSpriteGroup(&spriteGroupGround, &nativeScreen, ID_GROUP_SPRITES_GROUND);
-	pi_loadStillSprite(&spriteGroupGround, "ground", "ground");
-
-	pi_iniSpriteGroup(&spriteGroupGhost, &nativeScreen, ID_GROUP_SPRITES_GHOST);
-	pi_loadStillSprite(&spriteGroupGhost, "ghost1", "ghost1");
-	pi_loadStillSprite(&spriteGroupGhost, "ghost1", "ghost2");
-	pi_loadStillSprite(&spriteGroupGhost, "ghost1", "ghost3");
-
-	pi_iniSpriteGroup(&spriteGroupFog, &nativeScreen, ID_GROUP_SPRITES_FOG);
-	pi_loadStillSprite(&spriteGroupFog, "fog2", "fog2");
-	pi_loadStillSprite(&spriteGroupFog, "fog3", "fog3");
-	pi_loadStillSprite(&spriteGroupFog, "fog4", "fog4");
-	pi_loadStillSprite(&spriteGroupFog, "fog5", "fog5");
-	pi_loadStillSprite(&spriteGroupFog, "fog6", "fog6");
-
-	pi_iniSpriteGroup(&spriteGroupFog2, &nativeScreen, ID_GROUP_SPRITES_FOG);
-	pi_loadStillSprite(&spriteGroupFog2, "fog4", "fog4");
-	pi_loadStillSprite(&spriteGroupFog2, "fog6", "fog6");
-	pi_loadStillSprite(&spriteGroupFog2, "fog3", "fog3");
-	pi_loadStillSprite(&spriteGroupFog2, "fog5", "fog5");
-
-	pi_iniSpriteGroup(&spriteGroupTombs, &nativeScreen, ID_GROUP_SPRITES_TOMBS);
-	pi_loadStillSprite(&spriteGroupTombs, "cross1", "cross1");
-	pi_loadStillSprite(&spriteGroupTombs, "cross2", "cross2");
-	pi_loadStillSprite(&spriteGroupTombs, "cross3", "cross3");
-	pi_loadStillSprite(&spriteGroupTombs, "tomb1", "tomb1");
-	pi_loadStillSprite(&spriteGroupTombs, "cross2", "cross2");
-	pi_loadStillSprite(&spriteGroupTombs, "tomb1", "tomb1");
-	pi_loadStillSprite(&spriteGroupTombs, "tomb2", "tomb2");
-	pi_loadStillSprite(&spriteGroupTombs, "tomb1", "tomb1");
-	pi_loadStillSprite(&spriteGroupTombs, "tomb2", "tomb2");
-	pi_loadStillSprite(&spriteGroupTombs, "cross3", "cross3");
-	pi_loadStillSprite(&spriteGroupTombs, "tomb1", "tomb1");
-	pi_loadStillSprite(&spriteGroupTombs, "tomb2", "tomb2");
-
-	pi_iniSpriteGroup(&spriteGroupGrass, &nativeScreen, ID_GROUP_SPRITES_GRASS);
-	pi_loadStillSprite(&spriteGroupGrass, "grass_0", "grass_0");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_1", "grass_1");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_2", "grass_2");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_3");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_4");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_5", "grass_5");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_6", "grass_6");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_0", "grass_7");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_1", "grass_8");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_2", "grass_9");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_10");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_12");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_0", "grass_13");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_6", "grass_14");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_1", "grass_15");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_2", "grass_16");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_17");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_18");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_5", "grass_19");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_20");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_21");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_5", "grass_22");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_6", "grass_23");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_0", "grass_24");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_1", "grass_25");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_2", "grass_26");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_27");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_28");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_5", "grass_29");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_5", "grass_30");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_31");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_4", "grass_32");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_5", "grass_33");
-	pi_loadStillSprite(&spriteGroupGrass, "grass_3", "grass_34");
-
-	pi_iniSpriteGroup(&spriteGroupSky, &nativeScreen, ID_GROUP_SPRITES_SKY);
-	pi_loadStillSprite(&spriteGroupSky, "moon", "moon");
-	pi_loadStillSprite(&spriteGroupSky, "sky", "moon");
-
-    pi_iniSpriteGroup(&spriteGroupTrees, &nativeScreen, ID_GROUP_SPRITES_TREES);
-    pi_loadStillSprite(&spriteGroupTrees, "tree7", "tree3");
-    pi_loadStillSprite(&spriteGroupTrees, "tree6", "tree6");
-    pi_loadStillSprite(&spriteGroupTrees, "tree3", "tree3");
-    pi_loadStillSprite(&spriteGroupTrees, "tree1", "tree1");
-    pi_loadStillSprite(&spriteGroupTrees, "tree3", "tree3");
-    pi_loadStillSprite(&spriteGroupTrees, "tree7", "tree7");
-    pi_loadStillSprite(&spriteGroupTrees, "tree6", "tree1");
-
-    pi_iniSpriteGroup(&spriteGroupTrees2, &nativeScreen, ID_GROUP_SPRITES_TREES);
-    pi_loadStillSprite(&spriteGroupTrees2, "tree8", "tree2");
-    pi_loadStillSprite(&spriteGroupTrees2, "tree2", "tree3");
-    pi_loadStillSprite(&spriteGroupTrees2, "tree5", "tree4");
-    pi_loadStillSprite(&spriteGroupTrees2, "tree2", "tree5");
-    pi_loadStillSprite(&spriteGroupTrees2, "tree4", "tree6");
-    pi_loadStillSprite(&spriteGroupTrees2, "tree8", "tree7");
-    pi_loadStillSprite(&spriteGroupTrees2, "tree5", "tree8");
-
-//	spriteNum = pi_findSpriteByName(&spriteGroupSky, "moon");
+    /* Inicia todos os addons utilizados no jogo. */
+    if (pi_iniAllegroAddons(&displayJogo) < 0)
+        return -1;
 	
-	// Configura a nevoa
-	for (i = 0; i < spriteGroupFog.arraySize - 1; i++){	
-		if (spriteGroupFog.spriteArray[i].canvas != NULL){
-			spriteGroupFog.spriteArray[i].x1 			= (i * spriteGroupFog.spriteArray[i].width);
-			//printf("\nx1:%f", spriteGroupGrass.spriteArray[i].x1);
-			spriteGroupFog.spriteArray[i].y1 			= 940;
-			spriteGroupFog.spriteArray[i].offsetX		= spriteGroupFog.spriteArray[i].x1;
-			spriteGroupFog.spriteArray[i].offsetY		= 940;
-			spriteGroupFog.spriteArray[i].depth 		= 0.85;
-			spriteGroupFog.spriteArray[i].directionX 	= -1;
-			spriteGroupFog.spriteArray[i].directionY 	= 1;
-			spriteGroupFog.spriteArray[i].speedX 		= 1.0;
-			spriteGroupFog.spriteArray[i].speedY 		= 0.0;
-			spriteGroupFog.spriteArray[i].startY 		= spriteGroupFog.spriteArray[i].y1;
-			spriteGroupFog.spriteArray[i].startX 		= 1920 + spriteGroupFog.spriteArray[i].x1;
-			spriteGroupFog.spriteArray[i].endY   		= spriteGroupFog.spriteArray[i].y1;
-			spriteGroupFog.spriteArray[i].endX 	    	= 0.0;
-			//printf("\nstartX:%f", spriteGroupFog.spriteArray[i].startX);
-			spriteGroupFog.spriteArray[i].id 	    	= 4;
-			spriteGroupFog.spriteArray[i].loop 	   		= YES;
-		}	
-	}
-	for (i = 0; i < spriteGroupFog2.arraySize - 1; i++){	
-		if (spriteGroupFog2.spriteArray[i].canvas != NULL){
-			spriteGroupFog2.spriteArray[i].x1 			= (i * spriteGroupFog2.spriteArray[i].width) + 200;
-			//printf("\nx1:%f", spriteGroupFog2.spriteArray[i].x1);
-			spriteGroupFog2.spriteArray[i].y1 			= 940;
-			spriteGroupFog2.spriteArray[i].offsetX		= spriteGroupFog2.spriteArray[i].x1;
-			spriteGroupFog2.spriteArray[i].offsetY		= 940;
-			spriteGroupFog2.spriteArray[i].depth 		= 0.95;
-			spriteGroupFog2.spriteArray[i].directionX 	= -1;
-			spriteGroupFog2.spriteArray[i].directionY 	= 1;
-			spriteGroupFog2.spriteArray[i].speedX 		= 1.0;
-			spriteGroupFog2.spriteArray[i].speedY 		= 0.0;
-			spriteGroupFog2.spriteArray[i].startY 		= spriteGroupFog2.spriteArray[i].y1;
-			spriteGroupFog2.spriteArray[i].startX 		= 1920 + spriteGroupFog2.spriteArray[i].x1;
-			spriteGroupFog2.spriteArray[i].endY   		= spriteGroupFog2.spriteArray[i].y1;
-			spriteGroupFog2.spriteArray[i].endX 	   	= 0.0;
-			//printf("\nstartX:%f", spriteGroupFog.spriteArray[i].startX);
-			spriteGroupFog2.spriteArray[i].id 	    	= 4;
-			spriteGroupFog2.spriteArray[i].loop 	   	= YES;
-		}	
-	}
+    /* Configura as telas do jogo*/
+    pi_iniScreens(&telaJogo); // Inicializa a tela do jogo.
+    DEBUG_ON("\ndebug:telaJogo:x2=%f", telaJogo.x2);
 
-	// Configura a grama
-	for (i = 0; i < spriteGroupGrass.arraySize - 1; i++){	
-		if (spriteGroupGrass.spriteArray[i].canvas != NULL){
-			spriteGroupGrass.spriteArray[i].x1 			= (i * spriteGroupGrass.spriteArray[i].width);
-			//printf("\nx1:%f", spriteGroupGrass.spriteArray[i].x1);
-			spriteGroupGrass.spriteArray[i].y1 			= 1040;
-			spriteGroupGrass.spriteArray[i].offsetX		= spriteGroupGrass.spriteArray[i].x1;
-			spriteGroupGrass.spriteArray[i].offsetY		= 1040;
-			spriteGroupGrass.spriteArray[i].depth 		= 1.7;
-			spriteGroupGrass.spriteArray[i].directionX 	= -1;
-			spriteGroupGrass.spriteArray[i].directionY 	= 1;
-			spriteGroupGrass.spriteArray[i].speedX 		= 1.0;
-			spriteGroupGrass.spriteArray[i].speedY 		= 0.0;
-			spriteGroupGrass.spriteArray[i].startY 		= spriteGroupGrass.spriteArray[i].y1;
-			spriteGroupGrass.spriteArray[i].startX 		= 1920 + spriteGroupGrass.spriteArray[i].x1;
-			spriteGroupGrass.spriteArray[i].endY   		= spriteGroupGrass.spriteArray[i].y1;
-			spriteGroupGrass.spriteArray[i].endX 	    = 0.0;
-			//printf("\nstartX:%f", spriteGroupGrass.spriteArray[i].startX);
-			spriteGroupGrass.spriteArray[i].id 	    	= 4;
-			spriteGroupGrass.spriteArray[i].loop 	    = YES;
-		}	
-	}
-    spriteGroupGrass2 = spriteGroupGrass;
-	for (i = 0; i < spriteGroupGrass2.arraySize - 1; i++){	
-		if (spriteGroupGrass2.spriteArray[i].canvas != NULL){
-			spriteGroupGrass2.spriteArray[i].x1 			= (i * spriteGroupGrass2.spriteArray[i].width);
-			spriteGroupGrass2.spriteArray[i].y1 			= 1030;
-			spriteGroupGrass2.spriteArray[i].offsetX		= spriteGroupGrass2.spriteArray[i].x1;
-			spriteGroupGrass2.spriteArray[i].offsetY		= 1030;
-			spriteGroupGrass2.spriteArray[i].depth 			= 1.0;
-			spriteGroupGrass2.spriteArray[i].directionX 	= -1;
-			spriteGroupGrass2.spriteArray[i].directionY 	= 1;
-			spriteGroupGrass2.spriteArray[i].speedX 		= 1.0;
-			spriteGroupGrass2.spriteArray[i].speedY 		= 0.0;
-			spriteGroupGrass2.spriteArray[i].startY 		= spriteGroupGrass2.spriteArray[i].y1;
-			spriteGroupGrass2.spriteArray[i].startX 		= 1920 + spriteGroupGrass2.spriteArray[i].x1;
-			spriteGroupGrass2.spriteArray[i].endY   		= spriteGroupGrass2.spriteArray[i].y1;
-			spriteGroupGrass2.spriteArray[i].endX 	    	= 0.0;
-			spriteGroupGrass2.spriteArray[i].id 	    	= 4;
-			spriteGroupGrass2.spriteArray[i].loop 	    	= YES;
-		}	
-	}
-
-//	Configura a lua
-		spriteGroupSky.spriteArray[0].x1 			= 1200;
-		spriteGroupSky.spriteArray[0].y1 			= 210;
-		spriteGroupSky.spriteArray[0].depth 		= 0.1;
-		spriteGroupSky.spriteArray[0].directionX 	= -1;
-		spriteGroupSky.spriteArray[0].directionY 	= 1;
-		spriteGroupSky.spriteArray[0].speedX 		= 0.4;
-		spriteGroupSky.spriteArray[0].speedY 		= 0.0;
-        spriteGroupSky.spriteArray[0].startY 		= 0.0;
-        spriteGroupSky.spriteArray[0].startX 		= 0.0;
-        spriteGroupSky.spriteArray[0].endY   		= 0.0;
-        spriteGroupSky.spriteArray[0].endX 	    	= 0.0;
-        spriteGroupSky.spriteArray[0].id 	    	= 1;
-        spriteGroupSky.spriteArray[0].loop 	    	= NO;
-
-//	Configura a o céu de fundo
-		spriteGroupSky.spriteArray[1].x1 			= 0;
-		spriteGroupSky.spriteArray[1].y1 			= 1080 - spriteGroupSky.spriteArray[1].height;
-		spriteGroupSky.spriteArray[1].depth 		= 1.0;
-		spriteGroupSky.spriteArray[1].directionX 	= 1;
-		spriteGroupSky.spriteArray[1].directionY 	= 1;
-		spriteGroupSky.spriteArray[1].speedX 		= 0.0;
-		spriteGroupSky.spriteArray[1].speedY 		= 0.0;
-        spriteGroupSky.spriteArray[1].startY 		= 0.0;
-        spriteGroupSky.spriteArray[1].startX 		= 0.0;
-        spriteGroupSky.spriteArray[1].endY   		= 0.0;
-        spriteGroupSky.spriteArray[1].endX 	    	= 0.0;
-        spriteGroupSky.spriteArray[1].id 	    	= 1;
-        spriteGroupSky.spriteArray[1].loop 	    	= NO;
-
-//	Configura o chão
-		spriteGroupGround.spriteArray[0].x1 			= 0;
-		spriteGroupGround.spriteArray[0].y1 			= 1080 - spriteGroupGround.spriteArray[0].height;
-		spriteGroupGround.spriteArray[0].depth 			= 1.0;
-		spriteGroupGround.spriteArray[0].directionX 	= 1;
-		spriteGroupGround.spriteArray[0].directionY 	= 1;
-		spriteGroupGround.spriteArray[0].speedX 		= 0.0;
-		spriteGroupGround.spriteArray[0].speedY 		= 0.0;
-        spriteGroupGround.spriteArray[0].startY 		= 0.0;
-        spriteGroupGround.spriteArray[0].startX 		= 0.0;
-        spriteGroupGround.spriteArray[0].endY   		= 0.0;
-        spriteGroupGround.spriteArray[0].endX 	    	= 0.0;
-        spriteGroupGround.spriteArray[0].id 	    	= 1;
-        spriteGroupGround.spriteArray[0].loop 	    	= NO;
-
-//	Configura os fantasmas
-	for (i = 0; i < spriteGroupGhost.arraySize - 1; i++){	
-		if (spriteGroupGhost.spriteArray[i].canvas != NULL){
-			float r = (rand() / 1000000000.0);
-			float r2 = (rand() / 1000000000.0);
-			spriteGroupGhost.spriteArray[i].x1 			= 1920 * r;
-			spriteGroupGhost.spriteArray[i].y1 			= 930;
-			spriteGroupGhost.spriteArray[i].offsetX		= spriteGroupGhost.spriteArray[i].x1;
-			spriteGroupGhost.spriteArray[i].offsetY		= 0;
-			spriteGroupGhost.spriteArray[i].depth 		= 1.5;
-			spriteGroupGhost.spriteArray[i].directionX 	= -1;
-			spriteGroupGhost.spriteArray[i].directionY 	= 1;
-			spriteGroupGhost.spriteArray[i].speedX 		= (1.5 + r);
-			spriteGroupGhost.spriteArray[i].speedY 		= 0.0;
-			spriteGroupGhost.spriteArray[i].startY 		= spriteGroupGhost.spriteArray[i].y1;
-			spriteGroupGhost.spriteArray[i].startX 		= 1920.0;
-			spriteGroupGhost.spriteArray[i].endY   		= spriteGroupGhost.spriteArray[i].y1;
-			spriteGroupGhost.spriteArray[i].endX 	    = 0.0;
-			spriteGroupGhost.spriteArray[i].id 	    	= 1;
-			spriteGroupGhost.spriteArray[i].randVar    	= r;
-			spriteGroupGhost.spriteArray[i].randVar2    = r2;
-			spriteGroupGhost.spriteArray[i].loop 	    = YES;
-		}
-	}
-
-	// configura arvores profundidade 1
-	for (i = 0; i < spriteGroupTrees.arraySize - 1; i++){	
-		if (spriteGroupTrees.spriteArray[i].canvas != NULL){
-			float r = (rand() / 100000000.0);
-			//printf("\nrand:%f", r);
-			spriteGroupTrees.spriteArray[i].x1 			= (spriteGroupTrees.spriteArray[i].width * i) * r + 50;
-			spriteGroupTrees.spriteArray[i].y1 			= nativeScreen.scaledH - spriteGroupTrees.spriteArray[i].height - 10;
-			//printf("\ny1:%f", spriteGroupTrees.spriteArray[i].y1);
-			spriteGroupTrees.spriteArray[i].offsetX		= spriteGroupTrees.spriteArray[i].x1;
-			spriteGroupTrees.spriteArray[i].offsetY		= spriteGroupTrees.spriteArray[i].y1;
-			spriteGroupTrees.spriteArray[i].depth 		= 1.0;
-			spriteGroupTrees.spriteArray[i].directionX 	= -1;
-			spriteGroupTrees.spriteArray[i].directionY 	= 1;
-			spriteGroupTrees.spriteArray[i].speedX 		= 1.0;
-			spriteGroupTrees.spriteArray[i].speedY 		= 0.0;
-			spriteGroupTrees.spriteArray[i].startY 		= spriteGroupTrees.spriteArray[i].y1;
-			spriteGroupTrees.spriteArray[i].startX 		= nativeScreen.scaledW + spriteGroupTrees.spriteArray[i].x1;
-			spriteGroupTrees.spriteArray[i].endY   		= spriteGroupTrees.spriteArray[i].y1;
-			spriteGroupTrees.spriteArray[i].endX 	   	= 0.0;
-			spriteGroupTrees.spriteArray[i].id 	    	= i;
-			spriteGroupTrees.spriteArray[i].loop 	   	= YES;
-		}
-	}
-
-	// configura arvores profundidade 2
-	for (i = 0; i < spriteGroupTrees2.arraySize - 1; i++){	
-		if (spriteGroupTrees2.spriteArray[i].canvas != NULL){
-			float r = (rand() / 100000000.0);
-			//printf("\nrand:%f", r);
-			spriteGroupTrees2.spriteArray[i].x1 			= 300 + (spriteGroupTrees2.spriteArray[i].width * i) * (r/2);
-			spriteGroupTrees2.spriteArray[i].y1 			= 1080 - spriteGroupTrees2.spriteArray[i].height - 10;
-			//printf("\ny1:%f", spriteGroupTrees2.spriteArray[i].y1);
-			spriteGroupTrees2.spriteArray[i].offsetX		= spriteGroupTrees2.spriteArray[i].x1;
-			spriteGroupTrees2.spriteArray[i].offsetY		= spriteGroupTrees2.spriteArray[i].y1;
-			spriteGroupTrees2.spriteArray[i].depth 			= 0.7;
-			spriteGroupTrees2.spriteArray[i].directionX 	= -1;
-			spriteGroupTrees2.spriteArray[i].directionY 	= 1;
-			spriteGroupTrees2.spriteArray[i].speedX 		= 1.0;
-			spriteGroupTrees2.spriteArray[i].speedY 		= 0.0;
-			spriteGroupTrees2.spriteArray[i].startY 		= spriteGroupTrees2.spriteArray[i].y1;
-			spriteGroupTrees2.spriteArray[i].startX 		= 1920 + spriteGroupTrees2.spriteArray[i].x1;
-			spriteGroupTrees2.spriteArray[i].endY   		= spriteGroupTrees2.spriteArray[i].y1;
-			spriteGroupTrees2.spriteArray[i].endX 	   		= 0.0;
-			spriteGroupTrees2.spriteArray[i].id 	    	= i;
-			spriteGroupTrees2.spriteArray[i].loop 	   		= YES;
-
-		}
-	}
+	// Inicializa as imagens e elementos do jogo
+	pi_iniImagens(&sLapidesCruzes, &sFantasmas, &sGrama1, &sGrama2, &sArvores1, &sArvores2, &sNevoa1,
+					&sNevoa2, &sNevoa3, &sNevoa4, &sNevoa5, &sNevoa6, &sFumacas, &telaJogo);
 	
-	// configura o cemitério
-	for (i = 0; i < spriteGroupTombs.arraySize - 1; i++){	
-		if (spriteGroupTombs.spriteArray[i].canvas != NULL){
-			float r = (rand() / 100000000.0);
-			//printf("\nrand:%f", r);
-			spriteGroupTombs.spriteArray[i].x1 			= (spriteGroupTombs.spriteArray[i].width * i) * r + 20;
-			spriteGroupTombs.spriteArray[i].y1 			= nativeScreen.height - spriteGroupTombs.spriteArray[i].height - 5;
-			//printf("\ny1:%f", spriteGroupTrees.spriteArray[i].y1);
-			spriteGroupTombs.spriteArray[i].offsetX		= spriteGroupTombs.spriteArray[i].x1;
-			spriteGroupTombs.spriteArray[i].offsetY		= spriteGroupTombs.spriteArray[i].y1;
-			spriteGroupTombs.spriteArray[i].depth 		= 1.3;
-			spriteGroupTombs.spriteArray[i].directionX 	= -1;
-			spriteGroupTombs.spriteArray[i].directionY 	= 1;
-			spriteGroupTombs.spriteArray[i].speedX 		= 1.0;
-			spriteGroupTombs.spriteArray[i].speedY 		= 0.0;
-			spriteGroupTombs.spriteArray[i].startY 		= spriteGroupTombs.spriteArray[i].y1;
-			spriteGroupTombs.spriteArray[i].startX 		= nativeScreen.width + spriteGroupTombs.spriteArray[i].x1;
-			spriteGroupTombs.spriteArray[i].endY   		= spriteGroupTombs.spriteArray[i].y1;
-			spriteGroupTombs.spriteArray[i].endX 	   	= 0.0;
-			spriteGroupTombs.spriteArray[i].id 	    	= i;
-			spriteGroupTombs.spriteArray[i].loop 	   	= YES;
-		}
-	}
+    /* Inicializa o jogo em tela cheia */
+    if (pi_criaDisplay(&telaJogo, &displayJogo) < 0)
+        return -1;
 
-	/* Inicializa o jogo em tela cheia */
- 	if (pi_setFullScreen(&nativeScreen, &gameDisplay) < 0)
-		return -1;
+     /* Configura a escala das coordenadas e tamanho da imagem no display */
+   //pi_setDisplayScale(&telaJogo, &displayJogo);
 
-	 /* Configura a escala das coordenadas e tamanho da imagem no display */
-	pi_setDisplayScale(&nativeScreen, &gameDisplay);
-
-	/* Configura as telas de Aventura e Poderes de acordo com a resolução original do jogo
-	   configurada em nativeScreen */
-//	pi_setTelaAventura(&nativeScreen, &telaAventura, &gameDisplay);
-//	pi_setTelaPoderes(&nativeScreen, &telaPoderes, &gameDisplay);
-
-
-	//***** INICIO DO LOOPING PRINCIPAL ***********************************************************************************
-	//*********************************************************************************************************************
-	event_queue = al_create_event_queue();
-	al_register_event_source(event_queue, al_get_timer_event_source(gameTimer));
-	al_register_event_source(event_queue, al_get_keyboard_event_source());
+    int frame = 0;
+    ALLEGRO_BITMAP *piso = NULL;
+    piso = al_load_bitmap("img/ground/png/ground.png");
+    ALLEGRO_BITMAP *ceu = NULL;
+    ceu = al_load_bitmap("img/sky/png/sky.png");
+    ALLEGRO_BITMAP *lua = NULL;
+    lua = al_load_bitmap("img/sky/png/lua.png");
+    
+    al_set_target_backbuffer(displayJogo.backbuffer);
+    al_set_clipping_rectangle(0, 0, displayJogo.largura, displayJogo.altura);
 	
-	int frame = 0;
-	ALLEGRO_BITMAP *ground = NULL;
-	ground = al_load_bitmap("img/ground/png/ground.png");
-	ALLEGRO_BITMAP *sky = NULL;
-	sky = al_load_bitmap("img/sky/png/sky.png");
-	ALLEGRO_BITMAP *moon = NULL;
-	moon = al_load_bitmap("img/sky/png/moon.png");
-	al_set_target_backbuffer(gameDisplay.backbuffer);
-	al_set_clipping_rectangle(0, 0, gameDisplay.width, gameDisplay.height);
-
-	al_flip_display();
+	int counter;
 	
-	al_start_timer(gameTimer);
-	
-	while(!exitGame){
-		frame++;
-		//printf("\nFrame:%d", frame);
-		ALLEGRO_EVENT event;
-		//ALLEGRO_TIMEOUT timeout;
-		//al_init_timeout(&timeout, 0.06);
+    al_flip_display();
 
+    if (inicializadores()<0){
+        return -1;
+    }
 
-		pi_AnimateSprite(&spriteGroupTrees2, &nativeScreen);
-		pi_AnimateSprite(&spriteGroupFog, &nativeScreen);
-		pi_AnimateSprite(&spriteGroupTrees, &nativeScreen);
-		pi_AnimateSprite(&spriteGroupGrass2, &nativeScreen);
-		pi_AnimateSprite(&spriteGroupTombs, &nativeScreen);
-		pi_AnimateSprite(&spriteGroupGhost, &nativeScreen);
-		pi_AnimateSprite(&spriteGroupGrass, &nativeScreen);
-		pi_AnimateSpriteSheet(&fantasmas, &nativeScreen);
+    // Flag que condicionará nosso looping do jogo
+    int sair = 0;
+    // Flag que condicionará nosso redesenho
+    int redraw = 0;
 
-		al_wait_for_event(event_queue, &event);
+    // Caixas da colisao Largura e Altura
+    int caixaL, caixaA;
 
-		if (event.type == ALLEGRO_EVENT_KEY_DOWN)
-				exitGame = 1;
-		else if (event.type == ALLEGRO_EVENT_TIMER){
+    //Struct para pergunta e alternativas
+    listaQuestao questionario;
 
-			DEBUG_ON("\ndebug:main():event.type:timer ");
-						
-			al_hold_bitmap_drawing(true);
-//			pi_drawGraphics(moon, spriteGroupSky.spriteArray[0].x1, 300, REFRESH);
-			al_clear_to_color(al_map_rgb(0, 0, 0));
-			al_draw_bitmap(moon, spriteGroupSky.spriteArray[0].x1, 300, 0);
-//			pi_drawGraphics(sky, 0, 950, 0);
-			al_draw_bitmap(sky, 0, 950, 0);
+    //Struct para a posicao das alternativas da tela
+    telaAlternativa posicaoAlt;
+    
+    /*
+    //teste posicao das questoes
+    printf("%d -- %d\n %d -- %d\n %d -- %d\n",posicaoAlt.alt_Ax, posicaoAlt.alt_Ay,
+                                              posicaoAlt.alt_Bx, posicaoAlt.alt_By,
+                                              posicaoAlt.alt_Cx, posicaoAlt.alt_Cy );
+    */
 
-			pi_drawGraphics(ground, 0, 1065, 0);
+    fantasma identidade;
+    bonecoJog jogador;
 
-			// Desenhar na ordem de profundidade no cenário. Começando pelo mais distante para o mais perto
+    setBoneco(LARGURA_TELA, ALTURA_TELA, &jogador, boneco);
+
+    posicaoAlternativas(LARGURA_TELA, ALTURA_TELA, &posicaoAlt, &jogador);
+
+    //setar valor antes de iniciar o jogo
+    setVeriavel(&questionario);
+        
+    // Inicializando perguntas com nivel de dificuldade 1 (parte1)
+    ale_parte1(&questionario);
+
+	/* Cria um timer separado para redesenhar o cenário e os fantasmas */
+	ALLEGRO_TIMER *timerAnimacao = al_create_timer(1.0 / animacaoFPS);
+	al_register_event_source(fila_eventos, al_get_timer_event_source(timerAnimacao));
+
+    //load imagem de fundo temporaria
+   // poderes = al_load_bitmap("imagens/fundo.jpg");
+    //desenhando imagem temporaria de fundo
+//    al_draw_bitmap(poderes, 0, 0, 0);
+    // timer printipal do jogo
+    al_start_timer(timer);
+    
+    /* Cria um timer separado para o redesenho dos gráficos */
+	al_start_timer(timerAnimacao);
+    //timer com tempo real para o cronometro do jogo
+    al_start_timer(contador);
+
+while (!sair){
+
+        ALLEGRO_EVENT evento;
+        al_wait_for_event(fila_eventos, &evento);
+
+        if(evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
+             sair=1;
+        }
+        else if(evento.type == ALLEGRO_EVENT_TIMER) {
+        // controlando FPS para redesenhar
+            
+			posicaoAlt.mousePoderes_x = evento.mouse.x;
+			posicaoAlt.mousePoderes_y = evento.mouse.y;
 			
-//			al_hold_bitmap_drawing(true);
-			for (i = 0; i < spriteGroupTrees2.arraySize - 1; i++){	
-				if (spriteGroupTrees2.spriteArray[i].canvas != NULL){
-					pi_drawGraphics(spriteGroupTrees2.spriteArray[i].canvas, spriteGroupTrees2.spriteArray[i].x1, spriteGroupTrees2.spriteArray[i].y1, 0);
+            if (evento.timer.source == timerAnimacao){								
+				/* Calcula as novas coordenadas e animações dos elementos */
+				pi_AnimarSpriteSheet(&sFantasmas, &sFumacas, &telaJogo);
+				pi_AnimarSpriteSheet(&sFumacas, 		NULL, &telaJogo);
+				pi_AnimarSpriteSheet(&sLapidesCruzes, 	NULL, &telaJogo);
+				pi_AnimarSpriteSheet(&sGrama2, 			NULL, &telaJogo);
+				pi_AnimarSpriteSheet(&sGrama1, 			NULL, &telaJogo);
+				pi_AnimarSpriteSheet(&sArvores2, 		NULL, &telaJogo);
+				pi_AnimarSpriteSheet(&sArvores1, 		NULL, &telaJogo);
+				//pi_AnimarSpriteSheet(&sNevoa1, NULL, &telaJogo);
+				//pi_AnimarSpriteSheet(&sNevoa2, NULL, &telaJogo);
+				//pi_AnimarSpriteSheet(&sNevoa3, NULL, &telaJogo);
+//				pi_AnimarSpriteSheet(&sNevoa4, 			NULL, &telaJogo);
+
+				if(jogador.acao == 0){
+					jogadorCorrer(&jogador); 
 				}
-				else
-					break;
-			}
-			//al_hold_bitmap_drawing(false);
-
-//			al_hold_bitmap_drawing(true);
-			for (i = 0; i < spriteGroupFog.arraySize - 1; i++){	
-				if (spriteGroupFog.spriteArray[i].canvas != NULL){
-//					pi_drawGraphics(spriteGroupFog.spriteArray[i].canvas, spriteGroupFog.spriteArray[i].x1, spriteGroupFog.spriteArray[i].y1, 0);
-					al_draw_bitmap_region(spriteGroupFog.spriteArray[i].canvas, 0, 0,
-							spriteGroupFog.spriteArray[i].width, spriteGroupFog.spriteArray[i].height, spriteGroupFog.spriteArray[i].x1, spriteGroupFog.spriteArray[i].y1, 0);
-
-//					al_draw_bitmap_region(fantasmas.canvas, fantasmas.x1 + (fantasmas.width*i),
-//							fantasmas.y1 + (fantasmas.height*j), fantasmas.width, fantasmas.height,
-//							fantasmas.posX[i+j], fantasmas.posY[i+j], 0);
+				else if(jogador.acao == 1 ){
+					jogadorPulo(&jogador); 
 				}
-				else
-					break;
-			}
-			//al_hold_bitmap_drawing(false);
-
-//			al_hold_bitmap_drawing(true);
-			for (i = 0; i < spriteGroupTrees.arraySize - 1; i++){	
-				if (spriteGroupTrees.spriteArray[i].canvas != NULL){
-					//pi_drawGraphics(spriteGroupTrees.spriteArray[i].canvas, spriteGroupTrees.spriteArray[i].x1, spriteGroupTrees.spriteArray[i].y1, 0);
-					al_draw_bitmap(spriteGroupTrees.spriteArray[i].canvas,  spriteGroupTrees.spriteArray[i].x1, spriteGroupTrees.spriteArray[i].y1, 0);
+				else if(jogador.acao == 2 ){
+					jogadorAbaixar(&jogador); 
+				}			
 					
-				}
-				else
-					break;
 			}
-			//al_hold_bitmap_drawing(false);
+			redraw = 1;
+            DEBUG_ON("\ndebug:main():event.type:timer ");                                   
+        }
+            
 
-			//al_hold_bitmap_drawing(true);
-			for (i = 0; i < spriteGroupGrass2.arraySize - 1; i++){	
-				if (spriteGroupGrass2.spriteArray[i].canvas != NULL){
-					al_draw_bitmap(spriteGroupGrass2.spriteArray[i].canvas, spriteGroupGrass2.spriteArray[i].x1, spriteGroupGrass2.spriteArray[i].y1, 0);
-//					pi_drawGraphics(spriteGroupGrass2.spriteArray[i].canvas, spriteGroupGrass2.spriteArray[i].x1, spriteGroupGrass2.spriteArray[i].y1, 0);
-				}
-				else
-					break;
-			}
-			//al_hold_bitmap_drawing(false);
+/*///////////////////////// COMANDOS ALLEGRO_EVENT_QUEUE /**fila_eventos\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
-			//al_hold_bitmap_drawing(true);
-			for (i = 0; i < spriteGroupTombs.arraySize - 1; i++){	
-				if (spriteGroupTombs.spriteArray[i].canvas != NULL){
-					al_draw_bitmap(spriteGroupTombs.spriteArray[i].canvas, spriteGroupTombs.spriteArray[i].x1, spriteGroupTombs.spriteArray[i].y1, 0);
-//					pi_drawGraphics(spriteGroupTombs.spriteArray[i].canvas, spriteGroupTombs.spriteArray[i].x1, spriteGroupTombs.spriteArray[i].y1, 0);
-				}
-				else
-					break;
-			}
-			//al_hold_bitmap_drawing(false);
+//----- verifica se tipo de evento é clique no mouse --- E IFS PARA VERIFICAR QUAL ALTERNATIVA JOGADOR ESCOLHEU -------------
+        
+        if (evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP){
 
-			//al_hold_bitmap_drawing(true);
+             verificarResposta(som_acertou, som_errou, &posicaoAlt, &questionario, &sFantasmas, &jogador);
+
+        }  //FIM DE VERIFICAÇÃO SOBRE A ESCOLHA DA ALTERNATIVA DO JOGADOR 
+       
+        //mudando tipo de ponteiro quando jogador for responder
+        else if (evento.type == ALLEGRO_EVENT_MOUSE_AXES){
+            
+             ponteiroMouse (displayJogo.backbuffer, &posicaoAlt);
+        }
+
+
+        else if(evento.type == ALLEGRO_EVENT_KEY_DOWN){
+            if (evento.keyboard.keycode == ALLEGRO_KEY_ESCAPE ){
+                sair = 1;
+            }
+
+            if (jogador.forca >= 1){
+
+                switch(evento.keyboard.keycode){
+                    case ALLEGRO_KEY_W:
+                         clique_KEY_W(&jogador);
+                         break;
+                         
+                    case ALLEGRO_KEY_S:
+                         clique_KEY_S(&jogador);
+                         break;
+                }
+            }
+        }
+
+/*---------------VERIFICAÇÃO COLISAO FANTASMA x JOGADOR-------------------------------------------------------*/
+            if (jogador.acao == 0){
+                 caixaL = -30;
+                 caixaA = -5;
+            }
+            else if (jogador.acao == 1){
+                 caixaL = -30;
+                 caixaA = -5;
+            }
+            else if (jogador.acao == 2){
+                 caixaL = -20;
+                 caixaA = -60;
+            }
+
+            for (int i = 0; i < 3; i++){
+    
+                if (colisao (jogador.pos_x,      jogador.pos_y,      jogador.frame_larg, jogador.frame_alt, 
+                             sFantasmas.posX[i], sFantasmas.posY[i], sFantasmas.largura, sFantasmas.altura, 
+                             caixaL, caixaA) == 1){
+
+                    //sFantasmas.posX[i] = 1920; 
+                    sFantasmas.eliminado[i] = SIM;
+                }
+            }
+        
+        
+
+/*---------------VERIFICAÇÃO ATUALIZAÇÃO DA PERGUNTA-------------------------------------------------------*/
+            atualizarPergunta(&questionario);
+
+        
+/* ----------------- TEMPO RECRESIVO NA TELA -------------------------------------------------- */
+            cronometroRegressivo(contador, fila_contador, &questionario, &sair);
+
+
+
+   ///////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\        
+/* /////////////////////// AREA DE DESENHAR \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
+   ///////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+        if (redraw && al_is_event_queue_empty(fila_eventos) && evento.timer.source == timerAnimacao) {
+            redraw = 0;
 			
-			/** anima e desenha os fantasmas **/
-			for (i = 0; i < fantasmas.sheetSizeX; i++){
-				for (j = 0; j < fantasmas.sheetSizeY; j++){
-					al_draw_bitmap_region(fantasmas.canvas, fantasmas.x1 + (fantasmas.width*i),
-							fantasmas.y1 + (fantasmas.height*j), fantasmas.width, fantasmas.height,
-							fantasmas.posX[i+j], fantasmas.posY[i+j], 0);
-				}
-			}
-			
-			/**
-			for (i = 0; i < spriteGroupGhost.arraySize - 1; i++){	
-				if (spriteGroupGhost.spriteArray[i].canvas != NULL){
-					pi_drawGraphics(spriteGroupGhost.spriteArray[i].canvas, spriteGroupGhost.spriteArray[i].x1, spriteGroupGhost.spriteArray[i].y1, 0);
-					//printf("\nx1:%f", spriteGroupGhost.spriteArray[i].x1);
-					//printf("\ny1:%f", spriteGroupGhost.spriteArray[i].y1);
-				}
-				else
-					break;
-			}
-			**/
-			
-//			al_hold_bitmap_drawing(false);
+			/** Desenhar na ordem de profundidade no cenário. Começando pelo mais distante para o mais perto **/
+			al_draw_bitmap(ceu, 0, 0, 0);
+			al_draw_scaled_bitmap(lua, 0, 0, 256, 230, (telaJogo.largura - 500), (telaJogo.altura - 420), (256*2), (230*2), 0);
+			//al_draw_bitmap(lua, (telaJogo.largura - 500), (telaJogo.altura - 420), 0);
+			al_draw_bitmap(piso, 0, telaJogo.altura- 10, 0);
 
-//			al_hold_bitmap_drawing(true);
-			for (i = 0; i < spriteGroupGrass.arraySize - 1; i++){	
-				if (spriteGroupGrass.spriteArray[i].canvas != NULL){
-					al_draw_bitmap(spriteGroupGrass.spriteArray[i].canvas, spriteGroupGrass.spriteArray[i].x1, spriteGroupGrass.spriteArray[i].y1, 0);
-					//pi_drawGraphics(spriteGroupGrass.spriteArray[i].canvas, spriteGroupGrass.spriteArray[i].x1, spriteGroupGrass.spriteArray[i].y1, 0);
-				}
-				else
-					break;
-			}
-			al_hold_bitmap_drawing(false);
+			/* Desenha os elementos do cenario que ficarão ao fundo */
+			//pi_drawGraphics(&sNevoa1);	
+			pi_drawGraphics(&sArvores2);	
+			//pi_drawGraphics(&sNevoa2);	
+			pi_drawGraphics(&sArvores1);	
+			//pi_drawGraphics(&sNevoa3);	
+			pi_drawGraphics(&sGrama2);	
+			pi_drawGraphics(&sLapidesCruzes);	
+			pi_drawGraphics(&sNevoa4);	
 			
-			redraw = true;
-			DEBUG_ON("\ndebug:main():redraw ");
+			drawResposdeu(fonte_equacao, &questionario, &posicaoAlt);
+			drawPergunta(fonte_equacao, &questionario, &posicaoAlt);
+			drawPontos (fonte_pontos, &questionario, &posicaoAlt, &jogador);
+			drawJogador(&jogador, boneco);
 
-		}
-
-//		if (redraw){
-//			redraw = false;
-	if (al_is_event_queue_empty(event_queue))
+			/* Desenha os elementos que ficarão na frente do personagem */
+			pi_drawGraphics(&sFantasmas);	
+			pi_drawGraphics(&sFumacas);	
+			pi_drawGraphics(&sGrama1);
+			
 			al_flip_display();
-//		}
-	}
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+        } 
+    }
 
-	//**** Fim do programa. Destrói os componentes criados para evitar vazamento de memória.
-	al_destroy_timer(gameTimer);
-	al_destroy_display(gameDisplay.backbuffer);
-	al_destroy_bitmap(nativeScreen.canvas);
-	al_destroy_bitmap(telaPoderes.canvas);
-	al_destroy_bitmap(telaAventura.canvas);
-	//al_destroy_bitmap(currentImage);
+    destruir ();
 
-	printf("\n================================");
-	printf("\ndebug:main():end");
-	printf("\n================================\n");
+    return 0;
+}
+
+int inicializadores(){
+
+    if (!al_init()){
+        fprintf(stderr, "Falha ao inicializar a Allegro.\n");
+        return -1;
+    }
+    
+    al_init_image_addon();
+
+    // Inicialização do add-on para uso de fontes
+    al_init_font_addon();
+
+    al_install_keyboard();
+ 
+    // Inicialização do add-on para uso de fontes True Type
+    if (!al_init_ttf_addon()){
+        fprintf(stderr, "Falha ao inicializar add-on allegro_ttf.\n");
+        return -1;
+    }
+    
+    /*
+    janela = al_create_display(LARGURA_TELA, ALTURA_TELA);
+    if (!janela){
+
+        fprintf(stderr, "Falha ao criar janela.\n");
+        return -1;
+    }
+    */
+ 
+    timer = al_create_timer(1.0 / FPS);
+    if(!timer){
+        al_destroy_display(displayJogo.backbuffer);
+        fprintf(stderr, "failed to create timer!\n");
+        return -1;
+    }
+
+    // Configura o título da janela
+    al_set_window_title(displayJogo.backbuffer, "Adventure*Log");
+
+    fonte_equacao = al_load_font("fontes/letra_equacao.ttf", 80, 0);
+    if (!fonte_equacao){
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        fprintf(stderr, "Falha ao carregar fonte.\n");
+        return -1;
+    }
+
+    fonte_pontos = al_load_font("fontes/letra_equacao.ttf", 50, 0);
+    if (!fonte_pontos){
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        fprintf(stderr, "Falha ao carregar fonte.\n");
+        return -1;
+    }
+
+ 
+    // Torna apto o uso de mouse na aplicação
+    if (!al_install_mouse()){
+        fprintf(stderr, "Falha ao inicializar o mouse.\n");
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_pontos);
+        return -1;
+    }
+ 
+    // Atribui o cursor padrão do sistema para ser usado
+    if (!al_set_system_mouse_cursor(displayJogo.backbuffer, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT)){
+        fprintf(stderr, "Falha ao atribuir ponteiro do mouse.\n");
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_pontos);
+        return -1;
+    }
+
+    fila_eventos = al_create_event_queue();
+    if (!fila_eventos){
+        fprintf(stderr, "Falha ao inicializar o fila de eventos.\n");
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_pontos);
+        return -1;
+    } 
+
+    if (!al_init_primitives_addon()){
+        fprintf(stderr, "Falha ao inicializar add-on de primitivas.\n");
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_pontos);
+        al_destroy_event_queue(fila_eventos);
+        return false;
+    }
+
+    if (!al_install_audio()){
+        fprintf(stderr, "Falha ao inicializar áudio.\n");
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_pontos);
+        al_destroy_event_queue(fila_eventos);
+        return false;
+    }
+ 
+    if (!al_init_acodec_addon()){
+        fprintf(stderr, "Falha ao inicializar codecs de áudio.\n");
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_pontos);
+        al_destroy_event_queue(fila_eventos);
+        return false;
+    }
+ 
+    if (!al_reserve_samples(1)){
+        fprintf(stderr, "Falha ao alocar canais de áudio.\n");
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_pontos);
+        al_destroy_event_queue(fila_eventos);
+        return false;
+    }
+
+    som_errou = al_load_sample("sons/sample_erro.ogg");
+    if (!som_errou){
+        fprintf(stderr, "Falha ao carregar som_errou.\n");
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_pontos);
+        al_destroy_event_queue(fila_eventos);
+        return false;
+    }
+
+    som_acertou = al_load_sample("sons/sample_acertou.ogg");
+    if (!som_acertou){
+        fprintf(stderr, "Falha ao carregar som_acertou.\n");
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_pontos);
+        al_destroy_event_queue(fila_eventos);
+        al_destroy_sample(som_errou);
+        return false;
+    }
+
+    contador = al_create_timer(1.0);
+    if (!contador)
+    {
+        fprintf(stderr, "Falha ao criar timer.\n");
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_pontos);
+        al_destroy_event_queue(fila_eventos);
+        al_destroy_sample(som_errou);
+        al_destroy_sample(som_acertou);
+        return false;
+    }
+
+    fila_contador = al_create_event_queue();
+    if (!fila_contador)
+    {
+        fprintf(stderr, "Falha ao criar fila do contador.\n");
+        al_destroy_display(displayJogo.backbuffer);
+        al_destroy_timer(timer);
+        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_pontos);
+        al_destroy_event_queue(fila_eventos);
+        al_destroy_sample(som_errou);
+        al_destroy_sample(som_acertou);
+        al_destroy_timer(contador);
+
+        return false;
+    }
+
+    fantasma1= al_load_bitmap("img/fantasma.png");
+    fantasma2= al_load_bitmap("img/fantasma2.png");
+    fantasma3= al_load_bitmap("img/fantasma3.png");
+
+
+    boneco = al_load_bitmap("img/boneco/jogador.png");
+
+    // Dizemos que vamos tratar os eventos vindos do mouse
+    al_register_event_source(fila_eventos, al_get_mouse_event_source());
+    al_register_event_source(fila_eventos, al_get_display_event_source(displayJogo.backbuffer));
+    al_register_event_source(fila_eventos, al_get_timer_event_source(timer));
+    al_register_event_source(fila_eventos, al_get_keyboard_event_source());
+
+    al_register_event_source(fila_contador, al_get_timer_event_source(contador));
 
 }
-//======================================================================
+
+/*
 int pi_drawGraphics(ALLEGRO_BITMAP *image, float x, float y, int refresh){
-	DEBUG_ON("\n----debug:drawGraphics():start");
-	//DEBUG_ON("\ndebug:tela:%d", tela->id);
+    DEBUG_ON("\n----debug:drawGraphics():start");
+    //DEBUG_ON("\ndebug:tela:%d", tela->id);
 
-	if (refresh){
-		al_clear_to_color(al_map_rgb(0, 0, 0));
-	}
-	
-	al_draw_bitmap(image, x, y, 0);
+    if (refresh){
+        al_clear_to_color(al_map_rgb(0, 0, 0));
+    }
+    
+    al_draw_bitmap(image, x, y, 0);
 
-	DEBUG_ON("\n----debug:drawGraphics():end");
+    DEBUG_ON("\n----debug:drawGraphics():end");
 
-	return 0;
+    return 0;
 }
-//----------------------------------------------------------------------
+*/
+
+
+void destruir(){
+
+    /* DESTRUINDO PONTEIROS */
+    al_destroy_bitmap(poderes);
+   // al_destroy_display(janela);
+    al_destroy_event_queue(fila_eventos);
+    al_destroy_event_queue(fila_contador);
+    al_destroy_font(fonte_equacao);
+    al_destroy_font(fonte_pontos);
+    al_destroy_timer(timer);
+    al_destroy_timer(contador);
+    al_destroy_sample(som_errou);
+    al_destroy_sample(som_acertou);
+    al_destroy_bitmap(fantasma1);
+    al_destroy_bitmap(fantasma2);
+    al_destroy_bitmap(fantasma3);
+    al_destroy_bitmap(boneco);
+
+    al_destroy_display(displayJogo.backbuffer);
+    al_destroy_bitmap(telaJogo.canvas);
+   // al_destroy_bitmap(telaPoderes.canvas);
+   // al_destroy_bitmap(telaAventura.canvas);
+}

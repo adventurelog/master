@@ -40,567 +40,689 @@
 #endif
 
 //======================================================================
-int pi_stringCompare(char s1[], char s2[]){
-	int i, size, count;
-
-	size = 0;
-	count = 0;
-
-	DEBUG_STRING("\ndebug:stringCompare:s1:%s", s1);
-	DEBUG_STRING("\ndebug:stringCompare:s2:%s", s2);
-
-	for (i = 0; i < MAX_TAG_NAME_SIZE - 1; i++){
-		if (s1[i] != '\0')
-			size++;
-		else
-			break;
-	}
-
-	for (i = 0; i < size - 1; i++){
-		if (s1[i] == s2[i])
-			count++;
-	}
-
-	DEBUG_STRING("\ndebug:stringCompare:count:%d", count);
-	DEBUG_STRING("\ndebug:stringCompare:size:%d", size);
-
-	if (count == size - 1)
-		return true;
-
-	return false;
-}
-//----------------------------------------------------------------------
-int pi_findSpriteByName(SpriteGroup *sg, char *tagName){
-	int i;
-	char v1[MAX_TAG_NAME_SIZE];
-	char v2[MAX_TAG_NAME_SIZE];
-
-	for (i = 0; i < sg->arraySize - 1; i++){
-		sprintf(v1, "%s", sg->spriteArray[i].tagName);
-		sprintf(v2, "%s", tagName);
-
-		if (pi_stringCompare(v1, v2) == true)
-			return i;
-	}
-
-	return -1;
-}
-//----------------------------------------------------------------------
-int pi_iniSpriteGroup(SpriteGroup *sg, GameScreen *display, int id){
-	DEBUG_ON("\n----debug:iniGroupSprites():start");
-	int i;
-	float spdY, spdX, offsetX, offsetY, dirX, dirY;
-
-	sg->id = id;
-	//sg->buffer = al_create_bitmap(display->width, display->height);
-	sg->arraySize	= MAX_ARRAY_SIZE_SPRITEGROUP;
-
-	if (id == ID_GROUP_SPRITES_SKY){
-		sg->depth		= 1;
-		sg->x1			= 0.0;
-		sg->y1			= 1020.0;
-		sg->dirPath		= "img/sky/png/";
-		sg->directionX	= 1;
-		sg->directionY	= 1;
-		sg->speedX		= 0.0;
-		sg->speedY		= 0.0;
-	}
-	else if (id == ID_GROUP_SPRITES_TREES){
-		sg->depth		= 1;
-		sg->x1			= 0.0;
-		sg->y1			= 1020.0;
-		sg->dirPath		= "img/trees/png/";
-		sg->directionX	= 1;
-		sg->directionY	= 1;
-		sg->speedX		= 0.0;
-		sg->speedY		= 0.0;
-	}
-	else if (id == ID_GROUP_SPRITES_GRASS){
-		sg->depth		= 1;
-		sg->x1			= 0.0;
-		sg->y1			= 1020.0;
-		sg->dirPath		= "img/grass/png/";
-		sg->directionX	= 1;
-		sg->directionY	= 1;
-		sg->speedX		= 0.0;
-		sg->speedY		= 0.0;
-	}
-	else if (id == ID_GROUP_SPRITES_TOMBS){
-		sg->depth		= 1;
-		sg->x1			= 0.0;
-		sg->y1			= 0;
-		sg->dirPath		= "img/tomb/png/";
-		sg->directionX	= 1;
-		sg->directionY	= 1;
-		sg->speedX		= 0.0;
-		sg->speedY		= 0.0;
-	}
-	else if (id == ID_GROUP_SPRITES_FOG){
-		sg->depth		= 1;
-		sg->x1			= 0.0;
-		sg->y1			= 0;
-		sg->dirPath		= "img/fog/png/";
-		sg->directionX	= 1;
-		sg->directionY	= 1;
-		sg->speedX		= 0.0;
-		sg->speedY		= 0.0;
-	}
-	else if (id == ID_GROUP_SPRITES_GROUND){
-		sg->depth		= 1;
-		sg->x1			= 0.0;
-		sg->y1			= 0;
-		sg->dirPath		= "img/ground/png/";
-		sg->directionX	= 1;
-		sg->directionY	= 1;
-		sg->speedX		= 0.0;
-		sg->speedY		= 0.0;
-	}
-	else if (id == ID_GROUP_SPRITES_GHOST){
-		sg->depth		= 1;
-		sg->x1			= 0.0;
-		sg->y1			= 0;
-		sg->dirPath		= "img/ghost/png/";
-		sg->directionX	= 1;
-		sg->directionY	= 1;
-		sg->speedX		= 0.0;
-		sg->speedY		= 0.0;
-	}
-
-	for (i = 0; i < sg->arraySize - 1; i++){
-		sg->spriteArray[i].canvas 	= NULL;
-		sg->spriteArray[i].id 		= -1;
-		sg->spriteArray[i].x1 		= 0.0;
-		sg->spriteArray[i].y1 		= 0.0;
-		sg->spriteArray[i].speedX 	= 1.0;
-		sg->spriteArray[i].speedY 	= 0.0;
-		sg->spriteArray[i].depth 	= 1;
-		sg->spriteArray[i].width	= 1;
-		sg->spriteArray[i].height	= 1;
-		sg->spriteArray[i].reload	= 1;
-		sg->spriteArray[i].rest 	= 0;
-		sg->spriteArray[i].tagName 	= "empty";
-		sg->spriteArray[i].directionX	= 1;
-		sg->spriteArray[i].directionY 	= 1;
-		sg->spriteArray[i].rest_countdown = sg->spriteArray[i].rest;
-	}
-
-	return 0;
-}
-//----------------------------------------------------------------------
-int pi_loadStillSprite(SpriteGroup *sg, char *fileName, char *tagName){
-
-	int i, x, y, w, h;
-	char fullPath[MAX_FILE_PATH_SIZE];
-	char tName[MAX_TAG_NAME_SIZE];
-
-	for (i = 0; i < sg->arraySize - 1; i++){
-
-		if (sg->spriteArray[i].reload == 1){
-
-			sprintf(tName, "%s%c", tagName, '\0');
-
-			sg->spriteArray[i].tagName 	= tName;
-
-			sprintf(fullPath, "%s%s.png", sg->dirPath, fileName);
-			DEBUG_FILE("\ndebug:loadStillSprite:fullFilePath:%s", fullPath);
-			DEBUG_FILE("\ndebug:loadStillSprite:tagName:%s", tName);
-
-			const char *file = fullPath;
-
-			sg->spriteArray[i].canvas = al_load_bitmap(file);
-			DEBUG_FILE("\ndebug:loadStillSprite:loaded:%s", fullPath);
-
-			h = al_get_bitmap_height(sg->spriteArray[i].canvas);
-			w = al_get_bitmap_width(sg->spriteArray[i].canvas);
-
-			al_set_target_bitmap(sg->spriteArray[i].canvas);
-			al_set_clipping_rectangle(0, 0, w, h);
-
-			sg->spriteArray[i].width  = w;
-			sg->spriteArray[i].height = h;
-
-			sg->spriteArray[i].reload = 0;
-
-			return 0;
-		}
-	}
-
-	return 0;
-}
-//----------------------------------------------------------------------
-int pi_AnimateSpriteSheet(SpriteSheet *st, GameScreen *display){
-	int i, j, recomecou = 0;
-	float deltaX, deltaY;
-	float val, ret, r = 1.0, r2 = 1.0;
+void pi_drawGraphics(SpriteSheet *s){
+	int counter = 0, ci = 0, cj = 0, i, j;
+		
+	al_hold_bitmap_drawing(true);
+	if (s->bitmap != NULL){
 	
-	for (i = 0; i < st->sheetSizeX; i++){
-		for (j = 0; j < st->sheetSizeY; j++){
-			//printf("\nsheetSizeX = %d", st->sheetSizeX);
-			//printf("\nsheetSizeY = %d", st->sheetSizeY);
+		if (s->id == ID_FUMACA){
+			for (i = 0; i < 3; i++){
+				if (s->habilitado[i] == SIM){
+					s->contIntervalo[i]--;
+				
+					if (s->contIntervalo[i] <= 0){
+						s->contIntervalo[i] = s->intervalo[i];
+						s->contRegressiva[i]--;
+					
+						s->colunaAtual[i]++;
+					
+						if(s->colunaAtual[i] >= s->sheetSizeX){
+							s->colunaAtual[i] = 0;
+							s->linhaAtual[i]++;
+						}
+					}
+				
+					if (s->contRegressiva[i] <= 0){
+						s->colunaAtual		[i]	= 0;
+						s->linhaAtual		[i]	= 0;
+						s->habilitado		[i]	= NAO; // desabilita se a contagem regressiva chegou a zero.
+						s->contRegressiva	[i] = 0;
+						s->contIntervalo 	[i] = s->intervalo[0];
+						s->loop				[i] = NAO;
+					
+						return;									
+					}
+
+					ci = s->colunaAtual[i];
+					cj = s->linhaAtual [i];
+	
+					//printf("\n ci:%d   cj:%d   contReg:%d", ci, cj, s->contRegressiva[0]);
+				
+					al_draw_bitmap_region(s->bitmap, s->x1 + (s->largura * ci),
+						s->y1 + (s->altura * cj), s->largura, s->altura,
+						s->posX[i], s->posY[i], 0);
+				}
+				return;						
+			}
+		}			
+		
+		for (i = 0; i < s->sheetSizeX + s->repetirElementosX; i++){
+			for (j = 0; j < s->sheetSizeY + s->repetirElementosY; j++){
+				
+				// se colunaAtual ou linhaAtual for maior do que as dimensões X ou Y do spritesheet, então	
+				// significa que ultrapassou o tamanho real,
+				// portanto iniciou o looping a partir do primeiro elemento
+				// novamente.
+				if (ci >= s->sheetSizeX)
+					ci = 0;
+				if (cj >= s->sheetSizeY)
+					cj = 0;
+					
+				if (s->habilitado[counter] == SIM){
+					if (s->novaAltura != -1 && s->novaLargura != -1){ 
+						// desenha imagem com escala
+						al_draw_scaled_bitmap(s->bitmap, s->x1 + (s->novaLargura * ci),
+								s->y1 + (s->novaAltura * cj), s->largura, s->altura,
+								s->posX[counter], s->posY[counter], s->novaLargura, s->novaAltura, 0);
+					}
+					else{
+						 // desenha imagem sem escala
+						al_draw_bitmap_region(s->bitmap, s->x1 + (s->largura * ci),
+								s->y1 + (s->altura * cj), s->largura, s->altura,
+								s->posX[counter], s->posY[counter], 0);				
+					}
+				}
+
+				ci++;
+				cj++;
+				counter++;
+			}
+		}
+	}	
+	al_hold_bitmap_drawing(false);
+}
+//----------------------------------------------------------------------
+void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteSheet *sGrama1, 
+					SpriteSheet *sGrama2, SpriteSheet *sArvores1, SpriteSheet *sArvores2,
+					SpriteSheet *sNevoa1, SpriteSheet *sNevoa2, SpriteSheet *sNevoa3, SpriteSheet *sNevoa4, 
+					SpriteSheet *sNevoa5, SpriteSheet *sNevoa6, SpriteSheet *sFumacas,
+					GameScreen *telaJogo){
+	
+	int i, j, counter;
+	srand(time(NULL));
+    float r;
+
+    /** configura spritesheet lápides e cruzes**/
+	sLapidesCruzes->bitmap = al_load_bitmap("img/tomb/png/lapides_cruzes.png");
+    sLapidesCruzes->x1         = 0.0;
+    sLapidesCruzes->y1         = 0.0;
+    sLapidesCruzes->largura    = 72.0;
+    sLapidesCruzes->altura     = 77.0;
+    sLapidesCruzes->sheetSizeX = 4;
+    sLapidesCruzes->sheetSizeY = 1;
+    sLapidesCruzes->id         = ID_LAPIDE_CRUZ;
+    sLapidesCruzes->repetirElementosX = 5;
+    sLapidesCruzes->repetirElementosY = 0;
+	sLapidesCruzes->novaAltura  = -1;
+	counter = 0;
+	
+    for (i = 0; i < sLapidesCruzes->sheetSizeX + sLapidesCruzes->repetirElementosX; i++){ 
+        for (j = 0; j < sLapidesCruzes->sheetSizeY + sLapidesCruzes->repetirElementosY; j++){
+			srand(i+j+counter*4);
+			r = (rand() / 100000000.0);
+			sLapidesCruzes->colunaAtual		[counter] = 0;
+			sLapidesCruzes->linhaAtual 		[counter] = 0;
+            sLapidesCruzes->posX			[counter] = (counter) * sLapidesCruzes->largura + (200 * r);
+            sLapidesCruzes->posY			[counter] = telaJogo->altura - sLapidesCruzes->altura;
+            sLapidesCruzes->offsetX			[counter] = sLapidesCruzes->posX[counter];
+            sLapidesCruzes->offsetY			[counter] = 0;
+            sLapidesCruzes->inicioX			[counter] = -1;
+            sLapidesCruzes->dirX			[counter] = -1;
+            sLapidesCruzes->dirY			[counter] = 1;
+            sLapidesCruzes->velX			[counter] = 1.0;
+            sLapidesCruzes->velY			[counter] = 0.0;
+            sLapidesCruzes->inicioY			[counter] = sLapidesCruzes->posY[counter];
+            sLapidesCruzes->inicioX			[counter] = telaJogo->largura;
+            sLapidesCruzes->fimY			[counter] = sLapidesCruzes->posY[counter];
+            sLapidesCruzes->fimX			[counter] = 0.0;
+            sLapidesCruzes->spriteId		[counter] = i+j;
+            sLapidesCruzes->loop			[counter] = SIM;
+            sLapidesCruzes->profundidade	[i+j]     = 1.3;
+            sLapidesCruzes->intervalo	 	[counter] = 0;
+            sLapidesCruzes->contIntervalo	[counter] = 0;
+            sLapidesCruzes->habilitado		[counter] = SIM;
+//            printf("\nY:%0.1f", sLapidesCruzes->posY[counter]);
+            counter++;      
+        }
+    }
+	
+    /** configura spritesheet fumaça dos fantasmas eliminados**/   
+    sFumacas->bitmap = al_load_bitmap("img/fumaca/png/fumaca.png");
+    sFumacas->x1         = 0.0;
+    sFumacas->y1         = 0.0;
+    sFumacas->largura    = 64.0;
+    sFumacas->altura     = 80.0;
+    sFumacas->sheetSizeX = 4;
+    sFumacas->sheetSizeY = 2;
+    sFumacas->id         = ID_FUMACA;
+    sFumacas->repetirElementosX = 0;
+    sFumacas->repetirElementosY = 0;
+	sFumacas->novaAltura  = -1;
+	sFumacas->novaLargura = -1;
+
+	for(i = 0; i < 3; i++){
+		sFumacas->colunaAtual	[0] = 0;
+		sFumacas->linhaAtual	[0] = 0;
+		sFumacas->posX			[0] = telaJogo->largura + 100;
+		sFumacas->posY			[0] = telaJogo->altura - 120;
+		sFumacas->offsetX		[0] = 0;
+		sFumacas->offsetY		[0] = 0;
+		sFumacas->profundidade	[0] = 1.5;
+		sFumacas->dirX			[0] = -1;
+		sFumacas->dirY			[0] = 1;
+		sFumacas->velX			[0] = 1.0;
+		sFumacas->velY			[0] = 0.0;
+		sFumacas->inicioY		[0] = sFumacas->posY[0];
+		sFumacas->inicioX		[0] = telaJogo->largura;
+		sFumacas->fimY			[0] = sFumacas->posY[0];
+		sFumacas->fimX			[0] = 0.0;
+		sFumacas->spriteId		[0] = 0; // O ID da fumaça corresponde ao ID do fantasma
+		sFumacas->loop			[0] = NAO;
+		sFumacas->eliminado		[0] = 0;
+		sFumacas->intervalo		[0] = 3;
+		sFumacas->contIntervalo	[0] = 3;
+		sFumacas->contRegressiva[0] = 8;
+		sFumacas->habilitado	[0] = 0;
+	}
+		
+    /** configura spritesheet Fantasmas**/    
+    sFantasmas->bitmap = al_load_bitmap("img/ghost/png/fantasmas.png");
+    sFantasmas->x1         = 0.0;
+    sFantasmas->y1         = 0.0;
+    sFantasmas->largura    = 64.0;
+    sFantasmas->altura     = 77.0;
+    sFantasmas->sheetSizeX = 3;
+    sFantasmas->sheetSizeY = 1;
+    sFantasmas->id         = ID_GHOST;
+    sFantasmas->repetirElementosX = 0;
+    sFantasmas->repetirElementosY = 0;
+	sFantasmas->novaAltura  = -1;
+	sFantasmas->novaLargura = -1;
+	counter = 0;
+
+    for (i = 0; i < sFantasmas->sheetSizeX + sFantasmas->repetirElementosX; i++){ 
+        for (j = 0; j < sFantasmas->sheetSizeY + sFantasmas->repetirElementosY; j++){
+            float r = (rand() / 1000000000.0);
+            float r2 = (rand() / 1000000000.0);
+            sFantasmas->posX		[counter] = (telaJogo->largura + (r * sFantasmas->largura)) * counter;
+            sFantasmas->posY		[counter] = telaJogo->altura - 120;
+            sFantasmas->offsetX		[counter] = 0;
+            sFantasmas->offsetY		[counter] = 0;
+            sFantasmas->profundidade[counter] = 1.5;
+            sFantasmas->dirX		[counter] = -1;
+            sFantasmas->dirY		[counter] = 1;
+            sFantasmas->velX		[counter] = (0.9 + r);
+            sFantasmas->velY		[counter] = 0.0;
+            sFantasmas->inicioY		[counter] = sFantasmas->posY[counter];
+            sFantasmas->inicioX		[counter] = telaJogo->largura;
+            sFantasmas->fimY		[counter] = sFantasmas->posY[counter];
+            sFantasmas->fimX		[counter] = 0.0;
+            sFantasmas->spriteId	[counter] = counter;
+            sFantasmas->loop		[counter] = SIM;
+			sFantasmas->eliminado	[counter] = 0;
+            sFantasmas->intervalo	 [counter] = 0;
+            sFantasmas->contIntervalo[counter] = 0;
+            sFantasmas->habilitado	 [counter] = SIM;
+           counter++;      
+        }
+    }
+    
+    /** configura spritesheet do gramado**/
+	sGrama1->bitmap = al_load_bitmap("img/grass/png/grama.png");
+    sGrama1->x1         = 0.0;
+    sGrama1->y1         = 0.0;
+    sGrama1->largura    = 256.0;
+    sGrama1->altura     = 51;
+    sGrama1->sheetSizeX = 1;
+    sGrama1->sheetSizeY = 6;
+    sGrama1->id         = ID_GRAMA;
+    sGrama1->repetirElementosX = 0;
+    sGrama1->repetirElementosY = 3;
+	sGrama1->novaAltura  = -1;
+	sGrama1->novaLargura = -1;
+	counter = 0;
+	 	
+    for (i = 0; i < sGrama1->sheetSizeX + sGrama1->repetirElementosX; i++){ 
+        for (j = 0; j < sGrama1->sheetSizeY + sGrama1->repetirElementosY; j++){
+			sGrama1->colunaAtual	[counter] = 0;
+			sGrama1->linhaAtual 	[counter] = 0;
+            sGrama1->posX			[counter] = counter * sGrama1->largura;
+            sGrama1->posY			[counter] = telaJogo->altura - sGrama1->altura + 15;
+            sGrama1->offsetX		[counter] = 0;
+            sGrama1->offsetY		[counter] = 0;
+            sGrama1->dirX			[counter] = -1;
+            sGrama1->dirY			[counter] = 1;
+            sGrama1->velX			[counter] = 1.0;
+            sGrama1->velY			[counter] = 0.0;
+            sGrama1->inicioY		[counter] = sGrama1->posY[counter];
+            sGrama1->inicioX		[counter] = telaJogo->largura;
+            sGrama1->fimY			[counter] = sGrama1->posY[counter];
+            sGrama1->fimX			[counter] = 0.0;
+            sGrama1->spriteId		[counter] = counter;
+            sGrama1->loop			[counter] = SIM;
+            sGrama1->profundidade	[counter] = 1.5;
+            sGrama1->intervalo		[counter] = 0;
+            sGrama1->contIntervalo	[counter] = 0;
+            sGrama1->habilitado	 	[counter] = 1;
+           counter++;      
+        }
+    }
+    
+	sGrama2->bitmap = al_load_bitmap("img/grass/png/grama.png");
+    sGrama2->x1         = 0.0;
+    sGrama2->y1         = 0.0;
+    sGrama2->largura    = 256.0;
+    sGrama2->altura     = 51;
+    sGrama2->sheetSizeX = 1;
+    sGrama2->sheetSizeY = 6;
+    sGrama2->id         = ID_GRAMA;
+    sGrama2->repetirElementosX = 0;
+    sGrama2->repetirElementosY = 3;
+	sGrama2->novaAltura  = -1;
+	sGrama2->novaLargura = -1;
+	counter = 0;
+	 	
+    for (i = 0; i < sGrama2->sheetSizeX + sGrama2->repetirElementosX; i++){ 
+        for (j = 0; j < sGrama2->sheetSizeY + sGrama2->repetirElementosY; j++){
+			sGrama2->colunaAtual	[counter] = 0;
+			sGrama2->linhaAtual 	[counter] = 0;
+			sGrama2->posX			[counter] = counter * sGrama2->largura;
+			sGrama2->posY			[counter] = telaJogo->altura - sGrama2->altura;
+			sGrama2->offsetX		[counter] = 0;
+			sGrama2->offsetY		[counter] = 0;
+			sGrama2->dirX			[counter] = -1;
+			sGrama2->dirY			[counter] = 1;
+			sGrama2->velX			[counter] = 1.0;
+			sGrama2->velY			[counter] = 0.0;
+			sGrama2->inicioY		[counter] = sGrama2->posY[counter];
+			sGrama2->inicioX		[counter] = telaJogo->largura;
+			sGrama2->fimY			[counter] = sGrama2->posY[counter];
+			sGrama2->fimX			[counter] = 0.0;
+			sGrama2->spriteId		[counter] = counter;
+			sGrama2->loop			[counter] = SIM;
+			sGrama2->profundidade	[counter] = 1.1;
+			sGrama2->intervalo	 	[counter] = 0;
+			sGrama2->contIntervalo	[counter] = 0;
+			sGrama2->habilitado	 	[counter] = 1;
+			counter++;      
+        }
+    }
+
+
+    /** configura arvores 1 **/
+	sArvores1->bitmap = al_load_bitmap("img/trees/png/arvores3.png");
+    sArvores1->x1         = 0.0;
+    sArvores1->y1         = 0.0;
+    sArvores1->largura    = 170.0;
+    sArvores1->altura     = 179;
+    sArvores1->sheetSizeX = 3;
+    sArvores1->sheetSizeY = 1;
+    sArvores1->id         = ID_ARVORE;
+    sArvores1->repetirElementosX = 0;
+    sArvores1->repetirElementosY = 0;
+	sArvores1->novaAltura  = -1;
+	sArvores1->novaLargura = -1;
+	counter = 0;
+	 	
+    for (i = 0; i < sArvores1->sheetSizeX + sArvores1->repetirElementosX; i++){ 
+        for (j = 0; j < sArvores1->sheetSizeY + sArvores1->repetirElementosY; j++){
+ 			srand(i+j+counter*2);
+			r = (rand() / 10000000.0);
+			sArvores1->colunaAtual		[counter] = 0;
+			sArvores1->linhaAtual 		[counter] = 0;
+            sArvores1->posX				[counter] = counter * sArvores1->largura + (r*10);
+            sArvores1->posY				[counter] = telaJogo->altura - sArvores1->altura - 15;
+            sArvores1->offsetX			[counter] = 0;
+            sArvores1->offsetY			[counter] = 0;
+            sArvores1->dirX				[counter] = -1;
+            sArvores1->dirY				[counter] = 1;
+            sArvores1->velX				[counter] = 1.0;
+            sArvores1->velY				[counter] = 0.0;
+            sArvores1->inicioY			[counter] = sArvores1->posY[counter];
+            sArvores1->inicioX			[counter] = telaJogo->largura;
+            sArvores1->fimY				[counter] = sArvores1->posY[counter];
+            sArvores1->fimX				[counter] = 0.0;
+            sArvores1->spriteId			[counter] = counter;
+            sArvores1->loop				[counter] = SIM;
+            sArvores1->profundidade		[counter] = 0.9;
+            sArvores1->intervalo		[counter] = 0;
+            sArvores1->contIntervalo	[counter] = 0;
+			sArvores1->habilitado	 	[counter] = 1;
+            counter++;      
+        }
+    }
+
+    /** configura arvores 2 **/
+	sArvores2->bitmap = al_load_bitmap("img/trees/png/arvores4.png");
+    sArvores2->x1         = 0.0;
+    sArvores2->y1         = 0.0;
+    sArvores2->largura    = 512.0;
+    sArvores2->altura     = 100;
+    sArvores2->sheetSizeX = 3;
+    sArvores2->sheetSizeY = 1;
+    sArvores2->id         = ID_ARVORE;
+    sArvores2->repetirElementosX = 1;
+    sArvores2->repetirElementosY = 0;
+	sArvores2->novaAltura  = -1;
+	sArvores2->novaLargura = -1;
+	counter = 0;
+	 	
+    for (i = 0; i < sArvores2->sheetSizeX + sArvores2->repetirElementosX; i++){ 
+        for (j = 0; j < sArvores2->sheetSizeY + sArvores2->repetirElementosY; j++){
+			srand(i+j+counter);
+			r = (rand() / 10000000.0);
+			sArvores2->colunaAtual		[counter] = 0;
+			sArvores2->linhaAtual 		[counter] = 0;
+            sArvores2->posX			[counter] = counter * sArvores2->largura + (r * 2);
+            sArvores2->posY			[counter] = telaJogo->altura - sArvores2->altura - 20;
+            sArvores2->offsetX		[counter] = 0;
+            sArvores2->offsetY		[counter] = 0;
+            sArvores2->dirX			[counter] = -1;
+            sArvores2->dirY			[counter] = 1;
+            sArvores2->velX			[counter] = 1.0;
+            sArvores2->velY			[counter] = 0.0;
+            sArvores2->inicioY		[counter] = sArvores2->posY[counter];
+            sArvores2->inicioX		[counter] = telaJogo->largura;
+            sArvores2->fimY			[counter] = sArvores2->posY[counter];
+            sArvores2->fimX			[counter] = 0.0;
+            sArvores2->spriteId		[counter] = counter;
+            sArvores2->loop			[counter] = SIM;
+            sArvores2->profundidade	[counter] = 0.7;
+            sArvores2->intervalo	[counter] = 0;
+            sArvores2->contIntervalo[counter] = 0;
+			sArvores2->habilitado 	[counter] = 1;
+            counter++;      
+        }
+    }
+
+    /** configura nevoa **/
+	sNevoa1->bitmap = al_load_bitmap("img/fog/png/fog2.png");
+    sNevoa1->x1         = 0.0;
+    sNevoa1->y1         = 0.0;
+    sNevoa1->largura    = 128.0;
+    sNevoa1->altura     = 32;
+    sNevoa1->sheetSizeX = 1;
+    sNevoa1->sheetSizeY = 1;
+    sNevoa1->id         = ID_NEVOA;
+    sNevoa1->repetirElementosX = 3;
+    sNevoa1->repetirElementosY = 0;
+    sNevoa1->novaAltura  = 128;
+    sNevoa1->novaLargura = 256;
+
+	sNevoa2->bitmap = al_load_bitmap("img/fog/png/fog3.png");
+    sNevoa2->x1         = 0.0;
+    sNevoa2->y1         = 0.0;
+    sNevoa2->largura    = 128.0;
+    sNevoa2->altura     = 32;
+    sNevoa2->sheetSizeX = 1;
+    sNevoa2->sheetSizeY = 1;
+    sNevoa2->id         = ID_NEVOA;
+    sNevoa2->repetirElementosX = 3;
+    sNevoa2->repetirElementosY = 0;
+    sNevoa2->novaAltura  = 128;
+    sNevoa2->novaLargura = 256;
+
+	sNevoa3->bitmap = al_load_bitmap("img/fog/png/fog4.png");
+    sNevoa3->x1         = 0.0;
+    sNevoa3->y1         = 0.0;
+    sNevoa3->largura    = 128.0;
+    sNevoa3->altura     = 32;
+    sNevoa3->sheetSizeX = 1;
+    sNevoa3->sheetSizeY = 1;
+    sNevoa3->id         = ID_NEVOA;
+    sNevoa3->repetirElementosX = 3;
+    sNevoa3->repetirElementosY = 0;
+    sNevoa3->novaAltura  = 256;
+    sNevoa3->novaLargura = 512;
+
+	sNevoa4->bitmap = al_load_bitmap("img/fog/png/fog6.png");
+    sNevoa4->x1         = 0.0;
+    sNevoa4->y1         = 0.0;
+    sNevoa4->largura    = 128.0;
+    sNevoa4->altura     = 32;
+    sNevoa4->sheetSizeX = 1;
+    sNevoa4->sheetSizeY = 1;
+    sNevoa4->id         = ID_NEVOA;
+    sNevoa4->repetirElementosX = 3;
+    sNevoa4->repetirElementosY = 0;
+    sNevoa4->novaAltura  = 128;
+    sNevoa4->novaLargura = 256;
+
+	counter = 0;
+	 	
+    for (i = 0; i < sNevoa1->sheetSizeX + sNevoa1->repetirElementosX; i++){ 
+        for (j = 0; j < sNevoa1->sheetSizeY + sNevoa1->repetirElementosY; j++){
+			srand(i+j+counter);
+			r = (rand() / 100000000.0);
+			sNevoa1->colunaAtual	[counter] = 0;
+			sNevoa1->linhaAtual		[counter] = 0;
+            sNevoa1->posX			[counter] = counter * sNevoa1->largura + (r * 4);
+            sNevoa1->posY			[counter] = telaJogo->altura - sNevoa1->altura - 60;
+            sNevoa1->offsetX		[counter] = 0;
+            sNevoa1->offsetY		[counter] = 0;
+            sNevoa1->dirX			[counter] = -1;
+            sNevoa1->dirY			[counter] = 1;
+            sNevoa1->velX			[counter] = 1.0;
+            sNevoa1->velY			[counter] = 0.0;
+            sNevoa1->inicioY		[counter] = sNevoa1->posY[counter];
+            sNevoa1->inicioX		[counter] = telaJogo->largura;
+            sNevoa1->fimY			[counter] = sNevoa1->posY[counter];
+            sNevoa1->fimX			[counter] = 0.0;
+            sNevoa1->spriteId		[counter] = counter;
+            sNevoa1->loop			[counter] = SIM;
+            sNevoa1->profundidade	[counter] = 0.5;
+            sNevoa1->intervalo	 	[counter] = 0;
+            sNevoa1->contIntervalo	[counter] = 0;
+			sNevoa1->habilitado 	[counter] = 1;
+
+			sNevoa2->colunaAtual	[counter] = 0;
+			sNevoa2->linhaAtual		[counter] = 0;
+            sNevoa2->posX			[counter] = counter * sNevoa2->largura + (r * 2);
+            sNevoa2->posY			[counter] = telaJogo->altura - sNevoa2->altura - 60;
+            sNevoa2->offsetX		[counter] = 0;
+            sNevoa2->offsetY		[counter] = 0;
+            sNevoa2->dirX			[counter] = -1;
+            sNevoa2->dirY			[counter] = 1;
+            sNevoa2->velX			[counter] = 1.0;
+            sNevoa2->velY			[counter] = 0.0;
+            sNevoa2->inicioY		[counter] = sNevoa2->posY[counter];
+            sNevoa2->inicioX		[counter] = telaJogo->largura;
+            sNevoa2->fimY			[counter] = sNevoa2->posY[counter];
+            sNevoa2->fimX			[counter] = 0.0;
+            sNevoa2->spriteId		[counter] = counter;
+            sNevoa2->loop			[counter] = SIM;
+            sNevoa2->profundidade	[counter] = 0.6;
+            sNevoa2->intervalo	 	[counter] = 0;
+            sNevoa2->contIntervalo	[counter] = 0;
+			sNevoa2->habilitado 	[counter] = 1;
+
+			sNevoa3->colunaAtual	[counter] = 0;
+			sNevoa3->linhaAtual		[counter] = 0;
+            sNevoa3->posX			[counter] = counter * sNevoa2->largura + (r * 2) + 200;
+            sNevoa3->posY			[counter] = telaJogo->altura - sNevoa3->altura - 60;
+            sNevoa3->offsetX		[counter] = 0;
+            sNevoa3->offsetY		[counter] = 0;
+            sNevoa3->dirX			[counter] = -1;
+            sNevoa3->dirY			[counter] = 1;
+            sNevoa3->velX			[counter] = 1.0;
+            sNevoa3->velY			[counter] = 0.0;
+            sNevoa3->inicioY		[counter] = sNevoa3->posY[counter];
+            sNevoa3->inicioX		[counter] = telaJogo->largura;
+            sNevoa3->fimY			[counter] = sNevoa3->posY[counter];
+            sNevoa3->fimX			[counter] = 0.0;
+            sNevoa3->spriteId		[counter] = counter;
+            sNevoa3->loop			[counter] = SIM;
+            sNevoa3->profundidade	[counter] = 0.7;
+            sNevoa3->intervalo	 	[counter] = 0;
+            sNevoa3->contIntervalo	[counter] = 0;
+			sNevoa3->habilitado 	[counter] = 1;
+
+			sNevoa4->colunaAtual	[counter] = 0;
+			sNevoa4->linhaAtual		[counter] = 0;
+            sNevoa4->posX			[counter] = counter * sNevoa4->largura + (r * 2) + 200;
+            sNevoa4->posY			[counter] = telaJogo->altura - sNevoa4->altura - 60;
+            sNevoa4->offsetX		[counter] = 0;
+            sNevoa4->offsetY		[counter] = 0;
+            sNevoa4->dirX			[counter] = -1;
+            sNevoa4->dirY			[counter] = 1;
+            sNevoa4->velX			[counter] = 1.0;
+            sNevoa4->velY			[counter] = 0.0;
+            sNevoa4->inicioY		[counter] = sNevoa4->posY[counter];
+            sNevoa4->inicioX		[counter] = telaJogo->largura;
+            sNevoa4->fimY			[counter] = sNevoa4->posY[counter];
+            sNevoa4->fimX			[counter] = 0.0;
+            sNevoa4->spriteId		[counter] = counter;
+            sNevoa4->loop			[counter] = SIM;
+            sNevoa4->profundidade	[counter] = 1.4;
+            sNevoa5->intervalo	 	[counter] = 0;
+            sNevoa5->contIntervalo	[counter] = 0;
+			sNevoa5->habilitado 	[counter] = 1;
+
+            counter++;      
+        }
+    }
+	 	
+    return;	
+}
+//----------------------------------------------------------------------
+int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *display){
+	int i, j, k, counter = 0, recomecou = 0;
+	float deltaX, deltaY;
+	float ret, r;
+	float val = PI / 180;
+	
+	for (i = 0; i < st->sheetSizeX + st->repetirElementosX; i++){
+		for (j = 0; j < st->sheetSizeY + st->repetirElementosY; j++){			
+						
+			srand(time(NULL));
+
 			float x1 		= st->x1;
 			float y1 		= st->y1;
-			float posX 		= st->posX[i+j];
-			float posY 		= st->posY[i+j];
-			float startX 	= st->startX[i+j];
-			float startY 	= st->startY[i+j];
-			float offsetX 	= st->offsetX[i+j];
-			float offsetY 	= st->offsetY[i+j];
-			float endX 		= st->endX[i+j];
-			float endY		= st->endY[i+j];
-			float spdX		= st->speedX[i+j];
-			float spdY		= st->speedY[i+j];
-			float dirX		= st->directionX[i+j];
-			float dirY 		= st->directionY[i+j];
-			float depth		= st->depth[i+j];
-			float width		= st->width;
-			float height	= st->height;
+			float posX 		= st->posX		[counter];
+			float posY 		= st->posY		[counter];
+			float inicioX 	= st->inicioX	[counter];
+			float inicioY 	= st->inicioY	[counter];
+			float offsetX 	= st->offsetX	[counter];
+			float offsetY 	= st->offsetY	[counter];
+			float fimX 		= st->fimX		[counter];
+			float fimY		= st->fimY		[counter];
+			float velX		= st->velX		[counter];
+			float velY		= st->velY		[counter];
+			float dirX		= st->dirX		[counter];
+			float dirY 		= st->dirY		[counter];
+			int id			= st->spriteId	[counter];
+			float profundidade	= st->profundidade[counter];
+			float largura		= st->largura;
+			float altura		= st->altura;
 			
-//			y1 += (spdY * dirY * depth);
 			ret = 0;
 			
-			if (st->id == ID_GHOST){	
-				posX += (spdX * dirX * depth);// * sg->spriteArray[i].randVar2) + 0.3;
-				
-				val = PI / 180;
-				ret = sin(posX * val);
-			}
-			else
-				posX += (spdX * dirX * depth);
-
-			posY += (spdY * dirY * depth) + (ret * 2);
-				
+			r = (rand() / 100000000.0);
 			
-			deltaX = endX - startX;
-			deltaY = endY - startY;
-
-			if (st->loop[i+j] == YES){
-				if (deltaX < 0){
-					if ((posX + width) < (endX - width)){
-						posX = startX + offsetX;
-						recomecou = 1;
+			posX += (velX * dirX * profundidade);
+			
+			// Calculo especifico para fantasma
+			if (st->id == ID_GHOST){
+				for(k = 0; k < 3; k++){
+					// procura entre os 3 disponíveis, pelo primeiro sprite de animacao da fumaça que não está em uso
+					if (st->eliminado[counter] == SIM && fumaca->habilitado[k] == NAO){
+						st->eliminado[counter] 	= NAO;
+						fumaca->habilitado[k] 	= SIM;
+						fumaca->posX[k]			= posX;
+						fumaca->posY[k]			= posY;
+						fumaca->loop[k]			= SIM;
+						fumaca->contRegressiva[k] = 8;
+						//printf("\nID:%d\n", fumaca->spriteId[k]);
+						
+						posX = 1920;
+						break;
 					}
 				}
-				else{
-					if (posX > endX){
-						posX = startX + offsetX;
-						recomecou = 1;
-					}
-				}
 
-				if (deltaY < 0){
-					if (posY + height < endY)
-					posY = startY + offsetY;
-					//recomecou = 1;
-				}
-				else{
-					if (posY > endY)
-					posY = startY + offsetY;
-					//recomecou = 1;
-				}
+				ret = (r/12) * sin(posX * val);
+			}			
+											
+			// não continua processando caso o objeto não esteja habilitado
+			if(st->habilitado[counter] == NAO){
+				return 0;
 			}
 
+			posY += (velY * dirY) + (ret * 1.5);					
+							
+			deltaX = fimX - inicioX;
+			deltaY = fimY - inicioY;
+			
+			// verifica se a imagem saiu da tela e reposiciona de novo
+			if (st->loop[counter] == SIM){
+				if (deltaX < 0){
+					if ((posX + largura) <= fimX){
+						posX = inicioX + offsetX;
+						recomecou = 1;
+					}
+				}
+				else{
+					if (posX > fimX){
+						posX = inicioX + offsetX;
+						recomecou = 1;
+					}
+				}
+			}
+/*
+
+			if (deltaY < 0){
+				if (posY + altura < fimY)
+				posY = inicioY + offsetY;
+				//recomecou = 1;
+			}
+			else{
+				if (posY > fimY)
+				posY = inicioY + offsetY;
+				//recomecou = 1;
+			}
+*/
 			if (recomecou == 1){
-				if (st->id == ID_GHOST){
-					srand(posY);
-					//r = (rand() / 100000000.0);
-					st->speedX[i+j] = (1.5 );
+				if(st->id == ID_FUMACA){
+					st->habilitado[0] = NAO;
+				}
+				if (st->id == ID_GHOST){					
+					// Estabelece velocidades mínimas e máximas
+					r = (rand() / 10000000.0);
+					int extraY = r;
+					extraY = (extraY % 2 == 1 ? 20:-10);
+					//posY = (inicioY + offsetY) + (extraY * r);
+/*				
+					if (posY > display->altura)
+						dirY = -1;
+					else if (posY < 1000)
+						dirY = 1;
+*/
+					if (r * (0.25) < 0.6)
+						velX = 0.6;
+					else if (r * (0.25) > 1.0)
+						velX = 1.0;
+
+					st->velX[counter] = velX;
+					
 				}
 				recomecou = 0;
 			}
-
-			st->posX[i+j] = posX;
-			st->posY[i+j] = posY;
-		}		
+				
+			st->posX[counter] = posX;
+			st->posY[counter] = posY;
+			counter++;
+		}
 	}
 		//		printf("\nsheetSizeX = %d", st->sheetSizeX);
 
 	return 0;
 }
 //----------------------------------------------------------------------
-int pi_AnimateSprite(SpriteGroup *sg, GameScreen *display){
-	int i, recomecou = 0;
-	float deltaX, deltaY;
-	float val, ret, r = 1.0, r2 = 1.0;
-
-//	al_set_target_bitmap(sg->buffer);
-//	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-//	al_hold_bitmap_drawing(true);
-	
-	for (i = 0; i < sg->arraySize - 1; i++){
-		if (sg->spriteArray[i].canvas != NULL){
-//printf("\n%d:3", sg->spriteArray[i].id);
-			float x1 		= sg->spriteArray[i].x1;
-			float y1 		= sg->spriteArray[i].y1;
-			float startX 	= sg->spriteArray[i].startX;
-			float startY 	= sg->spriteArray[i].startY;
-			float offsetX 	= sg->spriteArray[i].offsetX;
-			float offsetY 	= sg->spriteArray[i].offsetY;
-			float endX 		= sg->spriteArray[i].endX;
-			float endY		= sg->spriteArray[i].endY;
-			float spdX		= sg->spriteArray[i].speedX;
-			float spdY		= sg->spriteArray[i].speedY;
-			float dirX		= sg->spriteArray[i].directionX;
-			float dirY 		= sg->spriteArray[i].directionY;
-			float depth		= sg->spriteArray[i].depth;
-			float width		= sg->spriteArray[i].width;
-			float height	= sg->spriteArray[i].height;
-
-			
-//			y1 += (spdY * dirY * depth);
-			ret = 0;
-			
-			if (sg->id == ID_GROUP_SPRITES_GHOST){	
-				x1 += (spdX * dirX * depth);// * sg->spriteArray[i].randVar2) + 0.3;
-				
-				val = PI / 180;
-				ret = sin(x1 * val) * sg->spriteArray[i].randVar;
-			}
-			else
-				x1 += (spdX * dirX * depth);
-
-			y1 += (spdY * dirY * depth) + (ret * 2);
-				
-			
-			deltaX = endX - startX;
-			deltaY = endY - startY;
-
-//if (sg->spriteArray[i].id == 2) {printf("\nEndX:%f", width + x1);}
-			if (sg->spriteArray[i].loop == YES){
-				if (deltaX < 0){
-					if ((x1 + width) < endX - width){
-						x1 = startX + offsetX;
-						recomecou = 1;
-					}
-				}
-				else{
-					if (x1 > endX){
-						x1 = startX + offsetX;
-						recomecou = 1;
-					}
-				}
-
-				if (deltaY < 0){
-					if (y1 + height < endY)
-					y1 = startY + offsetY;
-					//recomecou = 1;
-				}
-				else{
-					if (y1 > endY)
-					y1 = startY + offsetY;
-					//recomecou = 1;
-				}
-			}
-
-		if (recomecou == 1){
-			if (sg->id == ID_GROUP_SPRITES_GHOST){
-				srand(y1);
-				r = (rand() / 100000000.0);
-				r2 = (rand() / 1000000000.0);
-				sg->spriteArray[i].randVar = r;
-				sg->spriteArray[i].randVar2 = r2;
-				sg->spriteArray[i].speedX = (1.5 + r);
-			}
-			recomecou = 0;
-		}
-
-		sg->spriteArray[i].x1 = x1;
-		sg->spriteArray[i].y1 = y1;
-		}
-	}
-
-	return 0;
-}
-//----------------------------------------------------------------------
-int pi_iniBackground(BGImageStream *bg, GameScreen *display, int layer){
-	DEBUG_ON("\n----debug:iniBackground():start");
-	int i;
-	float spdY, spdX, offsetX, offsetY, dirX, dirY;
-	//char fullPath[MAX_FILE_PATH_SIZE];
-
-	bg->layer  = layer;
-	bg->buffer = al_create_bitmap(display->width, display->height);
-
-	if (layer == LAYER_SCENE_GRASS){
-		bg->tileCount 	= 7;
-		bg->id 			= layer;
-		bg->width 		= 502;
-		bg->height 		= 105;
-		bg->depth		= 1;
-		bg->x1			= 0.0;
-		bg->y1			= 1020.0;
-		bg->currentIndex = 0;
-		bg->totalNumImgs = 7;
-		bg->rest			= bg->depth;
-		bg->rest_countdown	= bg->rest;
-		bg->fileNamePrefix	= "grass_";
-		bg->dirPath			= "img/ground/png/";
-		dirX = -1;
-		dirY = 1;
-		spdX = 2.0;
-		spdY = 0.0;
-		offsetX = bg->width;
-		offsetY = 0.0;
-	}
-	else if (layer == LAYER_SCENE_GRASS_2){
-		bg->tileCount 	= 7;
-		bg->id 			= layer;
-		bg->width 		= 502;
-		bg->height 		= 105;
-		bg->depth		= 0.98;
-		bg->x1			= 50.0;
-		bg->y1			= 1010.0;
-		bg->currentIndex = 0;
-		bg->totalNumImgs = 7;
-		bg->rest			= bg->depth;
-		bg->rest_countdown	= bg->rest;
-		bg->fileNamePrefix	= "grass_";
-		bg->dirPath			= "img/ground/png/";
-		dirX = -1;
-		dirY = 1;
-		spdX = 2.0;
-		spdY = 0.0;
-		offsetX = bg->width;
-		offsetY = 0.0;
-	}
-	else if (layer == LAYER_SCENE_TREELINE_1){
-		bg->tileCount 	= 6;
-		bg->id 			= layer;
-		bg->width 		= 1000;
-		bg->height 		= 376;
-		bg->depth		= 0.97;
-		bg->x1			= 50.0;
-		bg->y1			= 690.0;
-		bg->currentIndex = 0;
-		bg->totalNumImgs = 6;
-		bg->rest			= bg->depth;
-		bg->rest_countdown	= bg->rest;
-		bg->fileNamePrefix	= "treeline1_";
-		bg->dirPath			= "img/trees/png/treeline1/";
-		dirX = -1;
-		dirY = 1;
-		spdX = 1.0;
-		spdY = 0.0;
-		offsetX = bg->width;
-		offsetY = 0.0;
-	}
-
-
-	int count = bg->tileCount - 1;
-
-	for (i = 0; i <= count; i++){
-		//sprintf(fullPath, "%s%s%d.png", bg->dirPath, bg->fileNamePrefix, i);
-		//DEBUG_ON("\ndebug:loadBackGround:fullFilePath:%s", fullPath);
-		//const char *file = fullPath;
-		bg->tileSequence[i].canvas 	= al_create_bitmap(bg->width, bg->height);
-		bg->tileSequence[i].width 	= bg->width;
-		bg->tileSequence[i].height 	= bg->height;
-		bg->tileSequence[i].x1		= bg->x1 + (i * offsetX);
-		bg->tileSequence[i].y1		= bg->y1 + (i * offsetY);
-		bg->tileSequence[i].speedX 	= spdX;
-		bg->tileSequence[i].speedY 	= spdY;
-		bg->tileSequence[i].reload	= 1;
-		bg->tileSequence[i].depth	= bg->depth;
-		bg->tileSequence[i].rest	= bg->tileSequence[i].depth;
-		bg->tileSequence[i].directionX 	= dirX;
-		bg->tileSequence[i].directionY 	= dirY;
-		bg->tileSequence[i].rest_countdown = 0;
-
-		al_set_target_bitmap(bg->tileSequence[i].canvas);
-		al_set_clipping_rectangle(bg->tileSequence[i].x1, bg->tileSequence[i].y1, bg->tileSequence[i].width, bg->tileSequence[i].height);
-	}
-
-	DEBUG_ON("\n----debug:iniBackground():end");
-	return 0;
-}
-//----------------------------------------------------------------------
-int pi_loadBackground(BGImageStream *bg){
-	DEBUG_ON("\n----debug:loadBackground():start");
-
-	int count = bg->tileCount - 1;
-	int index = bg->currentIndex;
-	int i;
-	char fullPath[MAX_FILE_PATH_SIZE];
-
-	for (i = 0; i <= count; i++){
-		if (bg->tileSequence[i].reload){
-			if (index > bg->totalNumImgs)
-				index = 0;
-
-
-			sprintf(fullPath, "%s%s%d.png", bg->dirPath, bg->fileNamePrefix, index);
-			DEBUG_ON("\ndebug:loadBackGround:fullFilePath:%s", fullPath);
-			const char *file = fullPath;
-
-			//al_rest(0.5);
-			bg->tileSequence[i].canvas = al_load_bitmap(file);
-			bg->tileSequence[i].reload = 0;
-
-			index++;
-		}
-	}
-
-	bg->currentIndex = index;
-
-	DEBUG_ON("\n----debug:loadBackground():end");
-	return 0;
-}
-//----------------------------------------------------------------------
-int pi_animateBackground(BGImageStream *bg){
-	//DEBUG_ON("\n----debug:animateBackground():start");
-
-	int i;
-	int count = bg->tileCount - 1;
-	al_set_target_bitmap(bg->buffer);
-	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-
-	//if (bg->rest_countdown <= 0){
-
-		//bg->rest_countdown = bg->rest;
-
-		for (i = 0; i <= count; i++){
-			bg->tileSequence[i].x1 += (bg->tileSequence[i].speedX * bg->tileSequence[i].directionX * bg->tileSequence[i].depth);
-			bg->tileSequence[i].y1 += (bg->tileSequence[i].speedY * bg->tileSequence[i].directionY * bg->tileSequence[i].depth);
-
-			al_draw_bitmap(bg->tileSequence[i].canvas, bg->tileSequence[i].x1, bg->tileSequence[i].y1, 0);
-			//DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].depth = %f", i, bg->tileSequence[i].depth);
-			DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].x1 = %f", i, bg->tileSequence[i].x1);
-			//DEBUG_ON("\n----debug:animateBackground():tileSequence[%d].y1 = %f", i, bg->tileSequence[i].y1);
-
-			if (bg->tileSequence[i].x1 + bg->tileSequence[i].width < bg->x1){
-
-				//DEBUG_ON("\n----debug:animateBackground():reload");
-				//bg->tileSequence[i].reload = 1;
-				bg->tileSequence[i].x1 = (count * bg->width) + 1.0;
-			}
-		}
-	//}
-	//else
-		//bg->rest_countdown--;
-
-
-	//DEBUG_ON("\n----debug:animateBackground():end");
-	return 0;
-}
-//----------------------------------------------------------------------
-int pi_iniScreens(GameScreen *nativeScreen, GameScreen *telaPoderes, GameScreen *telaAventura){
+int pi_iniScreens(GameScreen *telaJogo){
 	/* Inicializa todas as telas principais de desenho do jogo */
 
-	nativeScreen->canvas	= al_create_bitmap(1920, 1080);
-	nativeScreen->x1		= 0;
-	nativeScreen->x2		= 1920;
-	nativeScreen->y1		= 0;
-	nativeScreen->y2		= 1080;
-	nativeScreen->width		= 1920;
-	nativeScreen->height	= 1080;
-	nativeScreen->scaledX	= 1.0;
-	nativeScreen->scaledY	= 1.0;
-	nativeScreen->scaledW	= 1920.0;
-	nativeScreen->scaledH	= 1080.0;
-	nativeScreen->id		= NATIVE_SCREEN;
-
-	telaAventura->id = TELA_AVENTURA;
-
-	telaPoderes->id	 = TELA_PODERES;
+	telaJogo->canvas	= al_create_bitmap(1280, 720);
+	telaJogo->x1		= 0;
+	telaJogo->x2		= 1280;
+	telaJogo->y1		= 0;
+	telaJogo->y2		= 720;
+	telaJogo->largura	= 1280;
+	telaJogo->altura	= 720;
+	telaJogo->scaledX	= 1.0;
+	telaJogo->scaledY	= 1.0;
+	telaJogo->scaledW	= 1280.0;
+	telaJogo->scaledH	= 720.0;
+	telaJogo->id		= NATIVE_SCREEN;
 }
 //----------------------------------------------------------------------
 int pi_iniAllegroAddons(GameDisplay *display){
@@ -629,135 +751,75 @@ int pi_iniAllegroAddons(GameDisplay *display){
 	return 0;
 }
 //----------------------------------------------------------------------
-int pi_setTelaAventura(GameScreen *nativeScreen, GameScreen *telaAventura, GameDisplay *display){
-	/* Inicializa a tela do cenário do jogo calculando seu tamanho em relação a resolução original do jogo.
-	   Ela compõe 2/3 do tamanho total do display. */
-
-	DEBUG_ON("\n----debug:setTelaAventura():start");
-
-	telaAventura->x1 = 0;
-	telaAventura->x2 = (nativeScreen->width / 3) * 2;
-	telaAventura->y1 = 0;
-	telaAventura->y2 = nativeScreen->height;
-
-	telaAventura->canvas = al_create_bitmap(telaAventura->x2, telaAventura->y2);
-	if (!telaAventura->canvas){
-		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao inicializar a Tela de Aventura!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		return -1;
-	}
-
-	al_set_target_bitmap(telaAventura->canvas);
-	al_clear_to_color(al_map_rgb(100, 50, 200));
-
-	DEBUG_ON("\ndebug:telaAventura:x2:%f", telaAventura->x2);
-	DEBUG_ON("\ndebug:telaAventura:y2:%f", telaAventura->y2);
-	DEBUG_ON("\n----debug:setTelaAventura():end\n");
-
-	return 0;
-}
-//----------------------------------------------------------------------
-int pi_setTelaPoderes(GameScreen *nativeScreen, GameScreen *telaPoderes, GameDisplay *display){
-	/* Inicializa a tela de poderes calculando seu tamanho em relação a resolução original do jogo.
-	 * Ela compõe 1/3 do tamanho total do display. */
-
-	DEBUG_ON("\n----debug:setTelaPoderes():start");
-
-	telaPoderes->x1 	= ((nativeScreen->width / 3) * 2);
-	telaPoderes->x2 	= nativeScreen->width;
-	telaPoderes->width 	= nativeScreen->width - ((nativeScreen->width / 3) * 2);
-	telaPoderes->y1 	= nativeScreen->y1;
-	telaPoderes->y2 	= nativeScreen->y2;
-	telaPoderes->height = nativeScreen->height;
-
-	telaPoderes->canvas = al_create_bitmap(nativeScreen->width, nativeScreen->height);
-	if (!telaPoderes->canvas){
-		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao inicializar a Tela de Poderes!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		return -1;
-	}
-
-	al_set_target_bitmap(telaPoderes->canvas);
-	al_clear_to_color(al_map_rgb(0, 0, 0)); // limpa a tela
-
-	al_set_clipping_rectangle(telaPoderes->x1, telaPoderes->y1, telaPoderes->width, telaPoderes->height);
-	al_clear_to_color(al_map_rgb(200, 50, 100));
-
-
-
-	DEBUG_ON("\ndebug:telaPoderes:x1:%f", telaPoderes->x1);
-	DEBUG_ON("\ndebug:telaPoderes:y1:%f", telaPoderes->y1);
-	DEBUG_ON("\n----debug:setTelaPoderes():end\n");
-
-	return 0;
-}
-//----------------------------------------------------------------------
-void pi_setDisplayScale(GameScreen *nativeScreen, GameDisplay *gameDisplay){
+void pi_setDisplayScale(GameScreen *telaJogo, GameDisplay *displayJogo){
 	/* Calcula o valor da escala do monitor de acordo
 	   com a resolução inicial em que o jogo foi criado e a do monitor em uso */
 
 	DEBUG_ON("\n----debug:setDisplayScale():start");
 	// Calcula a proporção da escala
-	float scaledX, scaledY;
+	float sX, sY;
 
-	scaledX = (float)(gameDisplay->width)  / nativeScreen->width;
-	scaledY = (float)(gameDisplay->height) / nativeScreen->height;
+	sX = (float)(displayJogo->largura) / telaJogo->largura;
+	sY = (float)(displayJogo->altura ) / telaJogo->altura;
 
 	/* Acha qual é o menor entre sx e sy e calcula a escala.
 	   O cálculo é feito pelo menor valor para evitar que a imagem não ultrapasse os limites do monitor.*/
-	if (scaledX < scaledY){
-		gameDisplay->scale = scaledX;
+	if (sX < sY){
+		displayJogo->scale = sX;
 	}
 	else{
-		gameDisplay->scale = scaledX;
+		displayJogo->scale = sY;
 	}
 
 	/* Calcula as escalas a serem utilizadas */
-	nativeScreen->scaledW = nativeScreen->width  * gameDisplay->scale;
-	nativeScreen->scaledH = nativeScreen->height * gameDisplay->scale;
+	telaJogo->scaledW = telaJogo->largura  * displayJogo->scale;
+	telaJogo->scaledH = telaJogo->altura * displayJogo->scale;
 
 	/* Configura as novas escalas para X e Y */
 
 	ALLEGRO_TRANSFORM trans;
 	al_identity_transform(&trans);
-	al_scale_transform(&trans, scaledX, scaledY);
+	al_scale_transform(&trans, sX, sY);
 	al_use_transform(&trans);
 
-	DEBUG_ON("\ndebug:gameDisplay:scale:%f", 	 gameDisplay->scale);
-	DEBUG_ON("\ndebug:nativeScreen:scaledW:%f",  nativeScreen->scaledW);
-	DEBUG_ON("\ndebug:nativeScreen:scaledH:%f",  nativeScreen->scaledH);
-	DEBUG_ON("\ndebug:gameDisplay:width:%d", 	 gameDisplay->width);
-	DEBUG_ON("\ndebug:gameDisplay:height:%d", 	 gameDisplay->height);
-	DEBUG_ON("\ndebug:nativeScreen:width:%d", 	 nativeScreen->width);
-	DEBUG_ON("\ndebug:nativeScreen:height:%d\n", nativeScreen->height);
+	DEBUG_ON("\ndebug:displayJogo:scale:%f",	displayJogo->scale);
+	DEBUG_ON("\ndebug:telaJogo:scaledW:%f",		telaJogo->scaledW);
+	DEBUG_ON("\ndebug:telaJogo:scaledH:%f",		telaJogo->scaledH);
+	DEBUG_ON("\ndebug:displayJogo:largura:%d",	displayJogo->largura);
+	DEBUG_ON("\ndebug:displayJogo:altura:%d",	displayJogo->altura);
+	DEBUG_ON("\ndebug:telaJogo:largura:%d",		telaJogo->largura);
+	DEBUG_ON("\ndebug:telaJogo:altura:%d\n",	telaJogo->altura);
 
 	DEBUG_ON("\n----debug:setDisplayScale():end\n");
 	return;
 }
-//----------------------------------------------------------------------
-int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
+//----------------------------------------------------------------------BGIma
+int pi_criaDisplay(GameScreen *telaJogo, GameDisplay *display){
 
 	DEBUG_ON("\n----debug:setFullScreen():start");
 	// Configura para tela cheia.
 
-	//al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
 	//al_set_new_bitmap_flags(ALLEGRO_MAG_LINEAR);
 	al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+	//al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA);
 
 	ALLEGRO_DISPLAY_MODE disp_data;
 
-	al_set_new_display_option(ALLEGRO_RENDER_METHOD, 1, ALLEGRO_SUGGEST);
+	al_set_new_display_option(ALLEGRO_RENDER_METHOD,		1, ALLEGRO_SUGGEST);
 	al_set_new_display_option(ALLEGRO_CAN_DRAW_INTO_BITMAP, 1, ALLEGRO_SUGGEST);
-	
-	al_get_display_mode(display->mode, &disp_data); // Armazena em disp_data a maior resolução suportada pelo monitor
+	al_set_new_display_option(ALLEGRO_SINGLE_BUFFER,		0, ALLEGRO_REQUIRE);
+	al_set_new_display_option(ALLEGRO_SWAP_METHOD,			2, ALLEGRO_SUGGEST);
 
-	al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+//	al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+	al_set_new_display_flags(ALLEGRO_WINDOWED);
 
-	display->width 	= disp_data.width;
-	display->height = disp_data.height;
+	display->largura = telaJogo->largura;
+	display->altura  = telaJogo->altura;
 
-	display->backbuffer = al_create_display(display->width, display->height); // Cria o display em tela cheia.
 	// Cria o buffer de desenho da tela. Todas as outras imagens são criadas dentro dele, assim basta mudar a escala dele.
 	// e todo o resto é ajustado automaticamente.
-	nativeScreen->canvas = al_create_bitmap(nativeScreen->width, nativeScreen->height);
+	display->backbuffer = al_create_display(display->largura, display->altura); // Cria o display em tela cheia.
+	telaJogo->canvas	= al_create_bitmap(telaJogo->largura, telaJogo->altura);
 
 	
 	if (!display->backbuffer){
@@ -766,7 +828,7 @@ int pi_setFullScreen(GameScreen *nativeScreen, GameDisplay *display){
 		return -1;
 	}
 
-	if (!nativeScreen->canvas){
+	if (!telaJogo->canvas){
 		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao inicializar o displayBuffer!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}

@@ -11,22 +11,18 @@
 	#include <allegro5/allegro.h>
 	#include "pi_data.h"
 
-	int pi_iniAllegroAddons(GameDisplay *);
+	int pi_iniAllegroAddons(GameDisplay*);
 
 	void pi_setDisplayScale	(GameScreen*, GameDisplay*);
-	int pi_setFullScreen	(GameScreen*, GameDisplay*);
-	int pi_setTelaAventura	(GameScreen*, GameScreen*, GameDisplay*);
-	int pi_setTelaPoderes	(GameScreen*, GameScreen*, GameDisplay*);
-	int pi_iniScreens		(GameScreen*, GameScreen*, GameScreen*);
+	int pi_criaDisplay		(GameScreen*, GameDisplay*);
+	int pi_iniScreens		(GameScreen*);
 
-	int pi_iniBackground	(BGImageStream*, GameScreen*, int);
-	int pi_loadBackground	(BGImageStream*);
-	int pi_animateBackground(BGImageStream*);
+	void pi_iniImagens(SpriteSheet*, SpriteSheet*, SpriteSheet*, SpriteSheet*,
+						SpriteSheet*, SpriteSheet*, SpriteSheet*,
+						SpriteSheet*, SpriteSheet*, SpriteSheet*, SpriteSheet*,
+						SpriteSheet*, SpriteSheet*,GameScreen*);
 
-	int pi_iniSpriteGroup	 (SpriteGroup*, GameScreen*, int);
-	int pi_loadStillSprite	 (SpriteGroup*, char*, char*);
-	int pi_findSpriteByName	 (SpriteGroup*, char*);
-	int pi_AnimateSprite	 (SpriteGroup*, GameScreen*);
-	int pi_AnimateSpriteSheet(SpriteSheet*, GameScreen*);
+	int pi_AnimarSpriteSheet(SpriteSheet*, SpriteSheet*, GameScreen*);
+	void pi_drawGraphics(SpriteSheet*);
 
 #endif
