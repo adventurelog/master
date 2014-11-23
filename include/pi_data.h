@@ -37,7 +37,7 @@
 	#define ID_GROUP_SPRITES_FOG 115
 	#define ID_GROUP_SPRITES_GROUND 116
 	#define ID_GROUP_SPRITES_GHOST 117
-	
+
 	#define ID_GHOST 118
 	#define ID_LAPIDE_CRUZ 119
 	#define ID_GRAMA 120
@@ -98,18 +98,18 @@ typedef struct {
 		int		habilitado		[MAX_ARRAY_SIZE_SPRITESHEET];// controla se o objeto será processado e desenhado. 1 para sim, 0 para não
 		int		eliminado		[MAX_ARRAY_SIZE_SPRITESHEET];// controla se o objeto foi eliminado. 1 para sim, 0 para não
 		int 	spriteId		[MAX_ARRAY_SIZE_SPRITESHEET];
-		int 	intervalo		[MAX_ARRAY_SIZE_SPRITESHEET];// controla a velocidade dos frames animados. Maior valor significa mais tempo entre um frame e outro 
+		int 	intervalo		[MAX_ARRAY_SIZE_SPRITESHEET];// controla a velocidade dos frames animados. Maior valor significa mais tempo entre um frame e outro
 		int 	contIntervalo	[MAX_ARRAY_SIZE_SPRITESHEET];// contagem do intervalo. Quando chegar a zero, desenha o próximo frame
  		int		contRegressiva	[MAX_ARRAY_SIZE_SPRITESHEET];// para uso genérico, como por exemplo reiniciar alguma animação quando a contagem chegar a zero
  		int		loop			[MAX_ARRAY_SIZE_SPRITESHEET];
 		float	inicioX			[MAX_ARRAY_SIZE_SPRITESHEET];
 		float	inicioY			[MAX_ARRAY_SIZE_SPRITESHEET];
 		float	fimX			[MAX_ARRAY_SIZE_SPRITESHEET];
-		float	fimY			[MAX_ARRAY_SIZE_SPRITESHEET];		
+		float	fimY			[MAX_ARRAY_SIZE_SPRITESHEET];
 		float 	posX			[MAX_ARRAY_SIZE_SPRITESHEET];// posicao atual do sprite
 		float 	posY			[MAX_ARRAY_SIZE_SPRITESHEET];// posicao atual do sprite
-		float	offsetX			[MAX_ARRAY_SIZE_SPRITESHEET];// deslocamento relativo ao x1, garantindo que o objeto fique no mesmo lugar quando reiniciar o looping  
-		float	offsetY			[MAX_ARRAY_SIZE_SPRITESHEET];// deslocamento relativo ao y1, garantindo que o objeto fique no mesmo lugar quando reiniciar o looping  
+		float	offsetX			[MAX_ARRAY_SIZE_SPRITESHEET];// deslocamento relativo ao x1, garantindo que o objeto fique no mesmo lugar quando reiniciar o looping
+		float	offsetY			[MAX_ARRAY_SIZE_SPRITESHEET];// deslocamento relativo ao y1, garantindo que o objeto fique no mesmo lugar quando reiniciar o looping
 		float 	velX			[MAX_ARRAY_SIZE_SPRITESHEET];// quantidade de pixels deslocados a cada iteração na animação
 		float 	velY			[MAX_ARRAY_SIZE_SPRITESHEET];// quantidade de pixels deslocados a cada iteração na animação
 		int 	dirX			[MAX_ARRAY_SIZE_SPRITESHEET];// direção do deslocamento 1 (acompanha o movimento), -1 (movimento contrário)

@@ -42,55 +42,57 @@
 //======================================================================
 void pi_drawGraphics(SpriteSheet *s){
 	int counter = 0, ci = 0, cj = 0, i, j;
-		
+
 	al_hold_bitmap_drawing(true);
 	if (s->bitmap != NULL){
-	
+
+		/** Desenho específico para fumaça **/
 		if (s->id == ID_FUMACA){
-			for (i = 0; i < 3; i++){
+			for (i = 0; i < s->sheetSizeX; i++){
 				if (s->habilitado[i] == SIM){
-					s->contIntervalo[i]--;
-				
+				//	printf("\nID:%d",i);
+
 					if (s->contIntervalo[i] <= 0){
 						s->contIntervalo[i] = s->intervalo[i];
 						s->contRegressiva[i]--;
-					
+
 						s->colunaAtual[i]++;
-					
+
 						if(s->colunaAtual[i] >= s->sheetSizeX){
 							s->colunaAtual[i] = 0;
 							s->linhaAtual[i]++;
 						}
 					}
-				
-					if (s->contRegressiva[i] <= 0){
+
+					if (s->contRegressiva[i] < 0){
 						s->colunaAtual		[i]	= 0;
 						s->linhaAtual		[i]	= 0;
 						s->habilitado		[i]	= NAO; // desabilita se a contagem regressiva chegou a zero.
 						s->contRegressiva	[i] = 0;
-						s->contIntervalo 	[i] = s->intervalo[0];
+						s->contIntervalo 	[i] = s->intervalo[i];
 						s->loop				[i] = NAO;
-					
-						return;									
+						s->contRegressiva	[i] = 8;
+						return;
 					}
 
 					ci = s->colunaAtual[i];
 					cj = s->linhaAtual [i];
-	
-					//printf("\n ci:%d   cj:%d   contReg:%d", ci, cj, s->contRegressiva[0]);
-				
+					s->contIntervalo[i]--;
+					//printf("\n ci:%d   cj:%d   contReg:%d   sheetX:%d   ID:%d", s->colunaAtual[i], s->linhaAtual[i], s->contRegressiva[i], s->sheetSizeX, i);
+
 					al_draw_bitmap_region(s->bitmap, s->x1 + (s->largura * ci),
 						s->y1 + (s->altura * cj), s->largura, s->altura,
 						s->posX[i], s->posY[i], 0);
 				}
-				return;						
 			}
-		}			
-		
+			return;
+		}
+
+		/** Desenho para cenário e fantasmas **/
 		for (i = 0; i < s->sheetSizeX + s->repetirElementosX; i++){
 			for (j = 0; j < s->sheetSizeY + s->repetirElementosY; j++){
-				
-				// se colunaAtual ou linhaAtual for maior do que as dimensões X ou Y do spritesheet, então	
+
+				// se colunaAtual ou linhaAtual for maior do que as dimensões X ou Y do spritesheet, então
 				// significa que ultrapassou o tamanho real,
 				// portanto iniciou o looping a partir do primeiro elemento
 				// novamente.
@@ -98,9 +100,9 @@ void pi_drawGraphics(SpriteSheet *s){
 					ci = 0;
 				if (cj >= s->sheetSizeY)
 					cj = 0;
-					
+
 				if (s->habilitado[counter] == SIM){
-					if (s->novaAltura != -1 && s->novaLargura != -1){ 
+					if (s->novaAltura != -1 && s->novaLargura != -1){
 						// desenha imagem com escala
 						al_draw_scaled_bitmap(s->bitmap, s->x1 + (s->novaLargura * ci),
 								s->y1 + (s->novaAltura * cj), s->largura, s->altura,
@@ -110,7 +112,7 @@ void pi_drawGraphics(SpriteSheet *s){
 						 // desenha imagem sem escala
 						al_draw_bitmap_region(s->bitmap, s->x1 + (s->largura * ci),
 								s->y1 + (s->altura * cj), s->largura, s->altura,
-								s->posX[counter], s->posY[counter], 0);				
+								s->posX[counter], s->posY[counter], 0);
 					}
 				}
 
@@ -119,16 +121,173 @@ void pi_drawGraphics(SpriteSheet *s){
 				counter++;
 			}
 		}
-	}	
+	}
 	al_hold_bitmap_drawing(false);
 }
 //----------------------------------------------------------------------
-void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteSheet *sGrama1, 
+int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *display){
+	int i, j, k, counter = 0, recomecou = 0;
+	float deltaX, deltaY, correcaoY = 0.0;
+	float ret, r;
+	float val = PI / 180;
+
+	/** cálculo especifico para a fumacinha dos fantasmas **/
+	/** atualiza cada sprite da animação da fumaça para as coordenadas atuais **/
+	if (st->id == ID_FUMACA){
+		for (i = 0; i < st->sheetSizeX * st->sheetSizeY; i++){
+			st->posX[i] += (st->velX[i] * st->dirX[i] * st->profundidade[i]);
+			st->posY[i] += (st->velY[i] * st->dirY[i]);
+		}
+		return 0;
+	}
+
+	/** cálculo para os fantasmas e elementos do cenário **/
+	for (i = 0; i < st->sheetSizeX + st->repetirElementosX; i++){
+		for (j = 0; j < st->sheetSizeY + st->repetirElementosY; j++){
+
+			srand(time(NULL) * 1000000);
+
+			float x1 		= st->x1;
+			float y1 		= st->y1;
+			float posX 		= st->posX		[counter];
+			float posY 		= st->posY		[counter];
+			float inicioX 	= st->inicioX	[counter];
+			float inicioY 	= st->inicioY	[counter];
+			float offsetX 	= st->offsetX	[counter];
+			float offsetY 	= st->offsetY	[counter];
+			float fimX 		= st->fimX		[counter];
+			float fimY		= st->fimY		[counter];
+			float velX		= st->velX		[counter];
+			float velY		= st->velY		[counter];
+			float dirX		= st->dirX		[counter];
+			float dirY 		= st->dirY		[counter];
+			int id			= st->spriteId	[counter];
+			float profundidade	= st->profundidade[counter];
+			float largura		= st->largura;
+			float altura		= st->altura;
+
+			ret = 0;
+
+			r = (rand() / 100000000.0);
+
+			posX += (velX * dirX * profundidade);
+
+			// Calculo especifico para fantasma
+			if (st->id == ID_GHOST){
+				if (posY < (display->altura - (st->altura / 1.2)))
+					posY = (display->altura - (st->altura / 1.2));
+
+				if (st->eliminado[counter] == SIM){
+					st->eliminado[counter] = NAO;
+
+					if (fumaca->habilitado[counter] == NAO){
+						fumaca->habilitado  [counter] 	= SIM;
+						fumaca->colunaAtual	[counter]	= 0;
+						fumaca->linhaAtual	[counter]	= 0;
+						fumaca->dirX		[counter]	= dirX;
+						fumaca->posX		[counter]	= posX;
+						fumaca->posY		[counter]	= posY;
+						fumaca->loop		[counter]	= SIM;
+						fumaca->contRegressiva[counter] = 8;
+					}
+
+					posX = 1920;
+				}
+
+				if ((int)ret % 2 == 1)
+					ret = (r/12) * sin(posX * val);
+				else
+					ret = (r/12) * cos(posX * val);
+			}
+
+			// não continua processando caso o objeto não esteja habilitado
+			if(st->habilitado[counter] == NAO){
+				return 0;
+			}
+
+
+			posY += (velY * dirY) + (ret * 1.5);
+
+			deltaX = fimX - inicioX;
+			deltaY = fimY - inicioY;
+
+			// verifica se a imagem saiu da tela e reposiciona de novo
+			if (st->loop[counter] == SIM){
+				if (deltaX < 0){
+					if ((posX + largura) <= fimX){
+						posX = inicioX + offsetX;
+						recomecou = 1;
+					}
+				}
+				else{
+					if (posX > fimX){
+						posX = inicioX + offsetX;
+						recomecou = 1;
+					}
+				}
+			}
+/*
+
+			if (deltaY < 0){
+				if (posY + altura < fimY)
+				posY = inicioY + offsetY;
+				//recomecou = 1;
+			}
+			else{
+				if (posY > fimY)
+				posY = inicioY + offsetY;
+				//recomecou = 1;
+			}
+*/
+			if (recomecou == 1){
+				if(st->id == ID_FUMACA){
+				//	st->habilitado[0] = NAO;
+				}
+				if (st->id == ID_GHOST){
+					// Estabelece velocidades mínimas e máximas
+					r = (rand() / 10000000.0);
+					int extraY = r;
+					extraY = (extraY % 2 == 1 ? 20:-10);
+					//posY = (inicioY + offsetY) + (extraY * r);
+
+					if (r * (0.25) < 0.7)
+						velX = 0.7;
+					else if (r * (0.25) > 1.0)
+						velX = 1.0;
+
+					st->velX[counter] = velX;
+
+					/** ao reiniciar não deixa os fantasmas ultrapassarem os limites abaixo no eixo Y especificados abaixo**/
+					dirY = 1.0;
+					if (posY > (display->altura - (st->altura / 1.2))){
+						posY = display->altura - (500 * (r/1000));
+						dirY = -1.0;
+					}
+					if (posY < 550){
+						posY = 500 + (500 * (r/1000));
+						dirY = 1.0;
+					}
+
+				}
+				recomecou = 0;
+			}
+
+			st->posX[counter] = posX;
+			st->posY[counter] = posY;
+			counter++;
+		}
+	}
+		//		printf("\nsheetSizeX = %d", st->sheetSizeX);
+
+	return 0;
+}
+//----------------------------------------------------------------------
+void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteSheet *sGrama1,
 					SpriteSheet *sGrama2, SpriteSheet *sArvores1, SpriteSheet *sArvores2,
-					SpriteSheet *sNevoa1, SpriteSheet *sNevoa2, SpriteSheet *sNevoa3, SpriteSheet *sNevoa4, 
+					SpriteSheet *sNevoa1, SpriteSheet *sNevoa2, SpriteSheet *sNevoa3, SpriteSheet *sNevoa4,
 					SpriteSheet *sNevoa5, SpriteSheet *sNevoa6, SpriteSheet *sFumacas,
 					GameScreen *telaJogo){
-	
+
 	int i, j, counter;
 	srand(time(NULL));
     float r;
@@ -146,8 +305,8 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
     sLapidesCruzes->repetirElementosY = 0;
 	sLapidesCruzes->novaAltura  = -1;
 	counter = 0;
-	
-    for (i = 0; i < sLapidesCruzes->sheetSizeX + sLapidesCruzes->repetirElementosX; i++){ 
+
+    for (i = 0; i < sLapidesCruzes->sheetSizeX + sLapidesCruzes->repetirElementosX; i++){
         for (j = 0; j < sLapidesCruzes->sheetSizeY + sLapidesCruzes->repetirElementosY; j++){
 			srand(i+j+counter*4);
 			r = (rand() / 100000000.0);
@@ -173,11 +332,11 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
             sLapidesCruzes->contIntervalo	[counter] = 0;
             sLapidesCruzes->habilitado		[counter] = SIM;
 //            printf("\nY:%0.1f", sLapidesCruzes->posY[counter]);
-            counter++;      
+            counter++;
         }
     }
-	
-    /** configura spritesheet fumaça dos fantasmas eliminados**/   
+
+    /** configura spritesheet fumaça dos fantasmas eliminados**/
     sFumacas->bitmap = al_load_bitmap("img/fumaca/png/fumaca.png");
     sFumacas->x1         = 0.0;
     sFumacas->y1         = 0.0;
@@ -192,31 +351,31 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 	sFumacas->novaLargura = -1;
 
 	for(i = 0; i < 3; i++){
-		sFumacas->colunaAtual	[0] = 0;
-		sFumacas->linhaAtual	[0] = 0;
-		sFumacas->posX			[0] = telaJogo->largura + 100;
-		sFumacas->posY			[0] = telaJogo->altura - 120;
-		sFumacas->offsetX		[0] = 0;
-		sFumacas->offsetY		[0] = 0;
-		sFumacas->profundidade	[0] = 1.5;
-		sFumacas->dirX			[0] = -1;
-		sFumacas->dirY			[0] = 1;
-		sFumacas->velX			[0] = 1.0;
-		sFumacas->velY			[0] = 0.0;
-		sFumacas->inicioY		[0] = sFumacas->posY[0];
-		sFumacas->inicioX		[0] = telaJogo->largura;
-		sFumacas->fimY			[0] = sFumacas->posY[0];
-		sFumacas->fimX			[0] = 0.0;
-		sFumacas->spriteId		[0] = 0; // O ID da fumaça corresponde ao ID do fantasma
-		sFumacas->loop			[0] = NAO;
-		sFumacas->eliminado		[0] = 0;
-		sFumacas->intervalo		[0] = 3;
-		sFumacas->contIntervalo	[0] = 3;
-		sFumacas->contRegressiva[0] = 8;
-		sFumacas->habilitado	[0] = 0;
+		sFumacas->colunaAtual	[i] = 0;
+		sFumacas->linhaAtual	[i] = 0;
+		sFumacas->posX			[i] = telaJogo->largura + 100;
+		sFumacas->posY			[i] = telaJogo->altura - 120;
+		sFumacas->offsetX		[i] = 0;
+		sFumacas->offsetY		[i] = 0;
+		sFumacas->profundidade	[i] = 1.5;
+		sFumacas->dirX			[i] = -1;
+		sFumacas->dirY			[i] = 1;
+		sFumacas->velX			[i] = 1.0;
+		sFumacas->velY			[i] = 0.0;
+		sFumacas->inicioY		[i] = sFumacas->posY[i];
+		sFumacas->inicioX		[i] = telaJogo->largura;
+		sFumacas->fimY			[i] = sFumacas->posY[i];
+		sFumacas->fimX			[i] = 0.0;
+		sFumacas->spriteId		[i] = 0; // O ID da fumaça corresponde ao ID do fantasma
+		sFumacas->loop			[i] = NAO;
+		sFumacas->eliminado		[i] = 0;
+		sFumacas->intervalo		[i] = 3;
+		sFumacas->contIntervalo	[i] = 3;
+		sFumacas->contRegressiva[i] = 8;
+		sFumacas->habilitado	[i] = NAO;
 	}
-		
-    /** configura spritesheet Fantasmas**/    
+
+    /** configura spritesheet Fantasmas**/
     sFantasmas->bitmap = al_load_bitmap("img/ghost/png/fantasmas.png");
     sFantasmas->x1         = 0.0;
     sFantasmas->y1         = 0.0;
@@ -231,7 +390,7 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 	sFantasmas->novaLargura = -1;
 	counter = 0;
 
-    for (i = 0; i < sFantasmas->sheetSizeX + sFantasmas->repetirElementosX; i++){ 
+    for (i = 0; i < sFantasmas->sheetSizeX + sFantasmas->repetirElementosX; i++){
         for (j = 0; j < sFantasmas->sheetSizeY + sFantasmas->repetirElementosY; j++){
             float r = (rand() / 1000000000.0);
             float r2 = (rand() / 1000000000.0);
@@ -254,10 +413,10 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
             sFantasmas->intervalo	 [counter] = 0;
             sFantasmas->contIntervalo[counter] = 0;
             sFantasmas->habilitado	 [counter] = SIM;
-           counter++;      
+           counter++;
         }
     }
-    
+
     /** configura spritesheet do gramado**/
 	sGrama1->bitmap = al_load_bitmap("img/grass/png/grama.png");
     sGrama1->x1         = 0.0;
@@ -272,8 +431,8 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 	sGrama1->novaAltura  = -1;
 	sGrama1->novaLargura = -1;
 	counter = 0;
-	 	
-    for (i = 0; i < sGrama1->sheetSizeX + sGrama1->repetirElementosX; i++){ 
+
+    for (i = 0; i < sGrama1->sheetSizeX + sGrama1->repetirElementosX; i++){
         for (j = 0; j < sGrama1->sheetSizeY + sGrama1->repetirElementosY; j++){
 			sGrama1->colunaAtual	[counter] = 0;
 			sGrama1->linhaAtual 	[counter] = 0;
@@ -295,10 +454,10 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
             sGrama1->intervalo		[counter] = 0;
             sGrama1->contIntervalo	[counter] = 0;
             sGrama1->habilitado	 	[counter] = 1;
-           counter++;      
+           counter++;
         }
     }
-    
+
 	sGrama2->bitmap = al_load_bitmap("img/grass/png/grama.png");
     sGrama2->x1         = 0.0;
     sGrama2->y1         = 0.0;
@@ -312,8 +471,8 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 	sGrama2->novaAltura  = -1;
 	sGrama2->novaLargura = -1;
 	counter = 0;
-	 	
-    for (i = 0; i < sGrama2->sheetSizeX + sGrama2->repetirElementosX; i++){ 
+
+    for (i = 0; i < sGrama2->sheetSizeX + sGrama2->repetirElementosX; i++){
         for (j = 0; j < sGrama2->sheetSizeY + sGrama2->repetirElementosY; j++){
 			sGrama2->colunaAtual	[counter] = 0;
 			sGrama2->linhaAtual 	[counter] = 0;
@@ -335,7 +494,7 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 			sGrama2->intervalo	 	[counter] = 0;
 			sGrama2->contIntervalo	[counter] = 0;
 			sGrama2->habilitado	 	[counter] = 1;
-			counter++;      
+			counter++;
         }
     }
 
@@ -354,8 +513,8 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 	sArvores1->novaAltura  = -1;
 	sArvores1->novaLargura = -1;
 	counter = 0;
-	 	
-    for (i = 0; i < sArvores1->sheetSizeX + sArvores1->repetirElementosX; i++){ 
+
+    for (i = 0; i < sArvores1->sheetSizeX + sArvores1->repetirElementosX; i++){
         for (j = 0; j < sArvores1->sheetSizeY + sArvores1->repetirElementosY; j++){
  			srand(i+j+counter*2);
 			r = (rand() / 10000000.0);
@@ -379,7 +538,7 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
             sArvores1->intervalo		[counter] = 0;
             sArvores1->contIntervalo	[counter] = 0;
 			sArvores1->habilitado	 	[counter] = 1;
-            counter++;      
+            counter++;
         }
     }
 
@@ -397,8 +556,8 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 	sArvores2->novaAltura  = -1;
 	sArvores2->novaLargura = -1;
 	counter = 0;
-	 	
-    for (i = 0; i < sArvores2->sheetSizeX + sArvores2->repetirElementosX; i++){ 
+
+    for (i = 0; i < sArvores2->sheetSizeX + sArvores2->repetirElementosX; i++){
         for (j = 0; j < sArvores2->sheetSizeY + sArvores2->repetirElementosY; j++){
 			srand(i+j+counter);
 			r = (rand() / 10000000.0);
@@ -422,7 +581,7 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
             sArvores2->intervalo	[counter] = 0;
             sArvores2->contIntervalo[counter] = 0;
 			sArvores2->habilitado 	[counter] = 1;
-            counter++;      
+            counter++;
         }
     }
 
@@ -480,8 +639,8 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
     sNevoa4->novaLargura = 256;
 
 	counter = 0;
-	 	
-    for (i = 0; i < sNevoa1->sheetSizeX + sNevoa1->repetirElementosX; i++){ 
+
+    for (i = 0; i < sNevoa1->sheetSizeX + sNevoa1->repetirElementosX; i++){
         for (j = 0; j < sNevoa1->sheetSizeY + sNevoa1->repetirElementosY; j++){
 			srand(i+j+counter);
 			r = (rand() / 100000000.0);
@@ -569,143 +728,11 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
             sNevoa5->contIntervalo	[counter] = 0;
 			sNevoa5->habilitado 	[counter] = 1;
 
-            counter++;      
+            counter++;
         }
     }
-	 	
-    return;	
-}
-//----------------------------------------------------------------------
-int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *display){
-	int i, j, k, counter = 0, recomecou = 0;
-	float deltaX, deltaY;
-	float ret, r;
-	float val = PI / 180;
-	
-	for (i = 0; i < st->sheetSizeX + st->repetirElementosX; i++){
-		for (j = 0; j < st->sheetSizeY + st->repetirElementosY; j++){			
-						
-			srand(time(NULL));
 
-			float x1 		= st->x1;
-			float y1 		= st->y1;
-			float posX 		= st->posX		[counter];
-			float posY 		= st->posY		[counter];
-			float inicioX 	= st->inicioX	[counter];
-			float inicioY 	= st->inicioY	[counter];
-			float offsetX 	= st->offsetX	[counter];
-			float offsetY 	= st->offsetY	[counter];
-			float fimX 		= st->fimX		[counter];
-			float fimY		= st->fimY		[counter];
-			float velX		= st->velX		[counter];
-			float velY		= st->velY		[counter];
-			float dirX		= st->dirX		[counter];
-			float dirY 		= st->dirY		[counter];
-			int id			= st->spriteId	[counter];
-			float profundidade	= st->profundidade[counter];
-			float largura		= st->largura;
-			float altura		= st->altura;
-			
-			ret = 0;
-			
-			r = (rand() / 100000000.0);
-			
-			posX += (velX * dirX * profundidade);
-			
-			// Calculo especifico para fantasma
-			if (st->id == ID_GHOST){
-				for(k = 0; k < 3; k++){
-					// procura entre os 3 disponíveis, pelo primeiro sprite de animacao da fumaça que não está em uso
-					if (st->eliminado[counter] == SIM && fumaca->habilitado[k] == NAO){
-						st->eliminado[counter] 	= NAO;
-						fumaca->habilitado[k] 	= SIM;
-						fumaca->posX[k]			= posX;
-						fumaca->posY[k]			= posY;
-						fumaca->loop[k]			= SIM;
-						fumaca->contRegressiva[k] = 8;
-						//printf("\nID:%d\n", fumaca->spriteId[k]);
-						
-						posX = 1920;
-						break;
-					}
-				}
-
-				ret = (r/12) * sin(posX * val);
-			}			
-											
-			// não continua processando caso o objeto não esteja habilitado
-			if(st->habilitado[counter] == NAO){
-				return 0;
-			}
-
-			posY += (velY * dirY) + (ret * 1.5);					
-							
-			deltaX = fimX - inicioX;
-			deltaY = fimY - inicioY;
-			
-			// verifica se a imagem saiu da tela e reposiciona de novo
-			if (st->loop[counter] == SIM){
-				if (deltaX < 0){
-					if ((posX + largura) <= fimX){
-						posX = inicioX + offsetX;
-						recomecou = 1;
-					}
-				}
-				else{
-					if (posX > fimX){
-						posX = inicioX + offsetX;
-						recomecou = 1;
-					}
-				}
-			}
-/*
-
-			if (deltaY < 0){
-				if (posY + altura < fimY)
-				posY = inicioY + offsetY;
-				//recomecou = 1;
-			}
-			else{
-				if (posY > fimY)
-				posY = inicioY + offsetY;
-				//recomecou = 1;
-			}
-*/
-			if (recomecou == 1){
-				if(st->id == ID_FUMACA){
-					st->habilitado[0] = NAO;
-				}
-				if (st->id == ID_GHOST){					
-					// Estabelece velocidades mínimas e máximas
-					r = (rand() / 10000000.0);
-					int extraY = r;
-					extraY = (extraY % 2 == 1 ? 20:-10);
-					//posY = (inicioY + offsetY) + (extraY * r);
-/*				
-					if (posY > display->altura)
-						dirY = -1;
-					else if (posY < 1000)
-						dirY = 1;
-*/
-					if (r * (0.25) < 0.6)
-						velX = 0.6;
-					else if (r * (0.25) > 1.0)
-						velX = 1.0;
-
-					st->velX[counter] = velX;
-					
-				}
-				recomecou = 0;
-			}
-				
-			st->posX[counter] = posX;
-			st->posY[counter] = posY;
-			counter++;
-		}
-	}
-		//		printf("\nsheetSizeX = %d", st->sheetSizeX);
-
-	return 0;
+    return;
 }
 //----------------------------------------------------------------------
 int pi_iniScreens(GameScreen *telaJogo){
@@ -821,7 +848,7 @@ int pi_criaDisplay(GameScreen *telaJogo, GameDisplay *display){
 	display->backbuffer = al_create_display(display->largura, display->altura); // Cria o display em tela cheia.
 	telaJogo->canvas	= al_create_bitmap(telaJogo->largura, telaJogo->altura);
 
-	
+
 	if (!display->backbuffer){
 		al_show_native_message_box(display->backbuffer, "Erro", "Erro", "Falha ao inicializar o display!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		al_destroy_display(display->backbuffer);

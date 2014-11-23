@@ -12,11 +12,11 @@
 #include "pi_data.h"
 
 // Atributos da tela
-const int LARGURA_TELA = 1280;   //960;    
-const int ALTURA_TELA =  720;  //540;     
+const int LARGURA_TELA = 1280;   //960;
+const int ALTURA_TELA =  720;  //540;
 const float FPS = 120.0;
 const float animacaoFPS = 60.0;
-    
+
 
     GameScreen telaJogo; // tela original do jogo.
     GameDisplay displayJogo = {.mode = 0}; // display onde aparecem as telas de Aventura e Poderes
@@ -37,7 +37,7 @@ int inicializadores();
 void destruir ();
 
 //Biblioteca dos structs
-#include "structs.h" 
+#include "structs.h"
 //Biblioteca Tela de Poderes (Todas as funcoes relativas a tela de poderes)
 #include "funcPoderes.h"
 //Biblioteca que gera questoes
@@ -61,15 +61,15 @@ void destruir ();
 //----------------------------------------------------------------------
 
 int main(int argc, char **argv[]){
-    
+
     printf("\n================================");
     printf("\ndebug:main():start");
     printf("\n================================");
-   
-    
+
+
     SpriteSheet sFantasmas, sLapidesCruzes, sGrama1, sGrama2, sArvores1, sArvores2,
 		sNevoa1, sNevoa2, sNevoa3, sNevoa4, sNevoa5, sNevoa6, sFumacas;
-		
+
     int spriteNum = -1;
     int i, j;
     srand(10);
@@ -77,7 +77,7 @@ int main(int argc, char **argv[]){
     /* Inicia todos os addons utilizados no jogo. */
     if (pi_iniAllegroAddons(&displayJogo) < 0)
         return -1;
-	
+
     /* Configura as telas do jogo*/
     pi_iniScreens(&telaJogo); // Inicializa a tela do jogo.
     DEBUG_ON("\ndebug:telaJogo:x2=%f", telaJogo.x2);
@@ -85,7 +85,7 @@ int main(int argc, char **argv[]){
 	// Inicializa as imagens e elementos do jogo
 	pi_iniImagens(&sLapidesCruzes, &sFantasmas, &sGrama1, &sGrama2, &sArvores1, &sArvores2, &sNevoa1,
 					&sNevoa2, &sNevoa3, &sNevoa4, &sNevoa5, &sNevoa6, &sFumacas, &telaJogo);
-	
+
     /* Inicializa o jogo em tela cheia */
     if (pi_criaDisplay(&telaJogo, &displayJogo) < 0)
         return -1;
@@ -100,12 +100,12 @@ int main(int argc, char **argv[]){
     ceu = al_load_bitmap("img/sky/png/sky.png");
     ALLEGRO_BITMAP *lua = NULL;
     lua = al_load_bitmap("img/sky/png/lua.png");
-    
+
     al_set_target_backbuffer(displayJogo.backbuffer);
     al_set_clipping_rectangle(0, 0, displayJogo.largura, displayJogo.altura);
-	
+
 	int counter;
-	
+
     al_flip_display();
 
     if (inicializadores()<0){
@@ -125,7 +125,7 @@ int main(int argc, char **argv[]){
 
     //Struct para a posicao das alternativas da tela
     telaAlternativa posicaoAlt;
-    
+
     /*
     //teste posicao das questoes
     printf("%d -- %d\n %d -- %d\n %d -- %d\n",posicaoAlt.alt_Ax, posicaoAlt.alt_Ay,
@@ -142,7 +142,7 @@ int main(int argc, char **argv[]){
 
     //setar valor antes de iniciar o jogo
     setVeriavel(&questionario);
-        
+
     // Inicializando perguntas com nivel de dificuldade 1 (parte1)
     ale_parte1(&questionario);
 
@@ -156,7 +156,7 @@ int main(int argc, char **argv[]){
 //    al_draw_bitmap(poderes, 0, 0, 0);
     // timer printipal do jogo
     al_start_timer(timer);
-    
+
     /* Cria um timer separado para o redesenho dos gráficos */
 	al_start_timer(timerAnimacao);
     //timer com tempo real para o cronometro do jogo
@@ -172,11 +172,11 @@ while (!sair){
         }
         else if(evento.type == ALLEGRO_EVENT_TIMER) {
         // controlando FPS para redesenhar
-            
+
 			posicaoAlt.mousePoderes_x = evento.mouse.x;
 			posicaoAlt.mousePoderes_y = evento.mouse.y;
-			
-            if (evento.timer.source == timerAnimacao){								
+
+            if (evento.timer.source == timerAnimacao){
 				/* Calcula as novas coordenadas e animações dos elementos */
 				pi_AnimarSpriteSheet(&sFantasmas, &sFumacas, &telaJogo);
 				pi_AnimarSpriteSheet(&sFumacas, 		NULL, &telaJogo);
@@ -185,41 +185,41 @@ while (!sair){
 				pi_AnimarSpriteSheet(&sGrama1, 			NULL, &telaJogo);
 				pi_AnimarSpriteSheet(&sArvores2, 		NULL, &telaJogo);
 				pi_AnimarSpriteSheet(&sArvores1, 		NULL, &telaJogo);
-				//pi_AnimarSpriteSheet(&sNevoa1, NULL, &telaJogo);
-				//pi_AnimarSpriteSheet(&sNevoa2, NULL, &telaJogo);
-				//pi_AnimarSpriteSheet(&sNevoa3, NULL, &telaJogo);
-//				pi_AnimarSpriteSheet(&sNevoa4, 			NULL, &telaJogo);
+				//pi_AnimarSpriteSheet(&sNevoa1,          NULL, &telaJogo);
+				//pi_AnimarSpriteSheet(&sNevoa2,          NULL, &telaJogo);
+				//pi_AnimarSpriteSheet(&sNevoa3,          NULL, &telaJogo);
+				//pi_AnimarSpriteSheet(&sNevoa4, 			NULL, &telaJogo);
 
 				if(jogador.acao == 0){
-					jogadorCorrer(&jogador); 
+					jogadorCorrer(&jogador);
 				}
 				else if(jogador.acao == 1 ){
-					jogadorPulo(&jogador); 
+					jogadorPulo(&jogador);
 				}
 				else if(jogador.acao == 2 ){
-					jogadorAbaixar(&jogador); 
-				}			
-					
+					jogadorAbaixar(&jogador);
+				}
+
 			}
 			redraw = 1;
-            DEBUG_ON("\ndebug:main():event.type:timer ");                                   
+            DEBUG_ON("\ndebug:main():event.type:timer ");
         }
-            
+
 
 /*///////////////////////// COMANDOS ALLEGRO_EVENT_QUEUE /**fila_eventos\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 //----- verifica se tipo de evento é clique no mouse --- E IFS PARA VERIFICAR QUAL ALTERNATIVA JOGADOR ESCOLHEU -------------
-        
+
         if (evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP){
 
              verificarResposta(som_acertou, som_errou, &posicaoAlt, &questionario, &sFantasmas, &jogador);
 
-        }  //FIM DE VERIFICAÇÃO SOBRE A ESCOLHA DA ALTERNATIVA DO JOGADOR 
-       
+        }  //FIM DE VERIFICAÇÃO SOBRE A ESCOLHA DA ALTERNATIVA DO JOGADOR
+
         //mudando tipo de ponteiro quando jogador for responder
         else if (evento.type == ALLEGRO_EVENT_MOUSE_AXES){
-            
-             ponteiroMouse (displayJogo.backbuffer, &posicaoAlt);
+
+             ponteiroMouse(displayJogo.backbuffer, &posicaoAlt);
         }
 
 
@@ -234,7 +234,7 @@ while (!sair){
                     case ALLEGRO_KEY_W:
                          clique_KEY_W(&jogador);
                          break;
-                         
+
                     case ALLEGRO_KEY_S:
                          clique_KEY_S(&jogador);
                          break;
@@ -257,34 +257,34 @@ while (!sair){
             }
 
             for (int i = 0; i < 3; i++){
-    
-                if (colisao (jogador.pos_x,      jogador.pos_y,      jogador.frame_larg, jogador.frame_alt, 
-                             sFantasmas.posX[i], sFantasmas.posY[i], sFantasmas.largura, sFantasmas.altura, 
+
+                if (colisao (jogador.pos_x,      jogador.pos_y,      jogador.frame_larg, jogador.frame_alt,
+                             sFantasmas.posX[i], sFantasmas.posY[i], sFantasmas.largura, sFantasmas.altura,
                              caixaL, caixaA) == 1){
 
-                    //sFantasmas.posX[i] = 1920; 
+                    //sFantasmas.posX[i] = 1920;
                     sFantasmas.eliminado[i] = SIM;
                 }
             }
-        
-        
+
+
 
 /*---------------VERIFICAÇÃO ATUALIZAÇÃO DA PERGUNTA-------------------------------------------------------*/
             atualizarPergunta(&questionario);
 
-        
+
 /* ----------------- TEMPO RECRESIVO NA TELA -------------------------------------------------- */
             cronometroRegressivo(contador, fila_contador, &questionario, &sair);
 
 
 
-   ///////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\        
+   ///////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 /* /////////////////////// AREA DE DESENHAR \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
    ///////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
         if (redraw && al_is_event_queue_empty(fila_eventos) && evento.timer.source == timerAnimacao) {
             redraw = 0;
-			
+
 			/** Desenhar na ordem de profundidade no cenário. Começando pelo mais distante para o mais perto **/
 			al_draw_bitmap(ceu, 0, 0, 0);
 			al_draw_scaled_bitmap(lua, 0, 0, 256, 230, (telaJogo.largura - 500), (telaJogo.altura - 420), (256*2), (230*2), 0);
@@ -292,28 +292,28 @@ while (!sair){
 			al_draw_bitmap(piso, 0, telaJogo.altura- 10, 0);
 
 			/* Desenha os elementos do cenario que ficarão ao fundo */
-			//pi_drawGraphics(&sNevoa1);	
-			pi_drawGraphics(&sArvores2);	
-			//pi_drawGraphics(&sNevoa2);	
-			pi_drawGraphics(&sArvores1);	
-			//pi_drawGraphics(&sNevoa3);	
-			pi_drawGraphics(&sGrama2);	
-			pi_drawGraphics(&sLapidesCruzes);	
-			pi_drawGraphics(&sNevoa4);	
-			
+			//pi_drawGraphics(&sNevoa1);
+			pi_drawGraphics(&sArvores2);
+			//pi_drawGraphics(&sNevoa2);
+			pi_drawGraphics(&sArvores1);
+			//pi_drawGraphics(&sNevoa3);
+			pi_drawGraphics(&sGrama2);
+			pi_drawGraphics(&sLapidesCruzes);
+			//pi_drawGraphics(&sNevoa4);
+
 			drawResposdeu(fonte_equacao, &questionario, &posicaoAlt);
 			drawPergunta(fonte_equacao, &questionario, &posicaoAlt);
 			drawPontos (fonte_pontos, &questionario, &posicaoAlt, &jogador);
 			drawJogador(&jogador, boneco);
 
 			/* Desenha os elementos que ficarão na frente do personagem */
-			pi_drawGraphics(&sFantasmas);	
-			pi_drawGraphics(&sFumacas);	
+			pi_drawGraphics(&sFantasmas);
+			pi_drawGraphics(&sFumacas);
 			pi_drawGraphics(&sGrama1);
-			
+
 			al_flip_display();
             al_clear_to_color(al_map_rgb(0, 0, 0));
-        } 
+        }
     }
 
     destruir ();
@@ -327,20 +327,20 @@ int inicializadores(){
         fprintf(stderr, "Falha ao inicializar a Allegro.\n");
         return -1;
     }
-    
+
     al_init_image_addon();
 
     // Inicialização do add-on para uso de fontes
     al_init_font_addon();
 
     al_install_keyboard();
- 
+
     // Inicialização do add-on para uso de fontes True Type
     if (!al_init_ttf_addon()){
         fprintf(stderr, "Falha ao inicializar add-on allegro_ttf.\n");
         return -1;
     }
-    
+
     /*
     janela = al_create_display(LARGURA_TELA, ALTURA_TELA);
     if (!janela){
@@ -349,7 +349,7 @@ int inicializadores(){
         return -1;
     }
     */
- 
+
     timer = al_create_timer(1.0 / FPS);
     if(!timer){
         al_destroy_display(displayJogo.backbuffer);
@@ -377,7 +377,7 @@ int inicializadores(){
         return -1;
     }
 
- 
+
     // Torna apto o uso de mouse na aplicação
     if (!al_install_mouse()){
         fprintf(stderr, "Falha ao inicializar o mouse.\n");
@@ -387,7 +387,7 @@ int inicializadores(){
         al_destroy_font(fonte_pontos);
         return -1;
     }
- 
+
     // Atribui o cursor padrão do sistema para ser usado
     if (!al_set_system_mouse_cursor(displayJogo.backbuffer, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT)){
         fprintf(stderr, "Falha ao atribuir ponteiro do mouse.\n");
@@ -406,7 +406,7 @@ int inicializadores(){
         al_destroy_font(fonte_equacao);
         al_destroy_font(fonte_pontos);
         return -1;
-    } 
+    }
 
     if (!al_init_primitives_addon()){
         fprintf(stderr, "Falha ao inicializar add-on de primitivas.\n");
@@ -427,7 +427,7 @@ int inicializadores(){
         al_destroy_event_queue(fila_eventos);
         return false;
     }
- 
+
     if (!al_init_acodec_addon()){
         fprintf(stderr, "Falha ao inicializar codecs de áudio.\n");
         al_destroy_display(displayJogo.backbuffer);
@@ -437,7 +437,7 @@ int inicializadores(){
         al_destroy_event_queue(fila_eventos);
         return false;
     }
- 
+
     if (!al_reserve_samples(1)){
         fprintf(stderr, "Falha ao alocar canais de áudio.\n");
         al_destroy_display(displayJogo.backbuffer);
@@ -526,7 +526,7 @@ int pi_drawGraphics(ALLEGRO_BITMAP *image, float x, float y, int refresh){
     if (refresh){
         al_clear_to_color(al_map_rgb(0, 0, 0));
     }
-    
+
     al_draw_bitmap(image, x, y, 0);
 
     DEBUG_ON("\n----debug:drawGraphics():end");

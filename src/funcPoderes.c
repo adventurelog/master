@@ -6,7 +6,7 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
-#include "structs.h" 
+#include "structs.h"
 #include "equacoes.h"
 #include <stdio.h>
 #include "pi_tools.h"
@@ -18,31 +18,32 @@ void errou(listaQuestao *);
 
 
 void posicaoAlternativas(int largura, int altura, telaAlternativa *alternativas, bonecoJog *jogador){
-	
+
 	//definicao do inicio da Tela de Poderes -- 1/3 da tela total a esquerda --
-    //int meio2 = (largura/3)*2;	
+    //int meio2 = (largura/3)*2;
     int meioLargura = largura / 2;
     int meioAltura = altura / 2;
     int meio13Altura = altura / 3;
 
-	alternativas->alt_Ax      = meioLargura + (meioLargura * 0.2);       //meio2+50;                        
- 	alternativas->alt_Bx      = (meioLargura / 2) * 3;                   //(largura-meio2)/2 + meio2; 
- 	alternativas->alt_Cx      = largura - (meioLargura * 0.2);           //largura-50;                      
+	alternativas->alt_Ax      = meioLargura + (meioLargura * 0.2);       //meio2+50;
+ 	alternativas->alt_Bx      = (meioLargura / 2) * 3;                   //(largura-meio2)/2 + meio2;
+ 	alternativas->alt_Cx      = largura - (meioLargura * 0.2);           //largura-50;
  	alternativas->pergunta_x  = (meioLargura / 2) * 3;                   //(largura-meio2)/2 + meio2;
- 	
+
     alternativas->pontos_x    = meioLargura - (meioLargura * 0.2);       //(largura-meio2)/2 + meio2;
     alternativas->tempo_x     = meioLargura * 0.2;                       //meio2+10;
     alternativas->acertos_x   = meioLargura * 0.2;                       //largura-50;
-    alternativas->resultado_x = meioLargura - (meioLargura * 0.2);   
+    alternativas->resultado_x = meioLargura - (meioLargura * 0.2);
     jogador->forca_x          = meioLargura * 0.2;
 
-
+	alternativas->mousePoderes_y = 0;
+	alternativas->mousePoderes_x = 0;
 
  	alternativas->alt_Ay      = meio13Altura - (meio13Altura * 0.2);
  	alternativas->alt_By      = meio13Altura - (meio13Altura * 0.2);
  	alternativas->alt_Cy      = meio13Altura - (meio13Altura * 0.2);
  	alternativas->pergunta_y  = meio13Altura * 0.2;
- 	
+
     alternativas->pontos_y    = meio13Altura / 2;
     alternativas->tempo_y     = meio13Altura / 2;
     alternativas->acertos_y   = meio13Altura * 0.2;
@@ -57,7 +58,7 @@ void setVeriavel(listaQuestao *questionario){
     questionario->acertou   = -1;
 
     // flag para guardar quantidade de pontos e consequentemente nivel de dificuldade multiplicações
-    questionario->pontos    = 0;  
+    questionario->pontos    = 0;
 
     // tempo inicial em segundo do jogo
     questionario->tempo     = 115;
@@ -65,7 +66,7 @@ void setVeriavel(listaQuestao *questionario){
     //quantidade de acertos para elimitar fantasma
     questionario->QntdRespostaMatarFantasma = 5;
 
-    //totl de pontos inicial para jogador eliminar fantasma --- 0/5 
+    //totl de pontos inicial para jogador eliminar fantasma --- 0/5
     questionario->matarFantasma     = 0;
 }
 
@@ -77,7 +78,7 @@ void setBoneco(int largura, int altura, bonecoJog *jogador, ALLEGRO_BITMAP *bone
     jogador->pos_y          = altura - (altura * 0.12);
 
     jogador->pos_fixa_y     = altura - (altura * 0.12);
-    
+
     jogador->alturaPulo     = altura - (altura * 0.15)-((al_get_bitmap_height(boneco)/2));
     jogador->alturaAbaixar  = altura - (altura * 0.09);
 
@@ -95,7 +96,7 @@ void setBoneco(int largura, int altura, bonecoJog *jogador, ALLEGRO_BITMAP *bone
 void acertou(listaQuestao *questionario, bonecoJog *jogador){
 
     questionario->acertou    = 1; //se jogador acetou pergunta flag indicando que jogador acertou a questao é ativa
-    questionario->pontos    += 3; // e jogador soma tres pontos por acerto 
+    questionario->pontos    += 3; // e jogador soma tres pontos por acerto
     questionario->tempo     += +5;
 
     jogador->forca          += 0.2;
@@ -117,14 +118,14 @@ void verificarResposta(ALLEGRO_SAMPLE *som_acertou, ALLEGRO_SAMPLE *som_errou, t
     printf("X: %d - Y: %d\n", posicaoAlt->mousePoderes_x, posicaoAlt->mousePoderes_y);
     //printf("alt A x: %d - y: %d", posicaoAlt->alt_Ax, posicaoAlt->alt_Ay);
 
-    
 
-    if (posicaoAlt->mousePoderes_x > 765 /*posicaoAlt->alt_Ax - 50*/ && 
+
+    if (posicaoAlt->mousePoderes_x > 765 /*posicaoAlt->alt_Ax - 50*/ &&
         posicaoAlt->mousePoderes_x < 878 /*posicaoAlt->alt_Ax + 50*/ &&
         posicaoAlt->mousePoderes_y > 172 /*posicaoAlt->alt_Ay - 20*/ &&
         posicaoAlt->mousePoderes_y < 266 /*posicaoAlt->alt_Ay + 80*/ ){
-    
-           
+
+
             if(questionario->matarFantasma>=questionario->QntdRespostaMatarFantasma){
                 questionario->matarFantasma = -1;
                 sFantasmas->posX[0] = 1920 +100;
@@ -143,14 +144,14 @@ void verificarResposta(ALLEGRO_SAMPLE *som_acertou, ALLEGRO_SAMPLE *som_errou, t
                     errou(questionario);
                     al_play_sample(som_errou, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 
-                }   
-            } 
+                }
+            }
 
     }     /* ISSO É FEITO EXATAMENTE IGUAL PARA AS ALTERNATIVAS B E C, OU SEJA, É FEITA A VERIFICAÇÃO EM TODOS OS CASOS QUE O JOGADOR
         CLICA NA ALTERNATIVA A, B OU C */
 
 
-        else if (posicaoAlt->mousePoderes_x > 969  && 
+        else if (posicaoAlt->mousePoderes_x > 969  &&
                 posicaoAlt->mousePoderes_x  < 1082  &&
                 posicaoAlt->mousePoderes_y  > 171   &&
                 posicaoAlt->mousePoderes_y  < 266 ){
@@ -171,11 +172,11 @@ void verificarResposta(ALLEGRO_SAMPLE *som_acertou, ALLEGRO_SAMPLE *som_errou, t
                         else{
                             errou(questionario);
                             al_play_sample(som_errou, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-                        }    
+                        }
                     }
         }
 
-            else if (posicaoAlt->mousePoderes_x > 1174 && 
+            else if (posicaoAlt->mousePoderes_x > 1174 &&
                      posicaoAlt->mousePoderes_x < 1286 &&
                      posicaoAlt->mousePoderes_y > 171  &&
                      posicaoAlt->mousePoderes_y < 266 ){
@@ -191,13 +192,13 @@ void verificarResposta(ALLEGRO_SAMPLE *som_acertou, ALLEGRO_SAMPLE *som_errou, t
                                 if (questionario->alternativa_C == questionario->resposta){
                                     acertou(questionario, jogador);
                                     al_play_sample(som_acertou, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
- 
+
                                 }
                                 else{
                                     errou(questionario);
                                     al_play_sample(som_errou, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-                                }    
-                        }                
+                                }
+                        }
             }
 
     //-------------------------------------------------------------------------------------------------------------
@@ -213,7 +214,7 @@ void verificarResposta(ALLEGRO_SAMPLE *som_acertou, ALLEGRO_SAMPLE *som_errou, t
 
 void ponteiroMouse (ALLEGRO_DISPLAY *janela, telaAlternativa *posicaoAlt){
 
-    if (posicaoAlt->mousePoderes_x > 765 /*posicaoAlt->alt_Ax - 50*/ && 
+    if (posicaoAlt->mousePoderes_x > 765 /*posicaoAlt->alt_Ax - 50*/ &&
         posicaoAlt->mousePoderes_x < 878 /*posicaoAlt->alt_Ax + 50*/ &&
         posicaoAlt->mousePoderes_y > 172 /*posicaoAlt->alt_Ay - 20*/ &&
         posicaoAlt->mousePoderes_y < 266 /*posicaoAlt->alt_Ay + 80*/ ){
@@ -221,7 +222,7 @@ void ponteiroMouse (ALLEGRO_DISPLAY *janela, telaAlternativa *posicaoAlt){
             al_set_system_mouse_cursor(janela, ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT);
     }
 
-    else if (posicaoAlt->mousePoderes_x > 969  && 
+    else if (posicaoAlt->mousePoderes_x > 969  &&
              posicaoAlt->mousePoderes_x < 1082  &&
              posicaoAlt->mousePoderes_y > 171   &&
              posicaoAlt->mousePoderes_y < 266 ){
@@ -229,11 +230,11 @@ void ponteiroMouse (ALLEGRO_DISPLAY *janela, telaAlternativa *posicaoAlt){
            al_set_system_mouse_cursor(janela, ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT);
     }
 
-    else if (posicaoAlt->mousePoderes_x > 1174 && 
+    else if (posicaoAlt->mousePoderes_x > 1174 &&
              posicaoAlt->mousePoderes_x < 1286 &&
              posicaoAlt->mousePoderes_y > 171  &&
              posicaoAlt->mousePoderes_y < 266 ){
-         
+
            al_set_system_mouse_cursor(janela, ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT);
     }
 
@@ -250,7 +251,7 @@ void ponteiroMouse (ALLEGRO_DISPLAY *janela, telaAlternativa *posicaoAlt){
 void atualizarPergunta(listaQuestao *questionario){
 
     if(questionario->atualizarQuestao == 1){
-                
+
         //  Os próximos IFs verifica quantidade de pontos e atualiza o nível para a  próxima questão
 
         if(questionario->pontos <= 12)
@@ -262,17 +263,17 @@ void atualizarPergunta(listaQuestao *questionario){
         else if(questionario->pontos <= 36)
             ale_parte3(questionario);
 
-        else    
+        else
             ale_parte4(questionario);
 
         // Flag que verifica se jogador já respondeu pergunta é zerada
         questionario->atualizarQuestao = 0;
     }
-    
-            
+
+
     /* Temos duas dormas de representar as questões na telae elas se diferenciam nos níveis 1 e 3 para o nivel 2 e 4
         por isso temos esse IF para verificar qual nível jogador se encontra para realizar o al_draw_textf com as variaveis corretas
-        FORMATO PARA NIVEL 1 E 3:   X * Y 
+        FORMATO PARA NIVEL 1 E 3:   X * Y
                            2 E 4:   x * Y + Z     */
     if (questionario->pontos <= 12 || questionario->pontos > 21 && questionario->pontos <= 36 )
         questionario->nivel = 13;
@@ -288,7 +289,7 @@ void cronometroRegressivo(ALLEGRO_TIMER *contador, ALLEGRO_EVENT_QUEUE *fila_con
     ALLEGRO_EVENT evento;
 
     if (!al_is_event_queue_empty(fila_contador)){
-            
+
             //ALLEGRO_EVENT evento;
             al_wait_for_event(fila_contador, &evento);
             //Atualizando contador, subtraindo 1 segundo
@@ -305,21 +306,21 @@ void cronometroRegressivo(ALLEGRO_TIMER *contador, ALLEGRO_EVENT_QUEUE *fila_con
 
 
 
-/*///////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\        
+/*///////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
  /////////// AREA DE DESENHAR TELA DE PODERES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ///////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 
 void drawResposdeu(ALLEGRO_FONT *fonte_equacao, listaQuestao *questionario, telaAlternativa *posicaoAlt){
 
     switch(questionario->acertou){
-        case 1:   
+        case 1:
             al_draw_text(fonte_equacao, al_map_rgb(0, 0, 0), posicaoAlt->resultado_x, posicaoAlt->resultado_y, ALLEGRO_ALIGN_CENTRE, "Acertou");
             break;
 
         case 0:
             al_draw_text(fonte_equacao, al_map_rgb(0, 0, 0), posicaoAlt->resultado_x, posicaoAlt->resultado_y, ALLEGRO_ALIGN_CENTRE, "Errou");
             break;
-        
+
         case -1:
             al_draw_text(fonte_equacao, al_map_rgb(222, 0, 0), posicaoAlt->resultado_x, posicaoAlt->resultado_y, ALLEGRO_ALIGN_CENTRE, "COMEÇOU!!");
             break;
@@ -337,7 +338,7 @@ void drawPergunta(ALLEGRO_FONT *fonte_equacao, listaQuestao *questionario, telaA
             case 13:
                  al_draw_textf(fonte_equacao, al_map_rgb(222, 0, 0), posicaoAlt->pergunta_x, posicaoAlt->pergunta_y, ALLEGRO_ALIGN_CENTRE , "%d * %d =", questionario->produto, questionario->numero);
                  break;
-            case 24:  
+            case 24:
                  al_draw_textf(fonte_equacao, al_map_rgb(222, 0, 0), posicaoAlt->pergunta_x, posicaoAlt->pergunta_y, ALLEGRO_ALIGN_CENTRE , "%d * %d + %d =", questionario->produto, questionario->numero, questionario->soma);
                  break;
         }
