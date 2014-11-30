@@ -296,7 +296,6 @@ int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, Icones *iVidas, G
 				//	int extraY = r;
 				//	extraY = (extraY % 2 == 1 ? 20:-10);
 				//	posY = (inicioY + offsetY) + (extraY * r);
-
 					if (r * (0.25) < 0.5)
 						velX = 0.5;
 					else if (r * (0.25) > 0.7)
