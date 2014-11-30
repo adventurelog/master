@@ -44,6 +44,7 @@
 	#define ID_NEVOA 121
 	#define ID_ARVORE 122
 	#define ID_FUMACA 123
+	#define ID_ICONE_PODER 124
 
 	#define ID_STILL_SPRITE 100
 
@@ -62,6 +63,22 @@ typedef struct{
 	int bitmapAtual; // indica o bitmap que está sendo desenhado no display
 	int operacao; // operacao atual: GRAVAR ou DESENHAR
 } BufferTriplo;
+
+/** struct de poderes **/
+typedef struct{
+	ALLEGRO_BITMAP *bitmap1;
+	ALLEGRO_BITMAP *bitmap2;
+	int maxValor;
+	int minValor;
+	int valorAtual;
+	int largura1;
+	int largura2;
+	int posX;
+	int posY;
+	int ID;
+	int intervalo;
+	int contador;
+} Icones;
 
 typedef struct{
 		ALLEGRO_BITMAP *canvas;
@@ -86,7 +103,7 @@ typedef struct{
 		int 	largura;
 		int 	altura;
 		int 	mode;
-		float 	scale;
+		float scale;
 } GameDisplay;
 
 // Estrutura base para armazenar imagens

@@ -11,6 +11,20 @@
 #include "pi_tools.h"
 #include "pi_data.h"
 
+//Biblioteca dos structs
+#include "structs.h"
+//Biblioteca Tela de Poderes (Todas as funcoes relativas a tela de poderes)
+#include "funcPoderes.h"
+//Biblioteca que gera questoes
+#include "equacoes.h"
+#include "funcBoneco.h"
+
+//#include "inicializacao.h"
+//#include "destruir.h"
+#include <stdio.h>
+
+
+
 // Atributos da tela
 const int LARGURA_TELA = 1280;   //960;
 const int ALTURA_TELA =  720;  //540;
@@ -23,30 +37,39 @@ const float animacaoFPS = 60.0;
     //ALLEGRO_DISPLAY     *janela = NULL;
     ALLEGRO_EVENT_QUEUE *fila_eventos	= NULL, *fila_contador = NULL;
     ALLEGRO_BITMAP      *poderes		= NULL;
-    ALLEGRO_FONT        *fonte_equacao	= NULL;
-    ALLEGRO_FONT        *fonte_pontos	= NULL;
+    ALLEGRO_FONT        *fonte_80   	= NULL;
+    ALLEGRO_FONT        *fonte_50   	= NULL;
     ALLEGRO_TIMER       *timer			= NULL, *contador = 0;
-    ALLEGRO_SAMPLE      *som_errou		= NULL;
-    ALLEGRO_SAMPLE      *som_acertou	= NULL;
-    ALLEGRO_BITMAP      *fantasma1		= NULL;
-    ALLEGRO_BITMAP      *fantasma2		= NULL;
-    ALLEGRO_BITMAP      *fantasma3		= NULL;
-    ALLEGRO_BITMAP      *boneco			= NULL;
+    ALLEGRO_SAMPLE      *som_errou      = NULL;
+    ALLEGRO_SAMPLE      *som_acertou    = NULL;
+    ALLEGRO_BITMAP      *chapeu         = NULL;
+    ALLEGRO_BITMAP      *oculos         = NULL;
+    ALLEGRO_BITMAP      *gravata        = NULL;
+    ALLEGRO_BITMAP      *boneco         = NULL;
 
-int inicializadores();
+
+    ALLEGRO_BITMAP *menu     = NULL;
+    ALLEGRO_BITMAP *fim      = NULL;
+    ALLEGRO_BITMAP *tutorial = NULL;
+
+
+SpriteSheet sFantasmas, sLapidesCruzes, sGrama1, sGrama2, sArvores1, sArvores2,
+        sNevoa1, sNevoa2, sNevoa3, sNevoa4, sNevoa5, sNevoa6, sFumacas;
+
+Icones iPoderes; //***** FELIPE
+Icones iVidas; //***** FELIPE
+
+
+int  inicializadores();
 void destruir ();
+int jogar();
 
-//Biblioteca dos structs
-#include "structs.h"
-//Biblioteca Tela de Poderes (Todas as funcoes relativas a tela de poderes)
-#include "funcPoderes.h"
-//Biblioteca que gera questoes
-#include "equacoes.h"
-#include "funcBoneco.h"
 
-//#include "inicializacao.h"
-//#include "destruir.h"
-#include <stdio.h>
+int gameover();
+int tuto();
+int inicial();
+
+
 
 
 /* Para ativar/desativar o debug, descomentar/comentar a linha abaixo */
@@ -62,6 +85,235 @@ void destruir ();
 
 int main(int argc, char **argv[]){
 
+    //al_register_event_source(fila_eventos, al_get_timer_event_source(timerAnimacao));
+
+
+    printf("\n================================");
+    printf("\ndebug:main():start");
+    printf("\n================================");
+
+
+    int spriteNum = -1;
+    int i, j;
+    srand(10);
+
+    /* Inicia todos os addons utilizados no jogo. */
+    if (pi_iniAllegroAddons(&displayJogo) < 0)
+        return -1;
+
+    /* Configura as telas do jogo */
+    pi_iniScreens(&telaJogo); // Inicializa a tela do jogo.
+    DEBUG_ON("\ndebug:telaJogo:x2=%f", telaJogo.x2);
+
+    // Inicializa as imagens e elementos do jogo
+    pi_iniImagens(&sLapidesCruzes, &sFantasmas, &sGrama1, &sGrama2, &sArvores1, &sArvores2, &sNevoa1,
+                    &sNevoa2, &sNevoa3, &sNevoa4, &sNevoa5, &sNevoa6, &sFumacas, &iPoderes, &iVidas, &telaJogo);
+
+    /* Inicializa o jogo em tela cheia */
+    if (pi_criaDisplay(&telaJogo, &displayJogo) < 0)
+        return -1;
+
+
+     if (inicializadores()<0){
+        return -1;
+    }
+
+
+    int c = 2;
+
+    while(1){
+
+        if (c == 1){
+            c = tuto();
+        }
+
+        if (c == 0) {
+            c = jogar();
+        }
+
+        if (c == 2){
+            c = inicial();
+        }
+
+        if (c == 3){
+            c = gameover();
+        }
+
+        if (c == -1){
+            break;
+        }
+
+    }
+
+
+    destruir ();
+
+    return 0;
+
+}
+
+
+int inicial(){
+
+    al_draw_bitmap(menu, 0, 0, 0);
+    al_flip_display();
+
+    while (1){
+
+    ALLEGRO_EVENT eventoMENU;
+    al_wait_for_event(fila_eventos, &eventoMENU);
+
+
+        if (eventoMENU.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP){
+
+            if (eventoMENU.mouse.x > 0 /* 765 */   &&
+                eventoMENU.mouse.x < 270 /* 878 */ &&
+                eventoMENU.mouse.y > 475 /* 172 */ &&
+                eventoMENU.mouse.y < 720/* 266 */  ){
+
+                return 1;
+            }
+
+            if (eventoMENU.mouse.x > 430 /* 765 */ &&
+                eventoMENU.mouse.x < 850 /* 878 */ &&
+                eventoMENU.mouse.y > 475 /* 172 */ &&
+                eventoMENU.mouse.y < 720 /* 266 */ ){
+
+                return 0;
+            }
+
+            if (eventoMENU.mouse.x > 1010 /* 765 */ &&
+                eventoMENU.mouse.x < 1280 /* 878 */ &&
+                eventoMENU.mouse.y > 475 /* 172 */  &&
+                eventoMENU.mouse.y < 720 /* 266 */  ){
+
+                return -1;
+
+            }
+        }
+
+        else if (eventoMENU.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
+                return -1;
+
+        }
+
+
+    }
+
+}
+
+
+int tuto(){
+
+    al_draw_bitmap(tutorial, 0, 0, 0);
+    al_flip_display();
+
+    while (1){
+
+        ALLEGRO_EVENT eventoMENU;
+        al_wait_for_event(fila_eventos, &eventoMENU);
+
+
+        if (eventoMENU.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP){
+
+            if (eventoMENU.mouse.x > 0 /* 765 */   &&
+                eventoMENU.mouse.x < 270 /* 878 */ &&
+                eventoMENU.mouse.y > 475 /* 172 */ &&
+                eventoMENU.mouse.y < 720/* 266 */  ){
+
+                return 2;
+            }
+
+            if (eventoMENU.mouse.x > 430 /* 765 */ &&
+                eventoMENU.mouse.x < 850 /* 878 */ &&
+                eventoMENU.mouse.y > 475 /* 172 */ &&
+                eventoMENU.mouse.y < 720 /* 266 */ ){
+
+                return 0;
+            }
+
+            if (eventoMENU.mouse.x > 1010 /* 765 */ &&
+                eventoMENU.mouse.x < 1280 /* 878 */ &&
+                eventoMENU.mouse.y > 475 /* 172 */  &&
+                eventoMENU.mouse.y < 720 /* 266 */  ){
+
+                return -1;
+        }
+
+        else if (eventoMENU.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
+                return -1;
+        }
+
+
+        }
+    }
+
+}
+
+
+
+int gameover(){
+
+    al_draw_bitmap(fim, 0, 0, 0);
+    al_flip_display();
+
+
+    while (1){
+
+        ALLEGRO_EVENT eventoMENU;
+        al_wait_for_event(fila_eventos, &eventoMENU);
+
+        if (eventoMENU.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP){
+
+            if (eventoMENU.mouse.x > 0 /* 765 */   &&
+                eventoMENU.mouse.x < 270 /* 878 */ &&
+                eventoMENU.mouse.y > 475 /* 172 */ &&
+                eventoMENU.mouse.y < 720/* 266 */  ){
+
+                return 1;
+            }
+
+            if (eventoMENU.mouse.x > 430 /* 765 */ &&
+                eventoMENU.mouse.x < 850 /* 878 */ &&
+                eventoMENU.mouse.y > 475 /* 172 */ &&
+                eventoMENU.mouse.y < 720 /* 266 */ ){
+
+                return 0;
+            }
+
+            if (eventoMENU.mouse.x > 1010 /* 765 */ &&
+                eventoMENU.mouse.x < 1280 /* 878 */ &&
+                eventoMENU.mouse.y > 475 /* 172 */  &&
+                eventoMENU.mouse.y < 720 /* 266 */  ){
+
+                return -1;
+            }
+        }
+
+        else if (eventoMENU.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
+                return -1;
+        }
+
+    }
+
+}
+
+
+
+
+int jogar (){
+
+
+    contador = al_create_timer(1.0);
+    if (!contador){
+
+        return -1;
+    }
+
+
+
+
+    /*
     printf("\n================================");
     printf("\ndebug:main():start");
     printf("\n================================");
@@ -74,11 +326,11 @@ int main(int argc, char **argv[]){
     int i, j;
     srand(10);
 
-    /* Inicia todos os addons utilizados no jogo. */
+    /* Inicia todos os addons utilizados no jogo.
     if (pi_iniAllegroAddons(&displayJogo) < 0)
-        return -1;
+        return;
 
-    /* Configura as telas do jogo*/
+    /* Configura as telas do jogo
     pi_iniScreens(&telaJogo); // Inicializa a tela do jogo.
     DEBUG_ON("\ndebug:telaJogo:x2=%f", telaJogo.x2);
 
@@ -86,12 +338,18 @@ int main(int argc, char **argv[]){
 	pi_iniImagens(&sLapidesCruzes, &sFantasmas, &sGrama1, &sGrama2, &sArvores1, &sArvores2, &sNevoa1,
 					&sNevoa2, &sNevoa3, &sNevoa4, &sNevoa5, &sNevoa6, &sFumacas, &telaJogo);
 
-    /* Inicializa o jogo em tela cheia */
+    /* Inicializa o jogo em tela cheia
     if (pi_criaDisplay(&telaJogo, &displayJogo) < 0)
-        return -1;
+        return;
 
+    */
      /* Configura a escala das coordenadas e tamanho da imagem no display */
    //pi_setDisplayScale(&telaJogo, &displayJogo);
+
+    pi_iniImagens(&sLapidesCruzes, &sFantasmas, &sGrama1, &sGrama2, &sArvores1, &sArvores2, &sNevoa1,
+                    &sNevoa2, &sNevoa3, &sNevoa4, &sNevoa5, &sNevoa6, &sFumacas, &iPoderes, &iVidas, &telaJogo); //***** FELIPE
+
+
 
     int frame = 0;
     ALLEGRO_BITMAP *piso = NULL;
@@ -108,9 +366,11 @@ int main(int argc, char **argv[]){
 
     al_flip_display();
 
+    /*
     if (inicializadores()<0){
         return -1;
     }
+    */
 
     // Flag que condicionará nosso looping do jogo
     int sair = 0;
@@ -122,6 +382,7 @@ int main(int argc, char **argv[]){
 
     //Struct para pergunta e alternativas
     listaQuestao questionario;
+
 
     //Struct para a posicao das alternativas da tela
     telaAlternativa posicaoAlt;
@@ -150,6 +411,10 @@ int main(int argc, char **argv[]){
 	ALLEGRO_TIMER *timerAnimacao = al_create_timer(1.0 / animacaoFPS);
 	al_register_event_source(fila_eventos, al_get_timer_event_source(timerAnimacao));
 
+
+
+    al_register_event_source(fila_contador, al_get_timer_event_source(contador));
+
     //load imagem de fundo temporaria
    // poderes = al_load_bitmap("imagens/fundo.jpg");
     //desenhando imagem temporaria de fundo
@@ -167,28 +432,30 @@ while (!sair){
         ALLEGRO_EVENT evento;
         al_wait_for_event(fila_eventos, &evento);
 
+        posicaoAlt.mousePoderes_x = evento.mouse.x;
+        posicaoAlt.mousePoderes_y = evento.mouse.y;
+
+
         if(evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
-             sair=1;
+             return -1;
         }
+
         else if(evento.type == ALLEGRO_EVENT_TIMER) {
         // controlando FPS para redesenhar
 
-			posicaoAlt.mousePoderes_x = evento.mouse.x;
-			posicaoAlt.mousePoderes_y = evento.mouse.y;
-
-            if (evento.timer.source == timerAnimacao){
+			if (evento.timer.source == timerAnimacao){
 				/* Calcula as novas coordenadas e animações dos elementos */
 				pi_AnimarSpriteSheet(&sFantasmas, &sFumacas, &telaJogo);
 				pi_AnimarSpriteSheet(&sFumacas, 		NULL, &telaJogo);
 				pi_AnimarSpriteSheet(&sLapidesCruzes, 	NULL, &telaJogo);
-			//	pi_AnimarSpriteSheet(&sGrama2, 			NULL, &telaJogo);
+				pi_AnimarSpriteSheet(&sGrama2, 			NULL, &telaJogo);
 				pi_AnimarSpriteSheet(&sGrama1, 			NULL, &telaJogo);
 				pi_AnimarSpriteSheet(&sArvores2, 		NULL, &telaJogo);
-			//	pi_AnimarSpriteSheet(&sArvores1, 		NULL, &telaJogo);
-				//pi_AnimarSpriteSheet(&sNevoa1,          NULL, &telaJogo);
-				//pi_AnimarSpriteSheet(&sNevoa2,          NULL, &telaJogo);
-				//pi_AnimarSpriteSheet(&sNevoa3,          NULL, &telaJogo);
-				//pi_AnimarSpriteSheet(&sNevoa4, 			NULL, &telaJogo);
+				pi_AnimarSpriteSheet(&sArvores1, 		NULL, &telaJogo);
+				pi_AnimarSpriteSheet(&sNevoa1,          NULL, &telaJogo);
+				pi_AnimarSpriteSheet(&sNevoa2,          NULL, &telaJogo);
+				pi_AnimarSpriteSheet(&sNevoa3,          NULL, &telaJogo);
+				pi_AnimarSpriteSheet(&sNevoa4, 			NULL, &telaJogo);
 
 				if(jogador.acao == 0){
 					jogadorCorrer(&jogador);
@@ -214,6 +481,12 @@ while (!sair){
 
              verificarResposta(som_acertou, som_errou, &posicaoAlt, &questionario, &sFantasmas, &jogador);
 
+              if ( questionario.acertou == 1 ){
+                pi_atualizaIcones(&iPoderes, 1); //*** FELIPE
+                pi_atualizaIcones(&iVidas, 1); //*** FELIPE
+                questionario.acertou = -2;
+              }
+
         }  //FIM DE VERIFICAÇÃO SOBRE A ESCOLHA DA ALTERNATIVA DO JOGADOR
 
         //mudando tipo de ponteiro quando jogador for responder
@@ -225,17 +498,22 @@ while (!sair){
 
         else if(evento.type == ALLEGRO_EVENT_KEY_DOWN){
             if (evento.keyboard.keycode == ALLEGRO_KEY_ESCAPE ){
-                sair = 1;
+                //questionario.tempo = 30;
+                 al_destroy_timer(contador);
+                 //al_destroy_event_queue(fila_contador);
+                return 3;
             }
 
-            if (jogador.forca >= 1){
+            if (iPoderes.valorAtual > 0){
 
                 switch(evento.keyboard.keycode){
                     case ALLEGRO_KEY_W:
+                         pi_atualizaIcones(&iPoderes, -1);
                          clique_KEY_W(&jogador);
                          break;
 
                     case ALLEGRO_KEY_S:
+                         pi_atualizaIcones(&iPoderes, -1);
                          clique_KEY_S(&jogador);
                          break;
                 }
@@ -244,12 +522,12 @@ while (!sair){
 
 /*---------------VERIFICAÇÃO COLISAO FANTASMA x JOGADOR-------------------------------------------------------*/
             if (jogador.acao == 0){
-                 caixaL = -30;
-                 caixaA = -5;
+                 caixaL = -45;
+                 caixaA = -15;
             }
             else if (jogador.acao == 1){
-                 caixaL = -30;
-                 caixaA = -5;
+                 caixaL = -45;
+                 caixaA = -10;
             }
             else if (jogador.acao == 2){
                  caixaL = -20;
@@ -258,15 +536,21 @@ while (!sair){
 
             for (int i = 0; i < 3; i++){
 
-                if (colisao (jogador.pos_x,      jogador.pos_y,      jogador.frame_larg, jogador.frame_alt,
-                             sFantasmas.posX[i], sFantasmas.posY[i], sFantasmas.largura, sFantasmas.altura,
-                             caixaL, caixaA) == 1){
+                //***************** ATUALIZACAO 30/11/2014!
+                if ( sFantasmas.eliminado[ i ] == NAO){
+                    if (colisao (jogador.pos_x,      jogador.pos_y,      jogador.frame_larg, jogador.frame_alt,
+                        sFantasmas.posX[i], sFantasmas.posY[i], sFantasmas.largura, sFantasmas.altura,
+                        caixaL, caixaA) == 1){
 
-                    //sFantasmas.posX[i] = 1920;
-                    sFantasmas.eliminado[i] = SIM;
+                            sFantasmas.eliminado[i] = SIM;
+                            pi_atualizaIcones(&iVidas, -1);
+                            // verifica se acabaram as vidas do jogador
+                            if ( iVidas.valorAtual == iVidas.minValor )
+                                return 3;
+                        }
                 }
+                //*************** FIM ATUALIZACAO!
             }
-
 
 
 /*---------------VERIFICAÇÃO ATUALIZAÇÃO DA PERGUNTA-------------------------------------------------------*/
@@ -292,33 +576,37 @@ while (!sair){
 			//al_draw_bitmap(piso, 0, telaJogo.altura- 10, 0);
 
 			/* Desenha os elementos do cenario que ficarão ao fundo */
-			//pi_drawGraphics(&sNevoa1);
+			pi_drawGraphics(&sNevoa1);
 			pi_drawGraphics(&sArvores2);
-			//pi_drawGraphics(&sNevoa2);
-			//pi_drawGraphics(&sArvores1);
-			//pi_drawGraphics(&sNevoa3);
-			//pi_drawGraphics(&sGrama2);
+			pi_drawGraphics(&sNevoa2);
+			pi_drawGraphics(&sArvores1);
+			pi_drawGraphics(&sNevoa3);
+			pi_drawGraphics(&sGrama2);
 			pi_drawGraphics(&sLapidesCruzes);
-			//pi_drawGraphics(&sNevoa4);
 
-			drawResposdeu(fonte_equacao, &questionario, &posicaoAlt);
-			drawPergunta(fonte_equacao, &questionario, &posicaoAlt);
-			drawPontos (fonte_pontos, &questionario, &posicaoAlt, &jogador);
-			drawJogador(&jogador, boneco);
+			drawResposdeu(fonte_80, &questionario, &posicaoAlt);
+            drawPergunta(fonte_50, fonte_80, &questionario, &posicaoAlt, chapeu, oculos, gravata);
+            drawPontos (fonte_50, &questionario, &posicaoAlt, &jogador);
+            drawJogador(&jogador, boneco);
 
 			/* Desenha os elementos que ficarão na frente do personagem */
 			pi_drawGraphics(&sFantasmas);
 			pi_drawGraphics(&sFumacas);
-			pi_drawGraphics(&sGrama1);
+            pi_drawGraphics(&sNevoa4);
+            pi_drawGraphics(&sGrama1);
+            pi_drawIcones (&iPoderes);
+            pi_drawIcones (&iVidas);
 
 			al_flip_display();
             al_clear_to_color(al_map_rgb(0, 0, 0));
         }
     }
 
-    destruir ();
+    al_destroy_timer(contador);
+    //al_destroy_event_queue(fila_contador);
+    //destruir ();
+    return 3;
 
-    return 0;
 }
 
 int inicializadores(){
@@ -357,22 +645,23 @@ int inicializadores(){
         return -1;
     }
 
+
     // Configura o título da janela
     al_set_window_title(displayJogo.backbuffer, "Adventure*Log");
 
-    fonte_equacao = al_load_font("fontes/letra_equacao.ttf", 80, 0);
-    if (!fonte_equacao){
+    fonte_80 = al_load_font("fontes/letra_equacao.ttf", 80, 0);
+    if (!fonte_80){
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
         fprintf(stderr, "Falha ao carregar fonte.\n");
         return -1;
     }
 
-    fonte_pontos = al_load_font("fontes/letra_equacao.ttf", 50, 0);
-    if (!fonte_pontos){
+    fonte_50 = al_load_font("fontes/letra_equacao.ttf", 50, 0);
+    if (!fonte_50){
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
+        al_destroy_font(fonte_80);
         fprintf(stderr, "Falha ao carregar fonte.\n");
         return -1;
     }
@@ -383,8 +672,8 @@ int inicializadores(){
         fprintf(stderr, "Falha ao inicializar o mouse.\n");
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
-        al_destroy_font(fonte_pontos);
+        al_destroy_font(fonte_80);
+        al_destroy_font(fonte_50);
         return -1;
     }
 
@@ -393,8 +682,8 @@ int inicializadores(){
         fprintf(stderr, "Falha ao atribuir ponteiro do mouse.\n");
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
-        al_destroy_font(fonte_pontos);
+        al_destroy_font(fonte_80);
+        al_destroy_font(fonte_50);
         return -1;
     }
 
@@ -403,8 +692,8 @@ int inicializadores(){
         fprintf(stderr, "Falha ao inicializar o fila de eventos.\n");
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
-        al_destroy_font(fonte_pontos);
+        al_destroy_font(fonte_80);
+        al_destroy_font(fonte_50);
         return -1;
     }
 
@@ -412,8 +701,8 @@ int inicializadores(){
         fprintf(stderr, "Falha ao inicializar add-on de primitivas.\n");
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
-        al_destroy_font(fonte_pontos);
+        al_destroy_font(fonte_80);
+        al_destroy_font(fonte_50);
         al_destroy_event_queue(fila_eventos);
         return false;
     }
@@ -422,8 +711,8 @@ int inicializadores(){
         fprintf(stderr, "Falha ao inicializar áudio.\n");
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
-        al_destroy_font(fonte_pontos);
+        al_destroy_font(fonte_80);
+        al_destroy_font(fonte_50);
         al_destroy_event_queue(fila_eventos);
         return false;
     }
@@ -432,8 +721,8 @@ int inicializadores(){
         fprintf(stderr, "Falha ao inicializar codecs de áudio.\n");
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
-        al_destroy_font(fonte_pontos);
+        al_destroy_font(fonte_80);
+        al_destroy_font(fonte_50);
         al_destroy_event_queue(fila_eventos);
         return false;
     }
@@ -442,8 +731,8 @@ int inicializadores(){
         fprintf(stderr, "Falha ao alocar canais de áudio.\n");
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
-        al_destroy_font(fonte_pontos);
+        al_destroy_font(fonte_80);
+        al_destroy_font(fonte_50);
         al_destroy_event_queue(fila_eventos);
         return false;
     }
@@ -453,8 +742,8 @@ int inicializadores(){
         fprintf(stderr, "Falha ao carregar som_errou.\n");
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
-        al_destroy_font(fonte_pontos);
+        al_destroy_font(fonte_80);
+        al_destroy_font(fonte_50);
         al_destroy_event_queue(fila_eventos);
         return false;
     }
@@ -464,26 +753,28 @@ int inicializadores(){
         fprintf(stderr, "Falha ao carregar som_acertou.\n");
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
-        al_destroy_font(fonte_pontos);
+        al_destroy_font(fonte_80);
+        al_destroy_font(fonte_50);
         al_destroy_event_queue(fila_eventos);
         al_destroy_sample(som_errou);
         return false;
     }
 
+    /*
     contador = al_create_timer(1.0);
     if (!contador)
     {
         fprintf(stderr, "Falha ao criar timer.\n");
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
-        al_destroy_font(fonte_pontos);
+        al_destroy_font(fonte_80);
+        al_destroy_font(fonte_50);
         al_destroy_event_queue(fila_eventos);
         al_destroy_sample(som_errou);
         al_destroy_sample(som_acertou);
         return false;
     }
+    */
 
     fila_contador = al_create_event_queue();
     if (!fila_contador)
@@ -491,22 +782,27 @@ int inicializadores(){
         fprintf(stderr, "Falha ao criar fila do contador.\n");
         al_destroy_display(displayJogo.backbuffer);
         al_destroy_timer(timer);
-        al_destroy_font(fonte_equacao);
-        al_destroy_font(fonte_pontos);
+        al_destroy_font(fonte_80);
+        al_destroy_font(fonte_50);
         al_destroy_event_queue(fila_eventos);
         al_destroy_sample(som_errou);
         al_destroy_sample(som_acertou);
-        al_destroy_timer(contador);
+        //al_destroy_timer(contador);
 
         return false;
     }
 
-    fantasma1= al_load_bitmap("img/fantasma.png");
-    fantasma2= al_load_bitmap("img/fantasma2.png");
-    fantasma3= al_load_bitmap("img/fantasma3.png");
+    oculos  = al_load_bitmap("img/itens/oculos.png");
+    chapeu  = al_load_bitmap("img/itens/chapeu.png");
+    gravata = al_load_bitmap("img/itens/gravata.png");
 
 
     boneco = al_load_bitmap("img/boneco/jogador.png");
+
+
+    menu     = al_load_bitmap("img/menu.png");
+    fim      = al_load_bitmap("img/fim.png");
+    tutorial = al_load_bitmap("img/tutorial.png");
 
     // Dizemos que vamos tratar os eventos vindos do mouse
     al_register_event_source(fila_eventos, al_get_mouse_event_source());
@@ -514,7 +810,7 @@ int inicializadores(){
     al_register_event_source(fila_eventos, al_get_timer_event_source(timer));
     al_register_event_source(fila_eventos, al_get_keyboard_event_source());
 
-    al_register_event_source(fila_contador, al_get_timer_event_source(contador));
+//al_register_event_source(fila_contador, al_get_timer_event_source(contador));
 
 }
 
@@ -542,17 +838,21 @@ void destruir(){
     al_destroy_bitmap(poderes);
    // al_destroy_display(janela);
     al_destroy_event_queue(fila_eventos);
-    al_destroy_event_queue(fila_contador);
-    al_destroy_font(fonte_equacao);
-    al_destroy_font(fonte_pontos);
+                                                                //al_destroy_event_queue(fila_contador);
+    al_destroy_font(fonte_80);
+    al_destroy_font(fonte_50);
     al_destroy_timer(timer);
-    al_destroy_timer(contador);
+                                                                //al_destroy_timer(contador);
     al_destroy_sample(som_errou);
     al_destroy_sample(som_acertou);
-    al_destroy_bitmap(fantasma1);
-    al_destroy_bitmap(fantasma2);
-    al_destroy_bitmap(fantasma3);
+    al_destroy_bitmap(chapeu);
+    al_destroy_bitmap(oculos);
+    al_destroy_bitmap(gravata);
     al_destroy_bitmap(boneco);
+
+    al_destroy_bitmap(menu);
+    al_destroy_bitmap(fim);
+    al_destroy_bitmap(tutorial);
 
     al_destroy_display(displayJogo.backbuffer);
     al_destroy_bitmap(telaJogo.canvas);

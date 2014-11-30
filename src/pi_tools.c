@@ -40,6 +40,51 @@
 #endif
 
 //======================================================================
+void pi_drawIcones( Icones *icon ){
+	int i, j;
+
+	al_hold_bitmap_drawing( true );
+
+	for ( i = icon->minValor; i < icon->valorAtual; i++ ){
+			al_draw_bitmap( icon->bitmap1, icon->posX + ( i * icon->largura1 ), icon->posY, 0);
+	}
+
+	/** desenha imagens secundárias logo após a principal **/
+	if ( icon->bitmap2 != NULL ){
+			for ( j = i; j < icon->maxValor; j++ ){
+				al_draw_bitmap( icon->bitmap2, icon->posX + ( j * icon->largura2 ), icon->posY, 0 );
+			}
+	}
+
+	al_hold_bitmap_drawing( false );
+
+	return;
+}
+//----------------------------------------------------------------------
+void pi_atualizaIcones(Icones *icon, int valor){
+
+	//printf("valor=%d  atual=%d  contador=%d\n", valor, icon->valorAtual, icon->contador);
+
+	if ( valor < 0 ){
+			icon->valorAtual += valor;
+	}
+
+	if ( icon->contador == icon->intervalo && valor > 0 ){
+  		icon->contador = 0;
+
+			icon->valorAtual += valor;
+	}
+	else if ( valor > 0 )
+		icon->contador++;
+
+	if ( icon->valorAtual > icon->maxValor )
+		icon->valorAtual = icon->maxValor;
+	if ( icon->valorAtual < icon->minValor )
+		icon->valorAtual = icon->minValor;
+
+	return;
+}
+//----------------------------------------------------------------------
 void pi_drawGraphics(SpriteSheet *s){
 	int counter = 0, ci = 0, cj = 0, i, j;
 
@@ -130,7 +175,7 @@ void pi_drawGraphics(SpriteSheet *s){
 	al_hold_bitmap_drawing(false);
 }
 //----------------------------------------------------------------------
-int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *display){
+int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, Icones *iVidas, GameDisplay *display){
 	int i, j, k, counter = 0, recomecou = 0;
 	float deltaX, deltaY, correcaoY = 0.0;
 	float ret, r;
@@ -179,8 +224,8 @@ int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *disp
 
 			// Calculo especifico para fantasma
 			if (st->id == ID_GHOST){
+
 				if (posY < (display->altura - (st->altura / 1.2)))
-					posY = (display->altura - (st->altura / 1.2));
 
 				if (st->eliminado[counter] == SIM){
 					st->eliminado[counter] = NAO;
@@ -205,7 +250,7 @@ int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *disp
 					ret = (r/12) * cos(posX * val);
 			}
 
-			// não continua processando caso o objeto não esteja habilitado
+				// não continua processando caso o objeto não esteja habilitado
 			if(st->habilitado[counter] == NAO){
 				return 0;
 			}
@@ -221,13 +266,13 @@ int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *disp
 				if (deltaX < 0){
 					if ((posX + largura) <= fimX){
 						posX = inicioX + offsetX;
-						recomecou = 1;
+						recomecou = SIM;
 					}
 				}
 				else{
 					if (posX > fimX){
 						posX = inicioX + offsetX;
-						recomecou = 1;
+						recomecou = SIM;
 					}
 				}
 			}
@@ -244,26 +289,24 @@ int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *disp
 				//recomecou = 1;
 			}
 */
-			if (recomecou == 1){
-				if(st->id == ID_FUMACA){
-				//	st->habilitado[0] = NAO;
-				}
+			if (recomecou == SIM){
 				if (st->id == ID_GHOST){
 					// Estabelece velocidades mínimas e máximas
 					r = (rand() / 10000000.0);
-					int extraY = r;
-					extraY = (extraY % 2 == 1 ? 20:-10);
-					//posY = (inicioY + offsetY) + (extraY * r);
+				//	int extraY = r;
+				//	extraY = (extraY % 2 == 1 ? 20:-10);
+				//	posY = (inicioY + offsetY) + (extraY * r);
 
-					if (r * (0.25) < 0.7)
+					if (r * (0.25) < 0.5)
+						velX = 0.5;
+					else if (r * (0.25) > 0.7)
 						velX = 0.7;
-					else if (r * (0.25) > 1.0)
-						velX = 1.0;
 
 					st->velX[counter] = velX;
 
 					/** ao reiniciar não deixa os fantasmas ultrapassarem os limites abaixo no eixo Y especificados abaixo**/
 					dirY = 1.0;
+
 					if (posY > (display->altura - (st->altura / 1.2))){
 						posY = display->altura - (500 * (r/1000));
 						dirY = -1.0;
@@ -274,7 +317,7 @@ int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *disp
 					}
 
 				}
-				recomecou = 0;
+				recomecou = NAO;
 			}
 
 			st->posX[counter] = posX;
@@ -283,7 +326,7 @@ int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *disp
 			counter++;
 		}
 	}
-		//		printf("\nsheetSizeX = %d", st->sheetSizeX);
+			//	printf("\nsheetSizeX = %d", st->sheetSizeX);
 
 	return 0;
 }
@@ -291,12 +334,41 @@ int pi_AnimarSpriteSheet(SpriteSheet *st, SpriteSheet *fumaca, GameDisplay *disp
 void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteSheet *sGrama1,
 					SpriteSheet *sGrama2, SpriteSheet *sArvores1, SpriteSheet *sArvores2,
 					SpriteSheet *sNevoa1, SpriteSheet *sNevoa2, SpriteSheet *sNevoa3, SpriteSheet *sNevoa4,
-					SpriteSheet *sNevoa5, SpriteSheet *sNevoa6, SpriteSheet *sFumacas,
-					GameScreen *telaJogo){
+					SpriteSheet *sNevoa5, SpriteSheet *sNevoa6, SpriteSheet *sFumacas, Icones *iPoderes,
+					Icones *iVidas,	GameScreen *telaJogo){
 
 	int i, j, counter;
 	srand(time(NULL));
     float r;
+
+    /** configura os icones de poderes **/
+    	iPoderes->bitmap1		= al_load_bitmap("img/itens/poder.png");
+		iPoderes->bitmap2		= al_load_bitmap("img/itens/poder_d.png");
+		iPoderes->posX			= 60;
+    	iPoderes->posY			= 250;
+		iPoderes->maxValor		= 3;
+		iPoderes->minValor		= 0;
+    	iPoderes->valorAtual	= 3;
+		iPoderes->intervalo		= 4;
+		iPoderes->contador		= 0;
+		iPoderes->largura1 		= al_get_bitmap_width(iPoderes->bitmap1);
+	//	if ( iPoderes->bitmap2 != NULL )
+		iPoderes->largura2	= al_get_bitmap_width(iPoderes->bitmap2);
+
+		/** configura os icones de poderes **/
+		iVidas->bitmap1			= al_load_bitmap("img/itens/coracao.png");
+		iVidas->bitmap2			= al_load_bitmap("img/itens/coracao_desabilitado.png");
+		iVidas->posX			= 240;
+		iVidas->posY			= 250;
+		iVidas->maxValor		= 3;
+		iVidas->minValor		= 0;
+		iVidas->valorAtual		= 3;
+		iVidas->intervalo		= 4;
+		iVidas->contador		= 0;
+		iVidas->largura1 		= al_get_bitmap_width(iVidas->bitmap1);
+		//if ( iPoderes->bitmap2 != NULL )
+		iVidas->largura2	= al_get_bitmap_width(iVidas->bitmap2);
+
 
     /** configura spritesheet lápides e cruzes**/
 	sLapidesCruzes->bitmap = al_load_bitmap("img/tomb/png/lapides_cruzes.png");
@@ -483,7 +555,7 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 			sGrama2->colunaAtual	[counter] = 0;
 			sGrama2->linhaAtual 	[counter] = 0;
 			sGrama2->posX			[counter] = counter * sGrama2->largura;
-			sGrama2->posY			[counter] = telaJogo->altura - sGrama2->altura;
+			sGrama2->posY			[counter] = telaJogo->altura - sGrama2->altura + 5;
 			sGrama2->offsetX		[counter] = 0;
 			sGrama2->offsetY		[counter] = 0;
 			sGrama2->dirX			[counter] = -1;
@@ -595,54 +667,54 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 	sNevoa1->bitmap = al_load_bitmap("img/fog/png/fog2.png");
     sNevoa1->x1         = 0.0;
     sNevoa1->y1         = 0.0;
-    sNevoa1->largura    = 128.0;
-    sNevoa1->altura     = 32;
+    sNevoa1->largura    = 512.0;
+    sNevoa1->altura     = 128;
     sNevoa1->sheetSizeX = 1;
     sNevoa1->sheetSizeY = 1;
     sNevoa1->id         = ID_NEVOA;
     sNevoa1->repetirElementosX = 3;
     sNevoa1->repetirElementosY = 0;
-    sNevoa1->novaAltura  = 128;
-    sNevoa1->novaLargura = 256;
+    sNevoa1->novaAltura  = -1;
+    sNevoa1->novaLargura = -1;
 
 	sNevoa2->bitmap = al_load_bitmap("img/fog/png/fog3.png");
     sNevoa2->x1         = 0.0;
     sNevoa2->y1         = 0.0;
-    sNevoa2->largura    = 128.0;
-    sNevoa2->altura     = 32;
+    sNevoa2->largura    = 512.0;
+    sNevoa2->altura     = 128;
     sNevoa2->sheetSizeX = 1;
     sNevoa2->sheetSizeY = 1;
     sNevoa2->id         = ID_NEVOA;
-    sNevoa2->repetirElementosX = 3;
+    sNevoa2->repetirElementosX = 1;
     sNevoa2->repetirElementosY = 0;
-    sNevoa2->novaAltura  = 128;
-    sNevoa2->novaLargura = 256;
+    sNevoa2->novaAltura  = -1;
+    sNevoa2->novaLargura = -1;
 
 	sNevoa3->bitmap = al_load_bitmap("img/fog/png/fog4.png");
     sNevoa3->x1         = 0.0;
     sNevoa3->y1         = 0.0;
-    sNevoa3->largura    = 128.0;
-    sNevoa3->altura     = 32;
+    sNevoa3->largura    = 512.0;
+    sNevoa3->altura     = 128;
     sNevoa3->sheetSizeX = 1;
     sNevoa3->sheetSizeY = 1;
     sNevoa3->id         = ID_NEVOA;
-    sNevoa3->repetirElementosX = 3;
+    sNevoa3->repetirElementosX = 2;
     sNevoa3->repetirElementosY = 0;
-    sNevoa3->novaAltura  = 256;
-    sNevoa3->novaLargura = 512;
+    sNevoa3->novaAltura  = -1;
+    sNevoa3->novaLargura = -1;
 
 	sNevoa4->bitmap = al_load_bitmap("img/fog/png/fog6.png");
     sNevoa4->x1         = 0.0;
     sNevoa4->y1         = 0.0;
-    sNevoa4->largura    = 128.0;
-    sNevoa4->altura     = 32;
+    sNevoa4->largura    = 512.0;
+    sNevoa4->altura     = 128;
     sNevoa4->sheetSizeX = 1;
     sNevoa4->sheetSizeY = 1;
     sNevoa4->id         = ID_NEVOA;
-    sNevoa4->repetirElementosX = 3;
+    sNevoa4->repetirElementosX = 1;
     sNevoa4->repetirElementosY = 0;
-    sNevoa4->novaAltura  = 128;
-    sNevoa4->novaLargura = 256;
+    sNevoa4->novaAltura  = -1;
+    sNevoa4->novaLargura = -1;
 
 	counter = 0;
 
@@ -653,7 +725,7 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 			sNevoa1->colunaAtual	[counter] = 0;
 			sNevoa1->linhaAtual		[counter] = 0;
             sNevoa1->posX			[counter] = counter * sNevoa1->largura + (r * 4);
-            sNevoa1->posY			[counter] = telaJogo->altura - sNevoa1->altura - 60;
+            sNevoa1->posY			[counter] = telaJogo->altura - sNevoa1->altura - 10;
             sNevoa1->offsetX		[counter] = 0;
             sNevoa1->offsetY		[counter] = 0;
             sNevoa1->dirX			[counter] = -1;
@@ -674,7 +746,7 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 			sNevoa2->colunaAtual	[counter] = 0;
 			sNevoa2->linhaAtual		[counter] = 0;
             sNevoa2->posX			[counter] = counter * sNevoa2->largura + (r * 2);
-            sNevoa2->posY			[counter] = telaJogo->altura - sNevoa2->altura - 60;
+            sNevoa2->posY			[counter] = telaJogo->altura - sNevoa2->altura - 10;
             sNevoa2->offsetX		[counter] = 0;
             sNevoa2->offsetY		[counter] = 0;
             sNevoa2->dirX			[counter] = -1;
@@ -695,7 +767,7 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 			sNevoa3->colunaAtual	[counter] = 0;
 			sNevoa3->linhaAtual		[counter] = 0;
             sNevoa3->posX			[counter] = counter * sNevoa2->largura + (r * 2) + 200;
-            sNevoa3->posY			[counter] = telaJogo->altura - sNevoa3->altura - 60;
+            sNevoa3->posY			[counter] = telaJogo->altura - sNevoa3->altura - 10;
             sNevoa3->offsetX		[counter] = 0;
             sNevoa3->offsetY		[counter] = 0;
             sNevoa3->dirX			[counter] = -1;
@@ -716,7 +788,7 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
 			sNevoa4->colunaAtual	[counter] = 0;
 			sNevoa4->linhaAtual		[counter] = 0;
             sNevoa4->posX			[counter] = counter * sNevoa4->largura + (r * 2) + 200;
-            sNevoa4->posY			[counter] = telaJogo->altura - sNevoa4->altura - 60;
+            sNevoa4->posY			[counter] = telaJogo->altura - sNevoa4->altura;
             sNevoa4->offsetX		[counter] = 0;
             sNevoa4->offsetY		[counter] = 0;
             sNevoa4->dirX			[counter] = -1;
@@ -730,9 +802,9 @@ void pi_iniImagens(SpriteSheet *sLapidesCruzes, SpriteSheet *sFantasmas, SpriteS
             sNevoa4->spriteId		[counter] = counter;
             sNevoa4->loop			[counter] = SIM;
             sNevoa4->profundidade	[counter] = 1.4;
-            sNevoa5->intervalo	 	[counter] = 0;
-            sNevoa5->contIntervalo	[counter] = 0;
-			sNevoa5->habilitado 	[counter] = 1;
+            sNevoa4->intervalo	 	[counter] = 0;
+            sNevoa4->contIntervalo	[counter] = 0;
+			sNevoa4->habilitado 	[counter] = 1;
 
             counter++;
         }

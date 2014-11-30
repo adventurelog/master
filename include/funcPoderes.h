@@ -12,7 +12,7 @@
 	void setBoneco (int, int, bonecoJog *, ALLEGRO_BITMAP *);
 
 	void drawResposdeu (ALLEGRO_FONT *, listaQuestao *, telaAlternativa *);
-	void drawPergunta (ALLEGRO_FONT *, listaQuestao *, telaAlternativa *);
+	void drawPergunta (ALLEGRO_FONT *, ALLEGRO_FONT *, listaQuestao *, telaAlternativa *, ALLEGRO_BITMAP *,ALLEGRO_BITMAP *, ALLEGRO_BITMAP * );
 	void drawPontos (ALLEGRO_FONT *, listaQuestao *, telaAlternativa *, bonecoJog *);
 
 

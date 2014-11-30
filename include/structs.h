@@ -3,9 +3,9 @@
 
 	typedef struct {		
 	  
-	  int alt_Ax,
-	  	  alt_Bx,
-	  	  alt_Cx,
+	  int alt_Ax, altCorA,
+	  	  alt_Bx, altCorB,
+	  	  alt_Cx, altCorC,
 	  	  pergunta_x,
 	  	  pontos_x,
 	  	  tempo_x,

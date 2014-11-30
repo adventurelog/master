@@ -33,7 +33,7 @@
  void jogadorPulo(bonecoJog *jogador){
  	
 	jogador->max_frame = 3;
-	jogador->frame_delay = 30;
+	jogador->frame_delay = 15;
 
 	if(jogador->frame_count==1){
 	   jogador->pos_y = jogador->alturaPulo;
